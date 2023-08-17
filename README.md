@@ -9,7 +9,7 @@ PixivDownloadHelper / Pixiv下载助手
 __You can click Change Pixiv Cookie widget to fold or unfold it. Click "Change" button change your pixiv cookie. Click "save" save your change.__<br/>
 __点击Change Pixiv Cookie窗口可以折叠或者展开cookie信息，点击"change"按钮可以更改cookie，更改后点击"save"按钮保存。__<br/>
 Folded<br/>
-![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/cookie%20folded.png)
+![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/cookie%20folded.png)<br/>
 Unfolded<br/>
 ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/cookie%20unfolded.jpg)
 ## Gui / 图形界面
