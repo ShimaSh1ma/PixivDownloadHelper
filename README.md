@@ -3,7 +3,9 @@ PixivDownloadHelper
 ## Introduction / 简介
 PixivDownloadHelper / Pixiv下载助手
 ## Set your own config before downloading / 下载之前请先设置
-1.check download path. / 检查下载文件保存路径。
+1.Check download path. / 检查下载文件保存路径。
+2.Input your Pixiv cookie. / 输入你自己的Pixiv cookie。
+3.确保网络环境可以访问Pixiv，代理请打开Tun模式。（后续可能会支持http代理）
 ## Gui / 图形界面
 1.Main window / 下载主界面
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/mainWindow.png)
