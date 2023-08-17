@@ -6,3 +6,4 @@ PixivDownloadHelper / Pixiv下载助手
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/mainWindow.png)
 2.setting window / 设置界面
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/settingWindow.jpg)
+### Functions / 功能
