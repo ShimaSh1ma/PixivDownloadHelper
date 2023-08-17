@@ -7,5 +7,5 @@ PixivDownloadHelper / Pixiv下载助手
 2.setting window / 设置界面
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/settingWindow.jpg)
 ### Functions / 功能
-The program is designed for downloading [Pixiv](https://www.pixiv.net/) illusts    <br/>
+>>The program is designed for downloading [Pixiv](https://www.pixiv.net/) illusts. / 此程序功能为下载[Pixiv](https://www.pixiv.net/)网站中的插画作品。   <br/>
 The program will automatically read your clipboard.
