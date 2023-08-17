@@ -2,6 +2,7 @@ PixivDownloadHelper
 ===================
 ## Introduction / 简介
 PixivDownloadHelper / Pixiv下载助手
+## Set your own config before downloading / 下载之前请先设置
 ### Gui / 图形界面
 1.Main window / 下载主界面
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/mainWindow.png)
