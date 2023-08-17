@@ -3,12 +3,12 @@ PixivDownloadHelper
 ## Introduction / 简介
 PixivDownloadHelper / Pixiv下载助手
 ## Set your own config before downloading / 下载之前请先设置
-### Gui / 图形界面
+## Gui / 图形界面
 1.Main window / 下载主界面
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/mainWindow.png)
 2.setting window / 设置界面
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/settingWindow.jpg)
-### Functions / 功能
+## Functions / 功能
 &ensp;&ensp; The program is designed for downloading [Pixiv](https://www.pixiv.net/) illusts.
 It will automatically read your clipboard, and use regular expression classify url to realize various downloading needs.  <br/>
 &ensp;&ensp; 此程序功能为下载[Pixiv](https://www.pixiv.net/)网站中的插画作品。
