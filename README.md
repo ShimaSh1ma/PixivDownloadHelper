@@ -8,6 +8,10 @@ PixivDownloadHelper / Pixiv下载助手
 3.确保网络环境可以访问Pixiv，代理请打开Tun模式。（后续可能会支持http代理）<br/><br/>
 __You can click Change Pixiv Cookie widget to fold or unfold it. Click "Change" button change your pixiv cookie. Click "save" save your change.__<br/>
 __点击Change Pixiv Cookie窗口可以折叠或者展开cookie信息，点击"change"按钮可以更改cookie，更改后点击"save"按钮保存。__<br/>
+Folded<br/>
+![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/cookie%20folded.png)
+Unfolded<br/>
+![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/cookie%20unfolded.jpg)
 ## Gui / 图形界面
 1.Main window / 下载主界面
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/mainWindow.png)
