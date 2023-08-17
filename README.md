@@ -11,3 +11,4 @@ PixivDownloadHelper / Pixiv下载助手
 &ensp;&ensp; The program is designed for downloading [Pixiv](https://www.pixiv.net/) illusts. / 此程序功能为下载[Pixiv](https://www.pixiv.net/)网站中的插画作品。   <br/>
 &ensp;&ensp; It will automatically read your clipboard, and use regular expression classify url to realize various downloading needs. / 程序自动读取剪贴板内容，并判断url类型，以满足各种下载需求。 <br/>
 <br/>__Functions now: / 现有功能：__<br/>
+1.Download by illust url like: __https://www.pixiv.net/artworks/*********__ / 直接通过单个作品链接下载，url格式：__https://www.pixiv.net/artworks/*********__ <br/>
