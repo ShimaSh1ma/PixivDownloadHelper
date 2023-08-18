@@ -1,5 +1,6 @@
 PixivDownloadHelper
 ===================
+# [Release for windows 64-bit / 适用于windows 64位的软件版本](https://github.com/ShimaSh1ma/PixivDownloadHelper/releases/tag/v1.0)
 ## Introduction / 简介
 PixivDownloadHelper / Pixiv下载助手<br/>
 &ensp;&ensp; The program is designed for downloading [Pixiv](https://www.pixiv.net/) illusts.
