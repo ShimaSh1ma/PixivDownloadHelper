@@ -15,6 +15,8 @@ It will automatically read your clipboard, and use regular expression classify u
 &ensp;&ensp; _You can click Change Pixiv Cookie widget to fold or unfold it. Click ___"Change"___ button change your pixiv cookie. Click ___"Save"___ save your change._<br/>
 &ensp;&ensp; _点击Change Pixiv Cookie窗口可以折叠或者展开cookie信息，点击 ___"Change"___ 按钮可以更改cookie，更改后点击 ___"Save"___ 按钮保存。_<br/><br/>
 __about how to get cookie / 如何获取cookie__<br/>
+
+[](https://blog.csdn.net/liuyanlin610/article/details/75105105)<br/>
 ***Folded***<br/>
 ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/cookie%20folded.png)<br/>
 ***Unfolded***<br/>
