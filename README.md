@@ -1,7 +1,11 @@
 PixivDownloadHelper
 ===================
 ## Introduction / 简介
-PixivDownloadHelper / Pixiv下载助手
+PixivDownloadHelper / Pixiv下载助手<br/>
+&ensp;&ensp; The program is designed for downloading [Pixiv](https://www.pixiv.net/) illusts.
+It will automatically read your clipboard, and use regular expression classify url to realize various downloading needs.  <br/>
+&ensp;&ensp; 此程序功能为下载[Pixiv](https://www.pixiv.net/)网站中的插画作品。
+程序自动读取剪贴板内容，并判断url类型，以满足各种下载需求。 <br/>
 ## Set your own config before downloading / 下载之前请先设置
 1.Check download path. / 检查下载文件保存路径。<br/>
 2.Input your Pixiv cookie. / 输入你自己的Pixiv cookie。<br/>
@@ -18,10 +22,7 @@ _点击Change Pixiv Cookie窗口可以折叠或者展开cookie信息，点击_ _
 2.setting window / 设置界面
     ![image](https://github.com/ShimaSh1ma/PixivDownloadHelper/blob/master/introduction/settingWindow.jpg)
 ## Functions / 功能
-&ensp;&ensp; The program is designed for downloading [Pixiv](https://www.pixiv.net/) illusts.
-It will automatically read your clipboard, and use regular expression classify url to realize various downloading needs.  <br/>
-&ensp;&ensp; 此程序功能为下载[Pixiv](https://www.pixiv.net/)网站中的插画作品。
-程序自动读取剪贴板内容，并判断url类型，以满足各种下载需求。 <br/>
+
 <br/>__Functions now: / 现有功能：__<br/>
 1.Download by illust url like: __https://www.pixiv.net/artworks/(id)*********__ <br/>
 2.Download by user id url like: __https://www.pixiv.net/users/(userId)********/artworks__ <br/>
