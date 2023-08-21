@@ -91,9 +91,10 @@ void PixivDownloadItemPreviewWidget::loadPreviewImage(const std::string& imagePa
 	//保存缩略图路径
 	this->previewImagePath = imagePath;
 
-	QPixmap pix(this->previewImagePath.c_str());//加载缩略图
-	previewImage->setPixmap(pix.scaled(previewImage->size(),
+	QPixmap* pix = new QPixmap(this->previewImagePath.c_str());//加载缩略图
+	previewImage->setPixmap(pix->scaled(previewImage->size(),
 		Qt::KeepAspectRatio, Qt::SmoothTransformation));//缩放缩略图适应窗口大小
+	delete pix;
 }
 
 //PixivDownloadItemStateWidget
@@ -331,6 +332,8 @@ void PixivDownloadItem::pixivDownload() {
 	//将下载状态置为下载完成
 	this->stateWidget->setState(downloadState::SUCCESS);
 	emit downloadCompleteSignal();//发射下载完成信号
+
+	return;
 	};
 
 	std::thread t(f);
@@ -404,11 +407,11 @@ void PixivDownloadItemWidget::addDownloadItem(const std::string& url) {
 
 void PixivDownloadItemWidget::checkUrl(const std::string& url) {	//判断url格式
 	//单个作品url
-	std::regex urlSingleWork("https://www.pixiv.net/artworks/[0-9]{8,9}");
+	std::regex urlSingleWork("https://www.pixiv.net/artworks/[\\d]{8,9}");
 	//用户所有作品url的匹配规则
-	std::regex ruleAll("https://www.pixiv.net/users/([\\d]{8})/artworks");
+	std::regex ruleAll("https://www.pixiv.net/users/([\\d]{1,8})/artworks");
 	//用户按照tag筛选后的url匹配规则
-	std::regex ruleTags("https://www.pixiv.net/users/([\\d]{8})/artworks/(.+)");
+	std::regex ruleTags("https://www.pixiv.net/users/([\\d]{1,8})/artworks/(.+)?");
 	std::smatch re;
 	//url格式正确则创建下载项目
 	if (std::regex_match(url, re, urlSingleWork)) {
@@ -436,7 +439,6 @@ void PixivDownloadItemWidget::checkUrl(const std::string& url) {	//判断url格�
 
 void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 	auto lamda = [=]() {
-		qDebug() << "getPixivAllIllustsUrl\r\n";
 		//ajax接口url
 		std::string ajaxUrl = "https://www.pixiv.net/ajax/user/" + id + "/profile/all";
 
@@ -458,9 +460,9 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 		//json illusts值匹配规则
 		std::regex rule("\\{\"illusts\":\\{([^\\}]+)");
 		std::smatch re{};
-		std::vector<std::string> url;//存放所有作品url的数组
+		std::vector<std::string>* url = new std::vector<std::string>;//存放所有作品url的数组
 		//预申请空间
-		url.reserve(200);
+		url->reserve(200);
 		if (std::regex_search(*json, re, rule)) {
 			std::cout << re[1] << "\r\n";
 			*json = re[1];
@@ -471,14 +473,17 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 			//循环匹配所有作品id
 			while (std::regex_search(begin, end, re, insiderule)) {
 				//作品id转换为url
-				url.push_back("https://www.pixiv.net/artworks/" + re[1].str());
+				url->push_back("https://www.pixiv.net/artworks/" + re[1].str());
 				//发射包含作品url的信号
 				emit urlIsSingleWorkSignal("https://www.pixiv.net/artworks/" + re[1].str());
 				//更改偏移量，继续匹配
 				begin = re[1].second;
 			}
-			delete json;
 		}
+		delete url;
+		delete json;
+
+		return;
 	};
 
 	std::thread t(lamda);
@@ -487,42 +492,65 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 
 void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, const std::string& tag) {
 	auto lamda = [=]() {
-		//ajax接口url
-		std::string ajaxUrl = "https://www.pixiv.net/ajax/user/" + id +
-			"/illustmanga/tag?tag=" + tag + "&offset=0&limit=48&lang=zh";
 
-		UrlParser* urlP = new UrlParser;
-		urlP->parseUrl(ajaxUrl);
-		MHttpDownload* M = new MHttpDownload;
-		HttpRequest* hr = new HttpRequest(*urlP);
-		hr->cookie = _pixivCookie;
-		std::string* json = new std::string;
-		//请求json
-		while (*json == _EMPTY_STRING) {
-			*json = M->requestHtml(*urlP, hr->request());
-		}
+		int page{ 0 };//当前页数
+		int totalCount{ 0 };//筛选后图片总数
+		int pageCount{ 0 };//总页数
+		int restCount{ 0 };//最后一页作品数量
 
-		delete M;
-		delete hr;
-		delete urlP;
+		do {
+			//ajax接口url
+			std::string ajaxUrl = "https://www.pixiv.net/ajax/user/" + id +
+				"/illustmanga/tag?tag=" + tag + "&offset=" + std::to_string(page * 48) + "&limit=48&lang=zh";
 
-		//json illusts值匹配规则
-		std::regex rule("\"id\":\"([\\d]{8,9})\"");
-		std::smatch re{};
-		std::vector<std::string> url;
-		url.reserve(200);
+			UrlParser* urlP = new UrlParser;
+			urlP->parseUrl(ajaxUrl);
+			MHttpDownload* M = new MHttpDownload;
+			HttpRequest* hr = new HttpRequest(*urlP);
+			hr->cookie = _pixivCookie;
+			std::string* json = new std::string;
+			//请求json
+			while (*json == _EMPTY_STRING) {
+				*json = M->requestHtml(*urlP, hr->request());
+			}
 
-		auto begin = json->cbegin();
-		auto end = json->cend();
+			delete M;
+			delete hr;
+			delete urlP;
 
-		while (std::regex_search(begin, end, re, rule)) {
-			//作品id转换为url
-			url.push_back("https://www.pixiv.net/artworks/" + re[1].str());
-			emit urlIsSingleWorkSignal("https://www.pixiv.net/artworks/" + re[1].str());
-			//更改偏移量，继续匹配
-			begin = re[1].second;
-		}
-		delete json;
+			std::smatch re{};
+
+			//获取匹配作品总数
+			if (page == 0) {
+				std::regex ruleTotal("\"total\":([\\d]+)");
+				if (std::regex_search(*json, re, ruleTotal)) {
+					totalCount = atoi(re[1].str().c_str());//作品总数
+					pageCount = totalCount / 48;		//分页总数
+					restCount = totalCount % 48;		//最后一页剩余作品数
+				}
+			}
+
+			//json illusts值匹配规则
+			std::regex rule("\"id\":\"([\\d]{8,9})\"");
+			std::vector<std::string> url;
+			url.reserve(50);
+
+			auto begin = json->cbegin();
+			auto end = json->cend();
+
+			while (std::regex_search(begin, end, re, rule)) {
+				//作品id转换为url
+				url.push_back("https://www.pixiv.net/artworks/" + re[1].str());
+				emit urlIsSingleWorkSignal("https://www.pixiv.net/artworks/" + re[1].str());
+				//更改偏移量，继续匹配
+				begin = re[1].second;
+			}
+			delete json;
+
+			page++;//页面数加一
+		} while (page < pageCount);
+
+		return;
 	};
 
 	std::thread t(lamda);
@@ -572,12 +600,7 @@ void PixivDownloadItemWidget::caculateColumn() {
 		+ this->column * this->Glayout->spacing();
 	int minLength = this->column * _pixivDownloadItem_minWidth	//下限
 		+ (this->column - 1) * this->Glayout->spacing();
-	//qDebug() << "maxLength:" << maxLength << "\r\n";
-	//qDebug() << "width:" << this->size().width() << "\r\n";
-	//qDebug() << "minLength:" << minLength << "\r\n";
-	//if (!itemVector->empty()) {
-	//	qDebug() << "itemWidth:" << this->itemVector->back()->size().width() << "\r\n";
-	//}
+
 	//超出区间则更新列数，并发送更新布局的信号
 	if (this->size().width() < minLength) {
 		this->column--;
@@ -592,6 +615,7 @@ void PixivDownloadItemWidget::caculateColumn() {
 void PixivDownloadItemWidget::adjustLayout() {
 	//删除原有布局
 	delete Glayout;
+	Glayout = nullptr;
 	//新建布局
 	Glayout = new QGridLayout;
 	int _row = 0, _column = 0;

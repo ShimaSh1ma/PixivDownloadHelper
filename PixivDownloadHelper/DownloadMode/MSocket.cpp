@@ -166,6 +166,8 @@ std::string MSocket::socketReceiveHtml()
 	//释放缓冲区
 	delete[] recvbuf;
 
+	qDebug() << temp.c_str() << "\r\n";
+
 	//分割http响应报文，提取有效载荷部分
 	size_t key = temp.find("\r\n\r\n", 0);
 	if (key == std::string::npos) {		//判断是否接收到http报文
