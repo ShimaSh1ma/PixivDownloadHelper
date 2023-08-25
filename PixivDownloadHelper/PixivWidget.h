@@ -100,7 +100,7 @@ public:
     explicit  PixivDownloadItem(const std::string& _url,const std::string _path);
     ~PixivDownloadItem();
 
-    //获取窗口展示状态
+    //获取窗口显示状态
     bool getShowOrNot();
 public slots:
     void pixivDownload();//pixiv下载函数

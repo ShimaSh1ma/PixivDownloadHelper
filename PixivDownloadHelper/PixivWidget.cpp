@@ -91,10 +91,16 @@ void PixivDownloadItemPreviewWidget::loadPreviewImage(const std::string& imagePa
 	//保存缩略图路径
 	this->previewImagePath = imagePath;
 
-	QPixmap* pix = new QPixmap(this->previewImagePath.c_str());//加载缩略图
-	previewImage->setPixmap(pix->scaled(previewImage->size(),
-		Qt::KeepAspectRatio, Qt::SmoothTransformation));//缩放缩略图适应窗口大小
-	delete pix;
+	auto f = [&]() {
+		QPixmap* pix = new QPixmap(this->previewImagePath.c_str());//加载缩略图
+		previewImage->setPixmap(pix->scaled(previewImage->size(),
+			Qt::KeepAspectRatio, Qt::SmoothTransformation));//缩放缩略图适应窗口大小
+		delete pix;
+	};
+
+	std::thread thd(f);
+	thd.detach();
+	return;
 }
 
 //PixivDownloadItemStateWidget
@@ -259,20 +265,19 @@ void PixivDownloadItem::pixivDownload() {
 	jsonHttpRequest->accept = "*/*";
 	jsonHttpRequest->acceptCharset = "";
 	jsonHttpRequest->cookie = _pixivCookie;
+	qDebug() << jsonHttpRequest->request().c_str() << "\r\n";
 	MHttpDownload* M = new MHttpDownload;
 	//请求json文件
 	std::string* json = new std::string;
 	*json = M->requestHtml(*urlP, jsonHttpRequest->request());
-	qDebug() << json->c_str() << "\r\n";
 	//http请求失败
-	while (*json == _EMPTY_STRING) {
+	while (*json == _EMPTY_STRING || json->size() == 3) {
 		//更改状态为http请求失败
+		qDebug() << json->c_str() << "\r\n";
 		this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
 		//重试直到请求成功
 		jsonHttpRequest->cookie = _pixivCookie;
-		qDebug() << jsonHttpRequest->request().c_str() << "\r\n";
 		*json = M->requestHtml(*urlP, jsonHttpRequest->request());
-		qDebug() << json->c_str() << "\r\n";
 		Sleep(100);
 	}
 	delete jsonHttpRequest;
@@ -281,7 +286,7 @@ void PixivDownloadItem::pixivDownload() {
 	jsonParse(*json);
 	//提取图片url
 	std::vector<std::string> Vurl;//存放url的向量数组
-	int total = M->parseHtmlForUrl(*json, Vurl, _regex_pixiv_rule);//总图片数
+	int total = M->parseHtmlForUrl(*json, Vurl, _regex_pixiv_illust_url);//总图片数
 	int success{ 0 };//下载成功个数
 	emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
 	delete json;
@@ -407,11 +412,11 @@ void PixivDownloadItemWidget::addDownloadItem(const std::string& url) {
 
 void PixivDownloadItemWidget::checkUrl(const std::string& url) {	//判断url格式
 	//单个作品url
-	std::regex urlSingleWork("https://www.pixiv.net/artworks/[\\d]{8,9}");
+	std::regex urlSingleWork(_regex_pixiv_artwork_url);
 	//用户所有作品url的匹配规则
-	std::regex ruleAll("https://www.pixiv.net/users/([\\d]{1,8})/artworks");
+	std::regex ruleAll(_regex_pixiv_userAll_url);
 	//用户按照tag筛选后的url匹配规则
-	std::regex ruleTags("https://www.pixiv.net/users/([\\d]{1,8})/artworks/(.+)?");
+	std::regex ruleTags(_regex_pixiv_userTagged_url);
 	std::smatch re;
 	//url格式正确则创建下载项目
 	if (std::regex_match(url, re, urlSingleWork)) {

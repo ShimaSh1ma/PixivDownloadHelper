@@ -14,5 +14,7 @@ const std::string _default_preview_path = ".\\resource\\image\\defaultPreview";/
 
 const std::string _icon_path = ".\\resource\\icon\\main.ico";//程序图标路径
 
-const std::string _regex_pixiv_rule = "https://i.pximg.net/img-original[^\"]+";
-const std::string _pixiv_ajax = "https://www.pixiv.net/ajax/illust/";
+const std::string _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";
+const std::string _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[\\d]{8,9}";
+const std::string _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([\\d]{1,8})/artworks";
+const std::string _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([\\d]{1,8})/artworks/(.+)?";

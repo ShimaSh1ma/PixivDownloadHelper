@@ -24,9 +24,11 @@ extern const std::string _default_preview_path;
 //程序图标路径
 extern const std::string _icon_path;
 
-//——————————————正则匹配表达式—————————————————
-extern const std::string _regex_pixiv_rule;								//pixiv图片url匹配公式
-extern const std::string _pixiv_ajax;									//pixiv ajax接口前缀
+//——————————————正则匹配规则表达式—————————————————
+extern const std::string _regex_pixiv_illust_url;					//pixiv单个作品中的图片  url匹配规则
+extern const std::string _regex_pixiv_artwork_url;                  //pixiv单个作品  url匹配规则
+extern const std::string _regex_pixiv_userAll_url;                  //pixiv一个用户所有作品  url匹配规则
+extern const std::string _regex_pixiv_userTagged_url;               //pixiv一个用户筛选后作品  url匹配规则
 //——————————————————————————————————————
 
 //—————————————套接字缓冲区大小—————————————————
