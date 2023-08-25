@@ -6,7 +6,7 @@ std::string pixivAjaxurl(const std::string& url)
 	std::smatch r;
 
 	if (std::regex_match(url, r, get_id_rule)) {
-		return _pixiv_ajax + (std::string)r[1] + "/pages?";
+		return "https://www.pixiv.net/ajax/illust/" + (std::string)r[1] + "/pages?";
 	}
 	else {
 		return "";
@@ -108,7 +108,7 @@ void pixivDownload_muti(const std::string& url) {
 	jsonParse(*json);
 	//提取图片url
 	std::vector<std::string> Vurl;				//存放url的向量数组
-	int total = M->parseHtmlForUrl(*json, Vurl, _regex_pixiv_rule);
+	int total = M->parseHtmlForUrl(*json, Vurl, _regex_pixiv_illust_url);
 	delete json;
 	delete M;
 

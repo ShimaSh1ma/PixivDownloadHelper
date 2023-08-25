@@ -166,18 +166,26 @@ std::string MSocket::socketReceiveHtml()
 	//释放缓冲区
 	delete[] recvbuf;
 
-	qDebug() << temp.c_str() << "\r\n";
-
 	//分割http响应报文，提取有效载荷部分
-	size_t key = temp.find("\r\n\r\n", 0);
+	size_t key = temp.find("\r\n\r\n", 0) + sizeof("\r\n\r\n") - 1;
 	if (key == std::string::npos) {		//判断是否接收到http报文
 		updateLog(_REQUEST_ERR);
 		return _EMPTY_STRING;
 	}
-	key += 4;
+	//http响应解析
+	HttpResponseParser responseParser;
+	responseParser(temp.substr(0, key));
+	//获取载荷，载荷为temp
 	temp = temp.substr(key, temp.size() - key);
 
-	return temp;
+	//响应为200 OK则返回报文载荷
+	if (responseParser.statusCode == "200") {
+		return temp;
+	}
+	//响应不为200 则返回响应码
+	if (responseParser.statusCode != "200") {
+		return responseParser.statusCode;
+	}
 }
 
 bool MSocket::socketReceiveFile(const std::string& file_dir)
@@ -212,7 +220,7 @@ bool MSocket::socketReceiveFile(const std::string& file_dir)
 	delete recvbuf;
 
 	//分割http响应报文，提取有效载荷部分———————————————————
-	size_t key = temp->find("\r\n\r\n", 0);
+	size_t key = temp->find("\r\n\r\n", 0) + sizeof("\r\n\r\n") - 1;
 	if (key == std::string::npos) {		//判断是否接收到http报文
 		updateLog(_DOWNLOAD_ERR);
 		qDebug() << "No recieve\r\n";
@@ -221,19 +229,15 @@ bool MSocket::socketReceiveFile(const std::string& file_dir)
 	}
 	//——————————判断文件是否完整—————————————
 	//获取http报头
-	std::string responeHeader = temp->substr(0, key);
-	size_t pos1 = responeHeader.find("Content-Length: ");
-	size_t pos2 = responeHeader.find("\r\n", pos1);
-	//http载荷长度
-	size_t contentLenght{ 0 };
-	//获取http响应报文中的content-length字段
-	contentLenght = atoi(responeHeader.substr(pos1 + 16, pos2 - pos1 - 16).c_str());
+	HttpResponseParser responseParser;
+	responseParser(temp->substr(0, key));
 	//提取载荷
-	key += 4;
 	*temp = temp->substr(key, temp->size() - key);
 	//检查文件是否完整
-	if (contentLenght != temp->size()) { 
-		qDebug() << "File incomplete\r\n" << contentLenght << "\r\n" << temp->size() << "\r\n";
+	if ((size_t)strtoull(responseParser.findKeyOfHeader("Content-Length").c_str(), NULL, 0) != temp->size()) {
+		qDebug() << "File incomplete\r\n" 
+			<< (size_t)strtoull(responseParser.findKeyOfHeader("Content-Length").c_str(), NULL, 0) << "\r\n"
+			<< temp->size() << "\r\n";
 		delete temp;
 		updateLog(_DOWNLOAD_ERR);
 		return false;

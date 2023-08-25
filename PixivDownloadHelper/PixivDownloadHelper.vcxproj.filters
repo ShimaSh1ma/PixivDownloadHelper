@@ -88,6 +88,9 @@
     <ClCompile Include="InitFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DownloadMode\HttpResponseParser.cpp">
+      <Filter>Source Files\DownloadMode Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicWidget.h">

@@ -96,6 +96,7 @@
     <ClCompile Include="BasicButton.cpp" />
     <ClCompile Include="DownloadMode\HttpDownload.cpp" />
     <ClCompile Include="DownloadMode\HttpRequest.cpp" />
+    <ClCompile Include="DownloadMode\HttpResponseParser.cpp" />
     <ClCompile Include="DownloadMode\MSocket.cpp" />
     <ClCompile Include="DownloadMode\publicFunction.cpp" />
     <ClCompile Include="DownloadMode\UrlParser.cpp" />

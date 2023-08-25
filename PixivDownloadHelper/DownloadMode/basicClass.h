@@ -74,12 +74,38 @@ public:
 	explicit HttpRequest();
 	~HttpRequest() = default;
 
+	//传入新的url组装报文
 	void refreshUrl(UrlParser& url);
 
 	//组装http请求报文
 	std::string request();
 };
 
+class HttpResponseParser {		//http响应头解析类
+public:
+	//定义结构体存储一对 响应头部 与 其对应的值
+	struct HeaderLine{
+		std::string header;
+		std::string key;
+	};
+	//string指针，堆上存储完整http响应报文头
+	std::string* httpResponse;
+	//http响应状态码
+	std::string statusCode;
+
+	void operator()(const std::string& response);//重载()运算符，实现获取http报文并解析
+
+	std::string findKeyOfHeader(const std::string& header);//通过 响应行头 获取 值
+
+	explicit HttpResponseParser();
+	~HttpResponseParser();
+private:
+	/*用于存储解析后得到所有 响应行头 与 其对应的值
+	动态数组指针	*/
+	std::vector<HeaderLine>* responseVector;
+
+	void parseHttpResponse();//解析http响应
+};
 
 class MSocket {	//封装win套接字
 private:
