@@ -1,5 +1,4 @@
-﻿#pragma once
-#ifndef _BasicWidget
+﻿#ifndef _BasicWidget
 #define _BasicWidget
 
 #include <QtWidgets/qwidget.h>
@@ -8,6 +7,7 @@
 #include <QtGui/qcolor.h>
 #include <QtWidgets/qlistwidget.h>
 #include <QtWidgets/qscrollarea.h>
+#include <QtWidgets/qscrollbar.h>
 
 #include "GuiConstant.h"
 /* 基础窗口样式类 */
@@ -16,7 +16,7 @@ class TransparentWidget ://无边框透明窗口
 {
 public:
     explicit TransparentWidget();
-    ~TransparentWidget();
+    ~TransparentWidget() = default;
 private:
     virtual void paintEvent(QPaintEvent* paintE);//重写绘制事件，实现窗口透明
 };
@@ -37,7 +37,7 @@ class TransparentScrollArea ://透明滚动区域
 public:
 
     explicit TransparentScrollArea();
-    ~TransparentScrollArea();
+    ~TransparentScrollArea() = default;
 private:
 };
 

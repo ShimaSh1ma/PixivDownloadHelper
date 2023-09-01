@@ -1,5 +1,4 @@
-﻿#pragma once
-#ifndef _SettingWidget
+﻿#ifndef _SettingWidget
 #define _SettingWidget
 
 /* 定义用户设置窗口 */
@@ -119,7 +118,7 @@ public:
     //垂直布局
     QVBoxLayout* layout;
 
-    SubSettingWidget();//构造函数
+    explicit SubSettingWidget();//构造函数
     ~SubSettingWidget();//析构函数
 };
 

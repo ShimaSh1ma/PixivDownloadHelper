@@ -22,7 +22,11 @@ extern const std::string _config_window_tranparency_path;//背景透明度config
 extern const std::string _default_preview_path;
 
 //程序图标路径
-extern const std::string _icon_path;
+extern const std::string _icon_main_path;
+extern const std::string _icon_fold_path;//折叠图标路径
+extern const std::string _icon_unfold_path;//展开图标路径
+extern const std::string _icon_pixiv_path;//pixiv图标路径
+extern const std::string _icon_setting_path;//设置图标路径
 
 //——————————————正则匹配规则表达式—————————————————
 extern const std::string _regex_pixiv_illust_url;					//pixiv单个作品中的图片  url匹配规则
@@ -67,6 +71,8 @@ enum class downloadState {
 //pixiv窗口ui尺寸
 constexpr QSize _pixivUrlLineEdit_size{ 160,30 };//url输入文本框最小大小
 constexpr QSize _pixivDownloadButton_size{ 80,_pixivUrlLineEdit_size.height() };//pixiv下载按钮大小
+constexpr QSize _pixivDownloadButtonIcon_size{ _pixivDownloadButton_size.height() - 6,
+_pixivDownloadButton_size.height() - 6 };       //ToolButton图标大小pixiv
 constexpr QSize _pixivUrlWidget_size{ _pixivUrlLineEdit_size.width() + _pixivUrlLineEdit_size.width() + 20,
 _pixivUrlLineEdit_size.height() + 30 };//pixiv url输入窗口大小
 constexpr int _pixivDownloadItemTitle_height{ 20 };//pixiv下载项目url标题窗口高度
@@ -76,7 +82,7 @@ _pixivDownloadItemState_height + 20 };//pixiv下载项目无缩略图高度
 constexpr QSize _pixivDownloadItemPreviewImage_size{ 200,200 };//pixiv下载缩略图大小
 constexpr int _pixivDownloadItemWithPre_height{ _pixivDownloadItemWithoutPre_height +
 _pixivDownloadItemPreviewImage_size.height() };//pixiv单个下载项目有缩略图高度
-constexpr int _pixivDownloadItem_minWidth{ _pixivUrlWidget_size.width() };//pixiv下载项目最小宽度
+constexpr int _pixivDownloadItem_minWidth{ _pixivUrlWidget_size.width() - 10 };//pixiv下载项目最小宽度
 constexpr int _pixivDownloadItem_maxWidth{ _pixivDownloadItem_minWidth * 2 };//pixiv下载项目最大宽度
 
 //设置窗口ui尺寸
@@ -91,7 +97,8 @@ constexpr int _menuButton_count = 2;//主菜单按钮数量
 constexpr QSize _menuWidget_size{ _menuButton_size.width(),
 _menuButton_size.height() * _menuButton_count };//主菜单窗口大小
 
+constexpr QColor _nontransparentWidget_color{ 255,255,255,255 };//不透明窗口颜色
 constexpr QColor _translucentWidget_color{ 255,255,255,145 };//半透明窗口颜色
-constexpr QColor _transparentWidget_color{ 0,0,0,0 };//透明窗口颜色
+constexpr QColor _transparentWidget_color{ 255,255,255,0 };//透明窗口颜色
 
 constexpr int _windowTransparency_division = 10;//背景透明度分度值

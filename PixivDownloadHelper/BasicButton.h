@@ -1,5 +1,4 @@
-﻿#pragma once
-#ifndef _BasicButton
+﻿#ifndef _BasicButton
 #define _BasicButton
 /* 定义基本的组件样式类 */
 #include <QtWidgets/qpushbutton.h>
@@ -10,6 +9,8 @@
 #include <QtGui/qclipboard.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qslider.h>
+#include <QtWidgets/qscrollbar.h>
+
 #include "GuiConstant.h"
 
 #include <qdebug.h>
@@ -37,7 +38,7 @@ class ToolButton ://功能按钮
 {
 	Q_OBJECT
 public:
-	explicit ToolButton(const QString& label);
+	explicit ToolButton(const QString& label, const QString& icon = nullptr);
 	~ToolButton() = default;
 private:
 };
@@ -107,8 +108,6 @@ public:
 
 	explicit ToolSlider();
 	~ToolSlider() = default;
-
-	//virtual bool event(QEvent* event) override;//重载滚轮操作，忽视滚轮
 private:
 };
 

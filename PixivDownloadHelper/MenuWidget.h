@@ -1,5 +1,4 @@
-﻿#pragma once
-#ifndef _MenuWidget
+﻿#ifndef _MenuWidget
 #define _MenuWidget
 
 #include "BasicWidget.h"

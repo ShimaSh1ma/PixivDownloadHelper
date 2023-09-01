@@ -7,6 +7,11 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget *parent)
     ui->setupUi(this);
     //加载背景图片
     image.load(_backgroundPicturePath.c_str());
+    pix = pix.fromImage(image);
+    //记录窗口大小
+    WWidth = this->width();
+    WHeight = this->height();
+
     //初始化布局
     layout = new QGridLayout;
 
@@ -56,19 +61,26 @@ void PixivDownloadHelper::changeTransparency(int transparency) {
 
 void PixivDownloadHelper::changeBackgroundImage() {
     image.load(_backgroundPicturePath.c_str());
+    pix = pix.fromImage(image);
     this->repaint();
 }
 
 void PixivDownloadHelper::paintEvent(QPaintEvent* paintE) {
-
     //设置背景
     QPainter painter(this);
-    QPixmap pix;
-    pix = pix.fromImage(image);
     //设置背景图片不透明度
     painter.setOpacity((double)_windowTransparency / _windowTransparency_division);
     //保持横纵比缩放图片适应窗口大小
-    pix = pix.scaled(this->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    QPixmap temp = pix;
+    temp = pix.scaled(this->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+
+    int xpos = -(temp.width() - this->width()) / 2;
+    int ypos = -(temp.height() - this->height()) / 2;
     //在窗口中心绘制图片
-    painter.drawPixmap(-(pix.width() - this->width()) / 2, -(pix.height() - this->height()) / 2, pix);
+    painter.drawPixmap(xpos, ypos, temp);
+
+    //窗口大小改变发送信号
+    if (abs(this->width() - WWidth) > 6) {
+        WWidth = this->width();
+    }
 }
