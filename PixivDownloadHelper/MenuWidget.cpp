@@ -6,6 +6,12 @@ MenuWidget::MenuWidget() :TranslucentWidget() {
 	//初始化按钮成员
 	pixivButton = new MenuButton("Pixiv");
 	settingButton = new MenuButton("Settings");
+	//设置按钮图标
+	pixivButton->setIcon(QIcon(_icon_pixiv_path.c_str()));
+	pixivButton->setIconSize(QSize(24, 24));
+	settingButton->setIcon(QIcon(_icon_setting_path.c_str()));
+	settingButton->setIconSize(QSize(24, 24));
+
 	//设置父窗口
 	pixivButton->setParent(this);
 	settingButton->setParent(this);

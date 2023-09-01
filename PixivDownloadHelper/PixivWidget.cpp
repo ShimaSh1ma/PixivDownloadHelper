@@ -179,10 +179,15 @@ QString PixivDownloadItemStateWidget::downloadStateString() {
 	else if (this->state == downloadState::HTTPREQUESTFAILED) {
 		return "HttpRequestFailed";
 	}
+	else {
+		return "";
+	}
 }
 
 //PixivDownloadItem
-PixivDownloadItem::PixivDownloadItem(const std::string& _url, const std::string _path)
+PixivDownloadItem::PixivDownloadItem(const std::string& _url, 
+	const std::string& _path, 
+	const bool& foldOrUnfold)
 	:downloadPath(_path) {
 	qRegisterMetaType<std::string>("std::string");//注册std::string作为信号槽参数
 
@@ -197,6 +202,9 @@ PixivDownloadItem::PixivDownloadItem(const std::string& _url, const std::string 
 	stateWidget = new PixivDownloadItemStateWidget;
 	layout = new QVBoxLayout;
 
+	//设置preview窗口折叠或者展开
+	previewWidget->setVisible(foldOrUnfold);
+
 	//信号与槽连接
 	connect(this, &PixivDownloadItem::downloadProgressSignal,
 		this->stateWidget, &PixivDownloadItemStateWidget::setProgress);//接收下载进度变化并刷新显示
@@ -209,7 +217,6 @@ PixivDownloadItem::PixivDownloadItem(const std::string& _url, const std::string 
 	layout->addWidget(previewWidget);
 	layout->addWidget(stateWidget);
 
-	this->layout->setMargin(10);
 	this->setLayout(layout);
 }
 
@@ -220,23 +227,10 @@ PixivDownloadItem::~PixivDownloadItem() {
 	delete layout;
 }
 
-void PixivDownloadItem::mousePressEvent(QMouseEvent* mouseE) {
-	if (mouseE->button() == Qt::LeftButton) {	//左键单击事件
-		if (showOrNot) {
-			this->previewWidget->setVisible(false);
-			this->showOrNot = false;
-			setFixedHeight(_pixivDownloadItemWithoutPre_height);
-		}
-		else if (!showOrNot) {
-			this->previewWidget->setVisible(true);
-			this->showOrNot = true;
-			setFixedHeight(_pixivDownloadItemWithPre_height);
-		}
+void PixivDownloadItem::mouseDoubleClickEvent(QMouseEvent* mouseE) {
+	if (mouseE->button() == Qt::LeftButton) {
+		QDesktopServices::openUrl(QUrl::fromLocalFile(this->downloadPath.c_str()));
 	}
-}
-
-bool PixivDownloadItem::getShowOrNot() {
-	return this->showOrNot;
 }
 
 void PixivDownloadItem::pixivDownload() {
@@ -267,6 +261,7 @@ void PixivDownloadItem::pixivDownload() {
 	jsonHttpRequest->cookie = _pixivCookie;
 	qDebug() << jsonHttpRequest->request().c_str() << "\r\n";
 	MHttpDownload* M = new MHttpDownload;
+
 	//请求json文件
 	std::string* json = new std::string;
 	*json = M->requestHtml(*urlP, jsonHttpRequest->request());
@@ -282,6 +277,7 @@ void PixivDownloadItem::pixivDownload() {
 	}
 	delete jsonHttpRequest;
 	delete urlP;
+
 	//去除json文件中的转义字符
 	jsonParse(*json);
 	//提取图片url
@@ -343,8 +339,35 @@ void PixivDownloadItem::pixivDownload() {
 
 	std::thread t(f);
 	t.detach();
-
 	return;
+}
+
+//PixivDownloadTopWidget
+PixivDownloadTopWidget::PixivDownloadTopWidget() {
+	//组件按钮
+	foldButton = new ToolButton("", _icon_fold_path.c_str());
+	unfoldButton = new ToolButton("", _icon_unfold_path.c_str());
+	layout = new QHBoxLayout;
+
+	//按钮大小控制
+	this->foldButton->setFixedSize(32, 32);
+	this->unfoldButton->setFixedSize(32, 32);
+	this->foldButton->setIconSize(QSize(24, 24));
+	this->unfoldButton->setIconSize(QSize(24, 24));
+
+	//布局管理
+	layout->addStretch(1);
+	layout->addWidget(foldButton);
+	layout->addWidget(unfoldButton);
+
+	layout->setMargin(0);
+	this->setLayout(layout);
+}
+
+PixivDownloadTopWidget::~PixivDownloadTopWidget() {
+	delete layout;
+	delete foldButton;
+	delete unfoldButton;
 }
 
 //PixivDownloadItemWidget
@@ -363,9 +386,6 @@ PixivDownloadItemWidget::PixivDownloadItemWidget() :TransparentWidget() {
 
 	connect(this, &PixivDownloadItemWidget::downloadStartSignal,
 		this, &PixivDownloadItemWidget::startDownload);//收到开始下载信号，开始下载当前队首项目
-
-	connect(this, &PixivDownloadItemWidget::sizeChangeSignal,
-		this, &PixivDownloadItemWidget::caculateColumn);//窗口改变则重新计算布局行列数
 
 	connect(this, &PixivDownloadItemWidget::refreshLayoutSignal,
 		this, &PixivDownloadItemWidget::adjustLayout);//收到布局行列改变信号，重新布局
@@ -389,18 +409,22 @@ PixivDownloadItemWidget::~PixivDownloadItemWidget(){
 	delete itemVector;
 }
 
-void PixivDownloadItemWidget::resizeEvent(QResizeEvent* ev) {
-	emit sizeChangeSignal();
-}
-
 void PixivDownloadItemWidget::addDownloadItem(const std::string& url) {
+	//判断此url下载项目是否已经存在
+	for (std::vector<PixivDownloadItem*>::iterator it = itemVector->begin();
+		it < itemVector->end(); it++) {
+		//项目重复则不创建
+		if (url == (*it)->titleWidget->getDownloadUrl()) {
+			return;
+		}
+	}
 	//检查下载路径是否存在，及是否拥有写入权限
 	QTextCodec* code = QTextCodec::codecForName("GB2312");
 	if (_access(code->fromUnicode(_downloadPath.c_str()), 2)) {
 		return;
 	}
 	//新建一个pixiv下载项目窗口
-	PixivDownloadItem* Pitem = new PixivDownloadItem(url, _downloadPath);
+	PixivDownloadItem* Pitem = new PixivDownloadItem(url, _downloadPath, this->foldOrUnfold);
 	//添加进动态数组中
 	itemVector->push_back(Pitem);
 	//总项目数+1
@@ -420,14 +444,6 @@ void PixivDownloadItemWidget::checkUrl(const std::string& url) {	//判断url格�
 	std::smatch re;
 	//url格式正确则创建下载项目
 	if (std::regex_match(url, re, urlSingleWork)) {
-		//判断此url下载项目是否已经存在
-		for (std::vector<PixivDownloadItem*>::iterator it = itemVector->begin();
-			it < itemVector->end(); it++) {
-			//项目重复则不创建
-			if (url == (*it)->titleWidget->getDownloadUrl()) {
-				return;
-			}
-		}
 		emit urlIsSingleWorkSignal(url);//发送信号指示输入是单个作品的url
 	}
 	else if (std::regex_match(url, re, ruleAll)) {	//url为用户所有作品
@@ -606,13 +622,11 @@ void PixivDownloadItemWidget::caculateColumn() {
 	int minLength = this->column * _pixivDownloadItem_minWidth	//下限
 		+ (this->column - 1) * this->Glayout->spacing();
 
+	qDebug() << column << "\r\n";
+	qDebug() << this->size().width() << "column\r\n";
 	//超出区间则更新列数，并发送更新布局的信号
-	if (this->size().width() < minLength) {
-		this->column--;
-		emit refreshLayoutSignal();
-	}
-	else if (this->size().width() > maxLength) {
-		this->column++;
+	if (this->size().width() < minLength || this->size().width() > maxLength) {
+		this->column = this->size().width() / (_pixivDownloadItem_minWidth + this->Glayout->spacing());
 		emit refreshLayoutSignal();
 	}
 }
@@ -622,6 +636,7 @@ void PixivDownloadItemWidget::adjustLayout() {
 	delete Glayout;
 	Glayout = nullptr;
 	//新建布局
+	qDebug() << "adjust  " << this->column << "\r\n";
 	Glayout = new QGridLayout;
 	int _row = 0, _column = 0;
 	for (auto it = itemVector->begin(); it < itemVector->end(); it++) {
@@ -642,30 +657,66 @@ void PixivDownloadItemWidget::adjustLayout() {
 	this->setLayout(Glayout);
 }
 
+void PixivDownloadItemWidget::foldDownloadItems() {
+	for (auto it = this->itemVector->begin(); it < this->itemVector->end(); ++it) {
+		(*it)->previewWidget->setVisible(false);
+		this->foldOrUnfold = false;
+		(*it)->setFixedHeight(_pixivDownloadItemWithoutPre_height);
+	}
+	return;
+}
+
+void PixivDownloadItemWidget::unfoldDownloadItems() {
+	for (auto it = this->itemVector->begin(); it < this->itemVector->end(); ++it) {
+		(*it)->previewWidget->setVisible(true);
+		this->foldOrUnfold = true;
+		(*it)->setFixedHeight(_pixivDownloadItemWithPre_height);
+	}
+	return;
+}
+
 //PixivDownloadWidget
 PixivDownloadWidget::PixivDownloadWidget() {
 	//初始化组件
+	topWidget = new PixivDownloadTopWidget;
 	itemWidget = new PixivDownloadItemWidget;
 	scrollArea = new TransparentScrollArea;
 	layout = new QVBoxLayout;
 	//设置滚动窗口
-	scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	scrollArea->setWidget(itemWidget);
 	scrollArea->setWidgetResizable(true);
+
+	//信号槽实现窗口大小改变，重新计算pixiv下载窗口布局
+	connect(this, &PixivDownloadWidget::sizeChangedSignal,
+		this->itemWidget, &PixivDownloadItemWidget::caculateColumn);
+
+	//信号与槽实现 top窗口按钮 控制 下载项目 展开或折叠
+	connect(this->topWidget->foldButton, &ToolButton::clicked,
+		this->itemWidget, &PixivDownloadItemWidget::foldDownloadItems);
+	connect(this->topWidget->unfoldButton, &ToolButton::clicked,
+		this->itemWidget, &PixivDownloadItemWidget::unfoldDownloadItems);
+
 	//布局管理
+	layout->setSpacing(5);
 	layout->setMargin(0);
+	layout->addWidget(topWidget);
 	layout->addWidget(scrollArea);
 	this->setLayout(layout);
 }
 
 PixivDownloadWidget::~PixivDownloadWidget(){
 	delete layout;
+	delete topWidget;
 	delete itemWidget;
 	delete scrollArea;
 }
 
 void PixivDownloadWidget::resizeEvent(QResizeEvent* ev) {
-	this->itemWidget->setFixedWidth(this->size().width());
+	this->itemWidget->setMaximumWidth(this->width());
+	this->itemWidget->resize(this->width(), this->itemWidget->height());
+	emit sizeChangedSignal();
+	qDebug();
 }
 
 //PixivWidget

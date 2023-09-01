@@ -66,7 +66,7 @@ ChangeDownloadPathWidget::~ChangeDownloadPathWidget() {
 
 void ChangeDownloadPathWidget::chooseDownloadPath() {
 	//打开文件资源管理器选择下载文件夹
-	std::string temp = QFileDialog::getExistingDirectory().toStdString();
+	std::string temp = QFileDialog::getExistingDirectory(nullptr, nullptr, _downloadPath.c_str()).toStdString();
 
 	if (temp != "") {
 		_downloadPath = temp;

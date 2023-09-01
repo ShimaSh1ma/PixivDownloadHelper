@@ -46,7 +46,9 @@ void MenuButton::getIndex() {
 }
 
 //ToolButton
-ToolButton::ToolButton(const QString& label) {
+ToolButton::ToolButton(const QString& label, const QString& icon) {
+	this->setIcon(QIcon(icon));
+
 	this->setText(tr(label.toStdString().c_str()));
 	setFixedSize(_pixivDownloadButton_size);//设置大小
 	setFont(QFont("Microsoft YaHei"));//设置字体：微软雅黑
@@ -54,21 +56,21 @@ ToolButton::ToolButton(const QString& label) {
 	setStyleSheet(
 		"ToolButton"			//普通样式
 		"{"
-		"background-color:rgba(151,215,255,0);"
+		"background-color:rgba(100,100,100,20);"
 		"border:0px;"
-		"border-radius:10px;"
+		"border-radius:6px;"
 		"}"
 		"ToolButton:hover"		//鼠标悬浮时样式
 		"{"
 		"background-color:rgba(151,215,255,50);"
 		"border:0px;"
-		"border-radius:10px;"
+		"border-radius:6px;"
 		"}"
 		"ToolButton:pressed"	//按下时样式
 		"{"
 		"background-color:rgba(151,215,255,150);"
 		"border:0px;"
-		"border-radius:10px;"
+		"border-radius:6px;"
 		"}"
 	);
 
@@ -123,6 +125,37 @@ TransparentTextEdit::TransparentTextEdit() {
 		"background-color:rgba(255,255,255,0);"
 		);
 
+	this->verticalScrollBar()->setStyleSheet(
+		"QScrollBar:vertical{"
+		"background-color:transparent;"
+		"width:10px;"
+		"}"
+		"QScrollBar:handle:vertical{"
+		"background:rgba(220,220,220,255);"
+		"border-radius:5px;"
+		"}"
+		"QScrollBar:handle:vertical:hover{"
+		"background:rgba(200,200,200,255);"
+		"border-radius:5px;"
+		"}"
+		"QScrollBar:add-page:vertical{"
+		"background-color:transparent;"
+		"}"
+		"QScrollBar:sub-page:vertical{"
+		"background-color:transparent;"
+		"}"
+		"QScrollBar:sub-line:vertical{"
+		"background:none;"
+		"border:none;"
+		"color:none;"
+		"}"
+		"QScrollBar:add-line:vertical{"
+		"background:none;"
+		"border:none;"
+		"color:none;"
+		"}"
+	);
+
 	setFont(QFont("Microsoft YaHei", 8, 50));//设置字体：微软雅黑
 	setAlignment(Qt::AlignLeft);//靠左显示
 }
@@ -136,7 +169,7 @@ textLabel::textLabel() {
 
 //ToolSlider
 ToolSlider::ToolSlider() {
-	setStyleSheet(
+	this->setStyleSheet(
 		"ToolSlider:groove:horizontal"
 		"{"
 		""
@@ -150,10 +183,3 @@ ToolSlider::ToolSlider() {
 		"}"
 	);
 }
-
-//bool ToolSlider::event(QEvent* event) {
-//	if (event->type() == QEvent::Wheel) {
-//		return true;
-//	}
-//	return false;
-//}
