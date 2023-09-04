@@ -186,6 +186,7 @@ std::string MSocket::socketReceiveHtml()
 	if (responseParser.statusCode != "200") {
 		return responseParser.statusCode;
 	}
+	return _EMPTY_STRING;
 }
 
 bool MSocket::socketReceiveFile(const std::string& file_dir)

@@ -6,6 +6,7 @@
 class MenuWidget : //菜单窗口
     public TranslucentWidget
 {
+    Q_OBJECT
 public:
     MenuButton* pixivButton;//切换到pixiv下载界面按钮
     MenuButton* settingButton;//切换到设置界面按钮
@@ -13,6 +14,7 @@ public:
     explicit MenuWidget();
     ~MenuWidget();
 private:
+    QVBoxLayout* layout;//布局
 };
 
 #endif

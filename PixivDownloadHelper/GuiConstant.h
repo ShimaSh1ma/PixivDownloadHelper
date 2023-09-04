@@ -92,10 +92,13 @@ constexpr QSize _settingChangePixivCookieTextEdit_size = { 100,150 };//修改pix
 constexpr QSize _settingTitleLabel_size = { 50,20 };//设置窗口标题栏大小
 
 //主菜单窗口ui尺寸
-constexpr QSize _menuButton_size{ 120,30 };//主菜单按钮大小
+constexpr QSize _menuButton_maxsize{ 120,30 };//主菜单按钮最大大小
+constexpr QSize _menuButton_minsize{ 30,30 };//主菜单按钮最小大小
 constexpr int _menuButton_count = 2;//主菜单按钮数量
-constexpr QSize _menuWidget_size{ _menuButton_size.width(),
-_menuButton_size.height() * _menuButton_count };//主菜单窗口大小
+constexpr QSize _menuWidget_maxsize{ _menuButton_maxsize.width(),
+_menuButton_maxsize.height() * _menuButton_count };//主菜单窗口最大大小
+constexpr QSize _menuWidget_minsize{ _menuButton_minsize.width(),
+_menuButton_minsize.height() * _menuButton_count };//主菜单窗口最小大小
 
 constexpr QColor _nontransparentWidget_color{ 255,255,255,255 };//不透明窗口颜色
 constexpr QColor _translucentWidget_color{ 255,255,255,145 };//半透明窗口颜色

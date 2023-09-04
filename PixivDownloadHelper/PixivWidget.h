@@ -4,6 +4,7 @@
 #include <vector>
 #include <regex>
 #include <thread>
+#include <unordered_set>
 
 #include <QtWidgets/qlayout.h>
 #include <QtCore/qtextcodec.h>
@@ -33,7 +34,7 @@ class PixivDownloadItemTitleWidget :/*pixiv下载项目标题窗口，
     public TransparentWidget
 {
 public:
-    textLabel* urlLabel;//显示url的标签
+    TextLabel* urlLabel;//显示url的标签
 
     QHBoxLayout* layout;//水平布局
 
@@ -67,10 +68,10 @@ class PixivDownloadItemStateWidget ://pixiv下载项目下载状态窗口
 {
     Q_OBJECT
 public:
-    textLabel* downloadStateLabel;//显示下载状态的标签
-    textLabel* totalCountLabel;//显示总图片数的标签
-    textLabel* separatorLabel;//显示分隔符
-    textLabel* successCountLabel;//显示下载成功图片数的标签
+    TextLabel* downloadStateLabel;//显示下载状态的标签
+    TextLabel* totalCountLabel;//显示总图片数的标签
+    TextLabel* separatorLabel;//显示分隔符
+    TextLabel* successCountLabel;//显示下载成功图片数的标签
 
     QHBoxLayout* layout;//水平布局
 
@@ -110,8 +111,7 @@ signals:
     void downloadProgressSignal(int total, int success);//下载过程中报告下载进度函数
 private:
     const std::string downloadPath{};//下载路径
-
-    virtual void mouseDoubleClickEvent(QMouseEvent* mouseE);//重写鼠标点击事件，实现预览图显示或隐藏
+    virtual void mouseDoubleClickEvent(QMouseEvent* mouseE);//重写鼠标点击事件，实现打开下载路径
 };
 
 class PixivDownloadTopWidget :  /*Pixiv下载窗口上方功能窗口，提供控制展开或折叠下载项目缩略图功能*/
@@ -120,6 +120,7 @@ class PixivDownloadTopWidget :  /*Pixiv下载窗口上方功能窗口，提供�
 public:
     ToolButton* foldButton;     //折叠按钮，按下隐藏下载缩略图
     ToolButton* unfoldButton;   //展开按钮，按下显示下载缩略图
+    TextLabel* countLabel;         //显示下载项目总数
 
     QHBoxLayout* layout;//水平布局
 
@@ -132,34 +133,36 @@ class PixivDownloadItemWidget ://pixiv下载项目总览窗口
     public TransparentWidget
 {
     Q_OBJECT
-public slots:
-    void addDownloadItem(const std::string& url);/*按下download按键，判断url是否有效，
-                                             有效则添加下载项目, 并发出itemAdded（）信号*/
-    void checkUrl(const std::string& url);//判断url类型，发送不同信号
-    void getPixivAllIllustsUrl(const std::string& id);//获取用户所有作品url
-    void getPixivTaggedIllustsUrl(const std::string& id, const std::string& tag);//获取用户按标签筛选后作品url
-
-    void startDownload();//开始下载
-    void checkDownloadingOrNot();//检查下载状态
-    void downloadCompleted();//当前项目下载完毕，还有剩余未下载则downloadingIndex+1
-
-    void caculateColumn();//计算当前布局列数
-    void adjustLayout();//调整网格布局，适应窗口变化
-
-    void foldDownloadItems();//折叠所有下载项目
-    void unfoldDownloadItems();//展开所有下载项目
-signals:
-    void itemAddedSignal();//有新项目加入时发出信号
-    void downloadStartSignal();//开始下载信号
-    void refreshLayoutSignal();//刷新布局信号
-    void urlIsSingleWorkSignal(std::string url);//输入url是单个作品url,携带单个作品url
-    void urlIsAllWorkSignal(std::string id);//输入url是用户所有作品url，携带用户id
-    void urlIsTaggedWorkSignal(std::string id, std::string tag);//输入url是用户筛选后作品url，携带用户id，筛选标签tag
 public:
     QGridLayout* Glayout;//网格布局
 
     explicit PixivDownloadItemWidget();//构造函数
     ~PixivDownloadItemWidget();
+public slots:
+    void addDownloadItem(const std::string& url);       /*按下download按键，判断url是否有效，
+                                             有效则添加下载项目, 并发出信号   （添加单个项目）    */
+    void checkUrl(const std::string& url);              //判断url类型，发送不同信号
+    void getPixivAllIllustsUrl(const std::string& id);  //获取用户所有作品url
+    void getPixivTaggedIllustsUrl(const std::string& id,
+        const std::string& tag);    //获取用户按标签筛选后作品url
+
+    void startDownload();           //开始下载
+    void checkDownloadingOrNot();   //检查下载状态
+    void downloadCompleted();       //当前项目下载完毕，还有剩余未下载则downloadingIndex+1
+
+    void caculateColumn();          //计算当前布局列数
+    void adjustLayout();            //调整网格布局，适应窗口变化（添加多个项目）
+    void refreshLayout();           //添加单个新项目后，刷新布局
+
+    void foldDownloadItems();       //折叠所有下载项目
+    void unfoldDownloadItems();     //展开所有下载项目
+signals:
+    void itemAddedSignal();         //有新项目加入时发出信号
+    void downloadStartSignal();     //开始下载信号
+    void adjustLayoutSignal();      //调整布局信号
+    void urlIsSingleWorkSignal(std::string url);//输入url是单个作品url,携带单个作品url
+    void urlIsAllWorkSignal(std::string id);//输入url是用户所有作品url，携带用户id
+    void urlIsTaggedWorkSignal(std::string id, std::string tag);//输入url是用户筛选后作品url，携带用户id，筛选标签tag
 private:
     std::vector<PixivDownloadItem*>* itemVector;//储存所有下载项目的向量组
 
@@ -169,7 +172,10 @@ private:
     int downloadingIndex{ 0 };//当前下载项目索引序号
     int itemCount{ 0 };//下载项目总数
 
+    int row{ 1 };//布局行数
     int column{ 1 };//布局列数
+
+    std::unordered_set<std::string>* hashTable;//哈希表判断重复
 };
 
 class PixivDownloadWidget ://用scrollarea提供滚动条显示PixivDownloadItemWidget
@@ -193,6 +199,8 @@ signals:
     void sizeChangedSignal();
 private:
     void virtual resizeEvent(QResizeEvent* ev);
+
+    int wWidth{ 0 };//记录窗口宽度做缓冲
 };
 
 class PixivWidget ://pixiv下载界面
@@ -203,8 +211,8 @@ public:
     QVBoxLayout* layout;
 
     //包含的窗口
-    PixivUrlInputWidget* uWidget;
-    PixivDownloadWidget* dWidget;
+    PixivUrlInputWidget* inputWidget;
+    PixivDownloadWidget* downloadWidget;
 
     explicit PixivWidget();
     ~PixivWidget();
