@@ -17,7 +17,7 @@ class ChangeDownloadPathWidget :/*切换下载路径子窗口，具有一个路�
 {
     Q_OBJECT
 public:
-    textLabel* title;
+    TextLabel* title;
     //路径显示栏
     DirEdit* pathEdit;
     //路径切换按钮
@@ -38,7 +38,7 @@ class ChangePixivCookieWidget ://更改PixivCookie的窗口
     Q_OBJECT
 public:
     //标题标签
-    textLabel* title;
+    TextLabel* title;
     //显示当前cookie的文本框
     TransparentTextEdit* textEdit;
     //更改按钮
@@ -65,7 +65,7 @@ class ChangeTransparencyWidget ://更改背景图片透明度的窗口
     Q_OBJECT
 public:
     //标题标签
-    textLabel* title;
+    TextLabel* title;
     //滑动条
     QSlider* slider;
     //网格布局
@@ -83,7 +83,7 @@ class ChangeBackgroundImageWidget ://更改背景图片的窗口
 {
     Q_OBJECT
 public:
-    textLabel* title;
+    TextLabel* title;
     //背景图片预览窗口
     QLabel* imageView;
     //切换按钮

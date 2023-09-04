@@ -8,9 +8,6 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget *parent)
     //加载背景图片
     image.load(_backgroundPicturePath.c_str());
     pix = pix.fromImage(image);
-    //记录窗口大小
-    WWidth = this->width();
-    WHeight = this->height();
 
     //初始化布局
     layout = new QGridLayout;
@@ -27,18 +24,21 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget *parent)
     menuWidget->settingButton->setIndex(stackedWidget->addWidget(settingWidget));
 
     //信号槽实现切换窗口
-    connect(menuWidget->pixivButton, &MenuButton::ndexSignal, stackedWidget, &QStackedWidget::setCurrentIndex);
-    connect(menuWidget->settingButton, &MenuButton::ndexSignal, stackedWidget, &QStackedWidget::setCurrentIndex);
+    connect(menuWidget->pixivButton, &MenuButton::indexSignal, stackedWidget, &QStackedWidget::setCurrentIndex);
+    connect(menuWidget->settingButton, &MenuButton::indexSignal, stackedWidget, &QStackedWidget::setCurrentIndex);
     //信号槽实现滑块改变背景透明度
     connect(settingWidget->subWidget->changeTransparencyWidget->slider, &QSlider::valueChanged,
         this, &PixivDownloadHelper::changeTransparency);
     //信号槽实现改变背景图片
     connect(settingWidget->subWidget->changeBackImageWidget, &ChangeBackgroundImageWidget::backgroundChanged,
         this, &PixivDownloadHelper::changeBackgroundImage);
+    //切换窗口时重新计算下载项目窗口动态布局
+    connect(this->stackedWidget, &QStackedWidget::currentChanged,
+        this->pixivWidget->downloadWidget->itemWidget, &PixivDownloadItemWidget::caculateColumn);
 
     //窗口加入布局
     layout->addWidget(menuWidget, 0, 0, 1, 1);
-    layout->addWidget(stackedWidget, 0, 1, 3, 3);
+    layout->addWidget(stackedWidget, 0, 1, 2, 2);
 
     //设置布局
     setLayout(layout);
@@ -78,9 +78,4 @@ void PixivDownloadHelper::paintEvent(QPaintEvent* paintE) {
     int ypos = -(temp.height() - this->height()) / 2;
     //在窗口中心绘制图片
     painter.drawPixmap(xpos, ypos, temp);
-
-    //窗口大小改变发送信号
-    if (abs(this->width() - WWidth) > 6) {
-        WWidth = this->width();
-    }
 }

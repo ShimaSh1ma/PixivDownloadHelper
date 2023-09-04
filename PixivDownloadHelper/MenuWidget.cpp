@@ -1,32 +1,25 @@
 ﻿#include "MenuWidget.h"
 MenuWidget::MenuWidget() :TranslucentWidget() {
-	//设置窗口大小
-	setFixedSize(_menuWidget_size);
-
+	this->setMaximumSize(_menuWidget_maxsize);
 	//初始化按钮成员
-	pixivButton = new MenuButton("Pixiv");
-	settingButton = new MenuButton("Settings");
-	//设置按钮图标
-	pixivButton->setIcon(QIcon(_icon_pixiv_path.c_str()));
-	pixivButton->setIconSize(QSize(24, 24));
-	settingButton->setIcon(QIcon(_icon_setting_path.c_str()));
-	settingButton->setIconSize(QSize(24, 24));
+	pixivButton = new MenuButton("Pixiv", _icon_pixiv_path.c_str());
+	settingButton = new MenuButton("Settings", _icon_setting_path.c_str());
+	layout = new QVBoxLayout;
 
-	//设置父窗口
-	pixivButton->setParent(this);
-	settingButton->setParent(this);
 	//设置默认按钮
 	pixivButton->setChecked(true);
+	
+	//布局设置
+	layout->addWidget(pixivButton);
+	layout->addWidget(settingButton);
 
-	//按钮位置调整
-	settingButton->move(0, _menuButton_size.height());
-
-	//显示按钮
-	pixivButton->show();
-	settingButton->show();
+	layout->setMargin(0);
+	layout->setSpacing(0);
+	this->setLayout(layout);
 }
 
 MenuWidget::~MenuWidget(){
 	delete pixivButton;
 	delete settingButton;
+	delete layout;
 }

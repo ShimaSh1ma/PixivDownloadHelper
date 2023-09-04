@@ -1,11 +1,34 @@
 ﻿#include "BasicButton.h"
 //MenuButton
-MenuButton::MenuButton(const QString& label) :QPushButton(label) {
-	setFixedSize(_menuButton_size);//设置大小
+MenuButton::MenuButton(const QString& label, const QString& icon) {
+	//初始化组件
+	iconLabel = new QLabel;
+	textLabel = new QLabel;
+	layout = new QHBoxLayout;
+
+	//设置图标
+	QPixmap pix(icon);
+	pix = pix.scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	iconLabel->setPixmap(pix);
+	//设置文字
+	textLabel->setText(tr(label.toStdString().c_str()));
+	textLabel->setFont(QFont("Microsoft YaHei", 9, 50));//设置字体：微软雅黑
+
+	setFixedSize(_menuButton_maxsize);//设置大小
 
 	setAutoExclusive(true);//设置互斥
 	setCheckable(true);
 	setFont(QFont("Microsoft YaHei"));//设置字体：微软雅黑
+
+	//布局管理
+	layout->addSpacing(this->width() / 10);
+	layout->addWidget(iconLabel);
+	layout->addSpacing(this->width() / 10);
+	layout->addWidget(textLabel);
+	layout->addStretch(1);
+	layout->setMargin(0);
+
+	this->setLayout(layout);
 
 	//主菜单按钮样式
 	setStyleSheet(
@@ -22,7 +45,7 @@ MenuButton::MenuButton(const QString& label) :QPushButton(label) {
 		"}"
 		"MenuButton:hover"
 		"{"
-		"background-color:rgba(151,215,255,50);"
+		"background-color:rgba(151,215,255,80);"
 		"border:0px;"
 		"border-radius:10px;"
 		"}"
@@ -33,8 +56,15 @@ MenuButton::MenuButton(const QString& label) :QPushButton(label) {
 		"border-radius:10px;"
 		"}"
 		);
+
 	//按钮按下发送对应窗口索引
 	connect(this, &QPushButton::clicked, this, &MenuButton::getIndex);
+}
+
+MenuButton::~MenuButton() {
+	delete iconLabel;
+	delete textLabel;
+	delete layout;
 }
 
 void MenuButton::setIndex(int id) {
@@ -42,16 +72,18 @@ void MenuButton::setIndex(int id) {
 }
 
 void MenuButton::getIndex() {
-	emit ndexSignal(this->index);
+	emit indexSignal(this->index);
 }
 
 //ToolButton
 ToolButton::ToolButton(const QString& label, const QString& icon) {
+	//设置图标
+	this->setIconSize(QSize(24, 24));
 	this->setIcon(QIcon(icon));
-
+	//设置文字
 	this->setText(tr(label.toStdString().c_str()));
-	setFixedSize(_pixivDownloadButton_size);//设置大小
-	setFont(QFont("Microsoft YaHei"));//设置字体：微软雅黑
+	this->setFixedSize(_pixivDownloadButton_size);//设置大小
+	this->setFont(QFont("Microsoft YaHei", 9, 50));//设置字体：微软雅黑
 	//功能按钮样式
 	setStyleSheet(
 		"ToolButton"			//普通样式
@@ -73,8 +105,6 @@ ToolButton::ToolButton(const QString& label, const QString& icon) {
 		"border-radius:6px;"
 		"}"
 	);
-
-	setFont(QFont("Microsoft YaHei", 9, 50));//设置字体：微软雅黑
 }
 
 //TranslucentLineEdit
@@ -107,7 +137,6 @@ void PixivUrlEdit::readClipboard() {
 	if (clipboard->text() != this->text()) {
 		this->clear();//清理文本框
 		this->setText(clipboard->text());//将剪切板内容读取到文本框
-		qDebug() << "returnPressed\r\n";
 		emit returnPressed();/*发送returnPressed()直接创建下载项目
 							returnPressed()信号在PixivUrlWidget中绑定下载按钮按下click()信号*/
 	}
@@ -160,26 +189,9 @@ TransparentTextEdit::TransparentTextEdit() {
 	setAlignment(Qt::AlignLeft);//靠左显示
 }
 
-//textLabel
-textLabel::textLabel() {
+//TextLabel
+TextLabel::TextLabel() {
 	setMinimumSize(_settingTitleLabel_size);//设置最小大小
 	setFont(QFont("Microsoft YaHei", 10, 50));//设置字体：微软雅黑
 	setAlignment(Qt::AlignLeft);//靠左显示
-}
-
-//ToolSlider
-ToolSlider::ToolSlider() {
-	this->setStyleSheet(
-		"ToolSlider:groove:horizontal"
-		"{"
-		""
-		"}"
-		"ToolSlider:handle:horizontal"
-		"{"
-		"background-color:white;"
-		"height:10px;"
-		"width:10px;"
-		"border-radius:5px;"
-		"}"
-	);
 }

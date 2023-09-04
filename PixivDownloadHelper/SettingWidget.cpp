@@ -34,7 +34,7 @@ ChangeDownloadPathWidget::ChangeDownloadPathWidget() {
 	//组件初始化
 	layout = new QGridLayout;
 
-	title = new textLabel;
+	title = new TextLabel;
 	pathEdit = new DirEdit;
 	changeButton = new ToolButton(tr("Change Path"));
 	//标题标签设置
@@ -84,7 +84,7 @@ ChangePixivCookieWidget::ChangePixivCookieWidget() {
 	textEdit = new TransparentTextEdit;
 	changeButton = new ToolButton(tr("Change"));
 	saveButton = new ToolButton(tr("Save"));
-	title = new textLabel;
+	title = new TextLabel;
 	//标题设置
 	title->setText(tr("Change Pixiv Cookie"));
 	//显示文本框设置
@@ -158,7 +158,7 @@ void ChangePixivCookieWidget::mousePressEvent(QMouseEvent* mouseE) {
 //ChangeTransparencyWidget
 ChangeTransparencyWidget::ChangeTransparencyWidget() {
 	//组件初始化
-	title = new textLabel;
+	title = new TextLabel;
 	slider = new QSlider(Qt::Horizontal);
 	layout = new QGridLayout;
 	//标题设置
@@ -175,6 +175,24 @@ ChangeTransparencyWidget::ChangeTransparencyWidget() {
 		this, &ChangeTransparencyWidget::saveTranparency);//释放滚动条时，保存透明度信息
 
 	this->setLayout(layout);
+
+	//slider->setStyleSheet(
+	//	"QSlider:handle:horizontal{"
+	//	"background:rgba(200,200,200,200);"
+	//	"border-radius:4px;"
+	//	"width:16px;"
+	//	"}"
+	//	"QSlider:handle:horizontal:hover{"
+	//	"background:rgba(150,150,150,255);"
+	//	"border-radius:4px;"
+	//	"width:16px;"
+	//	"}"
+	//	"QSlider:groove:horizontal{"
+	//	"background:rgba(255,255,255,150);"
+	//	"border-radius:4px;"
+	//	"height:8px;"
+	//	"}"
+	//);
 }
 
 ChangeTransparencyWidget::~ChangeTransparencyWidget(){
@@ -192,7 +210,7 @@ void ChangeTransparencyWidget::saveTranparency() {
 ChangeBackgroundImageWidget::ChangeBackgroundImageWidget() {
 	//初始化组件
 	layout = new QGridLayout;
-	title = new textLabel;
+	title = new TextLabel;
 	imageView = new QLabel;
 	changeButton = new ToolButton(tr("Change"));
 	//标题标签设置

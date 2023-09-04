@@ -44,10 +44,6 @@ private:
     QPixmap pix;//背景图片缩放
     QPixmap temp;//临时背景缓冲
 
-    //记录窗口大小，作为缓冲提升性能
-    int WWidth{};
-    int WHeight{};
-
     virtual void paintEvent(QPaintEvent* paintE);//重写paint事件，绘制背景图片
 };
 

@@ -20,5 +20,5 @@ const std::string _icon_setting_path = ".\\resource\\icon\\ico_setting.png";//шо
 
 const std::string _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";
 const std::string _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[\\d]{8,9}";
-const std::string _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([\\d]{1,8})/artworks";
+const std::string _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([\\d]{1,8})(?:/artworks)?";
 const std::string _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([\\d]{1,8})/artworks/(.+)?";
