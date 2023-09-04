@@ -14,7 +14,7 @@ PixivDownloadHelper/x64/
 
 *.sln
 
-*.vcproj
+*.vcxproj
 
 *.filters
 
