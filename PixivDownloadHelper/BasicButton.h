@@ -11,7 +11,8 @@
 #include <QtWidgets/qslider.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qlayout.h>
-#include <qpropertyanimation.h>
+#include <QtCore/qpropertyanimation.h>
+#include <QtGui/qevent.h>
 
 #include "GuiConstant.h"
 
@@ -92,8 +93,15 @@ class TransparentTextEdit ://透明多行文本框
 public:
 
 	explicit TransparentTextEdit();
-	~TransparentTextEdit() = default;
+	~TransparentTextEdit();
 private:
+	QPropertyAnimation* scrollAnimation;
+protected:
+	virtual void enterEvent(QEvent* event) override;//enter事件触发setfocus
+	virtual void leaveEvent(QEvent* event) override;//leave事件触发clearfocus
+	virtual void wheelEvent(QWheelEvent* wheelEvent) override;	//滚轮实现平滑动画
+	virtual void keyPressEvent(QKeyEvent* ev) override;			//按键平滑动画
+	virtual bool eventFilter(QObject* obj, QEvent* ev) override;//过滤滚轮事件，不透射到其他窗口
 };
 
 /* 自定义标签 */
@@ -104,6 +112,15 @@ public:
 	explicit TextLabel();
 	~TextLabel() = default;
 private:
+};
+
+/* 滚动条 */
+class Slider :
+	public QSlider
+{
+
+protected:
+	void wheelEvent(QWheelEvent* wheelE) override;
 };
 
 #endif

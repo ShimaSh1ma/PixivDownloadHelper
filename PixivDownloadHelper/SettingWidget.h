@@ -55,8 +55,9 @@ public slots:
     void saveCookie();//更改_pixivCookie,并设置pixiv cookie文本框为只读
     void turnEditable();//设置pixiv cookie文本框可编辑
 private:
-    virtual void mousePressEvent(QMouseEvent* mouseE);//重写鼠标点击事件，实现窗口显示或隐藏
     bool showOrNot{ false };//窗口显示或隐藏状态位
+protected:
+    virtual void mousePressEvent(QMouseEvent* mouseE) override;//重写鼠标点击事件，实现窗口显示或隐藏
 };
 
 class ChangeTransparencyWidget ://更改背景图片透明度的窗口
@@ -67,11 +68,11 @@ public:
     //标题标签
     TextLabel* title;
     //滑动条
-    QSlider* slider;
+    Slider* slider;
     //网格布局
     QGridLayout* layout;
 
-    ChangeTransparencyWidget();
+    explicit ChangeTransparencyWidget();
     ~ChangeTransparencyWidget();
 public slots:
     void saveTranparency();//保存透明度设置
@@ -122,7 +123,7 @@ public:
     ~SubSettingWidget();//析构函数
 };
 
-class SettingWidget :
+class SettingWidget ://用户设置窗口（添加滚动）
     public TransparentWidget
 {
 public:

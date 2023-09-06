@@ -383,7 +383,6 @@ PixivDownloadItemWidget::PixivDownloadItemWidget() :TransparentWidget() {
 	qRegisterMetaType <std::string>("std::string");
 	qRegisterMetaType <std::vector<std::string>>("std::vector<std::string>");
 
-	this->resize(sizeHint());
 	//item窗口向量组初始化
 	itemVector = new std::vector<PixivDownloadItem*>;
 	Glayout = new QGridLayout;
@@ -653,6 +652,10 @@ void PixivDownloadItemWidget::caculateColumn() {
 }
 
 void PixivDownloadItemWidget::adjustLayout() {
+	//没有项目则不布局
+	if (this->itemCount == 0) {
+		return;
+	}
 	//删除原有布局
 	delete Glayout;
 	Glayout = nullptr;
@@ -767,7 +770,6 @@ PixivDownloadWidget::~PixivDownloadWidget(){
 void PixivDownloadWidget::resizeEvent(QResizeEvent* ev) {
 	this->itemWidget->setMaximumWidth(this->width());
 	this->itemWidget->resize(sizeHint());
-	qDebug() << "PixivDownloadWidget::resizeEvent";
 	if (abs(this->width() - wWidth) > 7) {
 		wWidth = this->width();
 		emit sizeChangedSignal();

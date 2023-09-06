@@ -1,6 +1,8 @@
 ﻿#ifndef _BasicWidget
 #define _BasicWidget
 
+#include <qdebug.h>
+
 #include <QtWidgets/qwidget.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpalette.h>
@@ -8,6 +10,9 @@
 #include <QtWidgets/qlistwidget.h>
 #include <QtWidgets/qscrollarea.h>
 #include <QtWidgets/qscrollbar.h>
+#include <QtWidgets/qopenglwidget.h>
+#include <QtGui/qevent.h>
+#include <QtCore/qpropertyanimation.h>
 
 #include "GuiConstant.h"
 /* 基础窗口样式类 */
@@ -37,8 +42,12 @@ class TransparentScrollArea ://透明滚动区域
 public:
 
     explicit TransparentScrollArea();
-    ~TransparentScrollArea() = default;
+    ~TransparentScrollArea();
 private:
+    QPropertyAnimation* scrollAnimation;
+protected:
+    void wheelEvent(QWheelEvent* wheelEvent) override;
+    void keyPressEvent(QKeyEvent* ev) override;
 };
 
 #endif

@@ -44,7 +44,18 @@ private:
     QPixmap pix;//背景图片缩放
     QPixmap temp;//临时背景缓冲
 
+    //图片大小记录，用作缓冲
+    int imageWidth{ 0 };
+    int imageHeight{ 0 };
+    //窗口大小记录，用作缓冲
+    int wWidth{ 0 };
+    int wHeight{ 0 };
+    //图片位置记录，用作缓冲
+    int xpos{ 0 };
+    int ypos{ 0 };
+protected:
     virtual void paintEvent(QPaintEvent* paintE);//重写paint事件，绘制背景图片
+    virtual void resizeEvent(QResizeEvent* event);//重写resize事件，缩放背景图片
 };
 
 #endif
