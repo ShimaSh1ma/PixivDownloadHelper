@@ -141,31 +141,37 @@ void ChangePixivCookieWidget::turnEditable() {
 }
 
 void ChangePixivCookieWidget::mousePressEvent(QMouseEvent* mouseE) {
-	if (this->showOrNot) {
-		this->textEdit->setVisible(false);
-		this->changeButton->setVisible(false);
-		this->saveButton->setVisible(false);
-		this->showOrNot = false;
+	if (mouseE->button() == Qt::LeftButton) {	//响应左键
+		if (this->showOrNot) {
+			this->textEdit->setVisible(false);
+			this->changeButton->setVisible(false);
+			this->saveButton->setVisible(false);
+			this->showOrNot = false;
+			return;
+		}
+		else if (!this->showOrNot) {
+			this->textEdit->setVisible(true);
+			this->changeButton->setVisible(true);
+			this->saveButton->setVisible(true);
+			this->showOrNot = true;
+			return;
+		}
 	}
-	else if (!this->showOrNot) {
-		this->textEdit->setVisible(true);
-		this->changeButton->setVisible(true);
-		this->saveButton->setVisible(true);
-		this->showOrNot = true;
-	}
+	return;
 }
 
 //ChangeTransparencyWidget
 ChangeTransparencyWidget::ChangeTransparencyWidget() {
 	//组件初始化
 	title = new TextLabel;
-	slider = new QSlider(Qt::Horizontal);
+	slider = new Slider;
 	layout = new QGridLayout;
 	//标题设置
 	title->setText(tr("Change Window Transparency"));
 	//滑动条设置
 	slider->setRange(0, _windowTransparency_division);//设置范围
 	slider->setValue(_windowTransparency);//设置默认值
+	slider->setOrientation(Qt::Horizontal);//设为水平滚动条
 	//布局管理
 	layout->addWidget(title, 0, 0);
 	layout->addWidget(slider, 1, 0);
@@ -262,6 +268,11 @@ SettingWidget::SettingWidget() {
 	subWidget = new SubSettingWidget;
 	scrollArea = new TransparentScrollArea;
 	layout = new QVBoxLayout;
+
+	this->setMouseTracking(true);
+	//给cookie编辑框安装事件过滤器，使滚轮事件不透射到setting窗口
+	this->scrollArea->viewport()-> installEventFilter(this->subWidget->changePixivCookieWidget->textEdit);
+
 	//设置滚动窗口
 	scrollArea->setWidget(subWidget);//指定窗口
 	scrollArea->setWidgetResizable(true);//设置窗口可缩放

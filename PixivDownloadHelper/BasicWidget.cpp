@@ -36,6 +36,11 @@ TransparentScrollArea::TransparentScrollArea() {
 	setWindowFlags(Qt::FramelessWindowHint);//窗口无边框化
 	setFrameStyle(Qt::FramelessWindowHint);
 
+	//初始化滚动动画
+	scrollAnimation = new QPropertyAnimation(this->verticalScrollBar(), "value");
+	scrollAnimation->setDuration(200);
+	scrollAnimation->setEasingCurve(QEasingCurve::OutCubic);
+
 	//窗口透明化
 	QPalette pal = this->viewport()->palette();
 	pal.setColor(QPalette::Window, _transparentWidget_color);
@@ -72,4 +77,35 @@ TransparentScrollArea::TransparentScrollArea() {
 		"color:none;"
 		"}"
 	);
+}
+
+TransparentScrollArea::~TransparentScrollArea() {
+	delete scrollAnimation;
+}
+
+void TransparentScrollArea::wheelEvent(QWheelEvent* wheelEvent) {
+	scrollAnimation->stop();
+	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->angleDelta().y());
+	scrollAnimation->start();
+}
+
+void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
+	scrollAnimation->stop();
+	int changeValue{ 0 };
+	if (ev->key() == Qt::Key_Up) {
+		changeValue = _pixivDownloadItemWithoutPre_height;
+	}
+	else if (ev->key() == Qt::Key_Down) {
+		changeValue = -_pixivDownloadItemWithoutPre_height;
+	}
+	else if (ev->key() == Qt::Key_PageUp) {
+		changeValue = _pixivDownloadItemWithPre_height + 5;
+	}
+	else if (ev->key() == Qt::Key_PageDown) {
+		changeValue = -_pixivDownloadItemWithPre_height - 5;
+	}
+	else{}
+
+	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - changeValue);
+	scrollAnimation->start();
 }

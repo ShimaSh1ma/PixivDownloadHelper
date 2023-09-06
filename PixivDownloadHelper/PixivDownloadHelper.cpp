@@ -8,6 +8,14 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget *parent)
     //加载背景图片
     image.load(_backgroundPicturePath.c_str());
     pix = pix.fromImage(image);
+    //背景图片缩放
+    temp = pix;
+    temp = pix.scaled(this->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    this->imageWidth = temp.width();
+    this->imageHeight = temp.height();
+    //记录窗口大小
+    wWidth = this->width();
+    wHeight = this->height();
 
     //初始化布局
     layout = new QGridLayout;
@@ -70,12 +78,23 @@ void PixivDownloadHelper::paintEvent(QPaintEvent* paintE) {
     QPainter painter(this);
     //设置背景图片不透明度
     painter.setOpacity((double)_windowTransparency / _windowTransparency_division);
-    //保持横纵比缩放图片适应窗口大小
-    QPixmap temp = pix;
-    temp = pix.scaled(this->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-
-    int xpos = -(temp.width() - this->width()) / 2;
-    int ypos = -(temp.height() - this->height()) / 2;
     //在窗口中心绘制图片
     painter.drawPixmap(xpos, ypos, temp);
+}
+
+void PixivDownloadHelper::resizeEvent(QResizeEvent* event) {
+    //保持横纵比缩放图片适应窗口大小
+    temp = pix;
+    temp = pix.scaled(this->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    //更改图片大小缓冲值
+    this->imageWidth = temp.width();
+    this->imageHeight = temp.height();
+    //更改窗口大小缓冲值
+    wWidth = this->width();
+    wHeight = this->height();
+    //计算背景偏移量
+    xpos = -(((this->imageWidth - this->width()) / 2 + (temp.width() - this->wWidth) / 2)) / 2;
+    ypos = -(((this->imageHeight - this->height()) / 2 + (temp.height() - this->wHeight) / 2)) / 2;
+    //调用重绘
+    this->repaint();
 }

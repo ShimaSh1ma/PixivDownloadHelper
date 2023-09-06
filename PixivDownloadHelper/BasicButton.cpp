@@ -150,6 +150,12 @@ DirEdit::DirEdit() {
 //TransparentTextEdit
 TransparentTextEdit::TransparentTextEdit() {
 	setFrameStyle(NoFrame);//无边框
+
+	//初始化滚动动画
+	scrollAnimation = new QPropertyAnimation(this->verticalScrollBar(), "value");
+	scrollAnimation->setDuration(200);
+	scrollAnimation->setEasingCurve(QEasingCurve::OutCubic);
+
 	this->setStyleSheet(
 		"background-color:rgba(255,255,255,0);"
 		);
@@ -189,9 +195,62 @@ TransparentTextEdit::TransparentTextEdit() {
 	setAlignment(Qt::AlignLeft);//靠左显示
 }
 
+TransparentTextEdit::~TransparentTextEdit() {
+	delete scrollAnimation;
+}
+
+void TransparentTextEdit::enterEvent(QEvent* event) {
+	setFocus();
+}
+
+void TransparentTextEdit::leaveEvent(QEvent* event) {
+	clearFocus();
+}
+
+void TransparentTextEdit::wheelEvent(QWheelEvent* wheelEvent) {
+	scrollAnimation->stop();
+	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->angleDelta().y());
+	scrollAnimation->start();
+}
+
+void TransparentTextEdit::keyPressEvent(QKeyEvent* ev) {
+	scrollAnimation->stop();
+	int changeValue{ 0 };
+	if (ev->key() == Qt::Key_Up) {
+		changeValue = _pixivDownloadItemWithoutPre_height;
+	}
+	else if (ev->key() == Qt::Key_Down) {
+		changeValue = -_pixivDownloadItemWithoutPre_height;
+	}
+	else if (ev->key() == Qt::Key_PageUp) {
+		changeValue = _pixivDownloadItemWithPre_height + 5;
+	}
+	else if (ev->key() == Qt::Key_PageDown) {
+		changeValue = -_pixivDownloadItemWithPre_height - 5;
+	}
+	else {}
+
+	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - changeValue);
+	scrollAnimation->start();
+}
+
+bool TransparentTextEdit::eventFilter(QObject* obj, QEvent* ev) {
+	if (this->hasFocus()) {
+		if (ev->type() == QEvent::Wheel) {
+			return true;
+		}
+	}
+	return false;
+}
+
 //TextLabel
 TextLabel::TextLabel() {
 	setMinimumSize(_settingTitleLabel_size);//设置最小大小
 	setFont(QFont("Microsoft YaHei", 10, 50));//设置字体：微软雅黑
 	setAlignment(Qt::AlignLeft);//靠左显示
+}
+
+//Slider
+void Slider::wheelEvent(QWheelEvent* wheelE) {
+
 }
