@@ -22,7 +22,7 @@ public:
     QHBoxLayout* layout;//水平布局
 
     PixivUrlEdit* edit;//文本框
-    ToolButton* dButton;//下载按钮
+    AnimationButton* dButton;//下载按钮
 
     explicit PixivUrlInputWidget();//构造
     ~PixivUrlInputWidget();
@@ -111,20 +111,21 @@ signals:
     void downloadProgressSignal(int total, int success);//下载过程中报告下载进度函数
 private:
     const std::string downloadPath{};//下载路径
-    virtual void mouseDoubleClickEvent(QMouseEvent* mouseE);//重写鼠标点击事件，实现打开下载路径
+
+    virtual void mouseDoubleClickEvent(QMouseEvent* mouseE) override;//重写鼠标双击事件，实现打开下载路径
 };
 
 class PixivDownloadTopWidget :  /*Pixiv下载窗口上方功能窗口，提供控制展开或折叠下载项目缩略图功能*/
     public TransparentWidget
 {
 public:
-    ToolButton* foldButton;     //折叠按钮，按下隐藏下载缩略图
-    ToolButton* unfoldButton;   //展开按钮，按下显示下载缩略图
+    AnimationButton* foldButton;     //折叠按钮，按下隐藏下载缩略图
+    AnimationButton* unfoldButton;   //展开按钮，按下显示下载缩略图
     TextLabel* countLabel;         //显示下载项目总数
 
     QHBoxLayout* layout;//水平布局
 
-    PixivDownloadTopWidget();
+    explicit PixivDownloadTopWidget();
     ~PixivDownloadTopWidget();
 private:
 };
@@ -151,24 +152,24 @@ public slots:
     void downloadCompleted();       //当前项目下载完毕，还有剩余未下载则downloadingIndex+1
 
     void caculateColumn();          //计算当前布局列数
-    void adjustLayout();            //调整网格布局，适应窗口变化（添加多个项目）
-    void refreshLayout();           //添加单个新项目后，刷新布局
+    void adjustLayout();            //调整网格布局，适应窗口变化
 
     void foldDownloadItems();       //折叠所有下载项目
     void unfoldDownloadItems();     //展开所有下载项目
 signals:
     void itemAddedSignal();         //有新项目加入时发出信号
-    void downloadStartSignal();     //开始下载信号
+    void startDownloadSignal();     //开始下载信号
     void adjustLayoutSignal();      //调整布局信号
     void urlIsSingleWorkSignal(std::string url);//输入url是单个作品url,携带单个作品url
     void urlIsAllWorkSignal(std::string id);//输入url是用户所有作品url，携带用户id
     void urlIsTaggedWorkSignal(std::string id, std::string tag);//输入url是用户筛选后作品url，携带用户id，筛选标签tag
 private:
-    std::vector<PixivDownloadItem*>* itemVector;//储存所有下载项目的向量组
+    std::list<PixivDownloadItem*>* itemList;//储存所有下载项目的向量组
 
     bool foldOrUnfold{ true };//下载项目是否展开状态位，在槽函数中改变
 
     bool downloadingOrNot{ false };//表示下载是否在进行中的状态位
+    std::list<PixivDownloadItem*>::const_iterator downloadingItem;//指向正在下载项目的迭代器
     int downloadingIndex{ 0 };//当前下载项目索引序号
     int itemCount{ 0 };//下载项目总数
 

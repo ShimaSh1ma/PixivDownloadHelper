@@ -1,4 +1,4 @@
-#include "basicClass.h"
+#include "NetworkClass.h"
 
 HttpResponseParser::HttpResponseParser() {
 	responseVector = new std::vector<HeaderLine>;//堆上开辟空间存储解析后数据
@@ -42,18 +42,11 @@ void HttpResponseParser::parseHttpResponse() {
 		//初始化响应报文头尾指针
 		auto begin = this->httpResponse->cbegin();
 		auto end = this->httpResponse->cend();
-		//新建临时HeaderLine结构 存储匹配到的 字段和值
-		HeaderLine* temp = new HeaderLine{};
 		//循环匹配所有报文头
 		while (std::regex_search(begin, end, re, rule2)) {
-			//获取匹配结果
-			*temp = { re[1],re[2] };
-			this->responseVector->push_back(*temp);
-			//重置临时结构体
-			*temp = {};
+			this->responseVector->emplace_back(HeaderLine{ re[1],re[2] });
 			begin = re[0].second;
 		}
-		delete temp;
 		return;
 	}
 	//未匹配到状态码则置空并返回

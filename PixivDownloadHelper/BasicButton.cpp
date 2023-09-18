@@ -1,70 +1,128 @@
 ﻿#include "BasicButton.h"
-//MenuButton
-MenuButton::MenuButton(const QString& label, const QString& icon) {
+
+//AnimationButton
+AnimationButton::AnimationButton(const QString& text,
+	const QString& icon,
+	const QSize& size) {
 	//初始化组件
 	iconLabel = new QLabel;
 	textLabel = new QLabel;
+	hoverAnimation = new QPropertyAnimation(this, "color");
 	layout = new QHBoxLayout;
 
-	//设置图标
-	QPixmap pix(icon);
-	pix = pix.scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	iconLabel->setPixmap(pix);
-	//设置文字
-	textLabel->setText(tr(label.toStdString().c_str()));
-	textLabel->setFont(QFont("Microsoft YaHei", 9, 50));//设置字体：微软雅黑
+	//设置颜色
+	buttonColor = _buttonNormal_color;
 
-	setFixedSize(_menuButton_maxsize);//设置大小
+	//大小设置
+	this->resize(size);
+
+	//设置动画
+	hoverAnimation->setDuration(200);
+	hoverAnimation->setEasingCurve(QEasingCurve::OutCubic);
+
+	//设置文字
+	this->textLabel->setText(tr(text.toStdString().c_str()));
+	this->textLabel->setFont(QFont("Microsoft YaHei", 9, 50));//设置字体：微软雅黑
+
+	//设置图标
+	if (icon != _EMPTY_STRING) {
+		QPixmap pix(icon);
+		//控制图标大小
+		pix = pix.scaled(std::min(this->height(), this->width() * 3 / 4),
+			std::min(this->height(), this->width() * 3 / 4),
+			Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		this->iconLabel->setPixmap(pix);
+	}
+
+	//布局管理
+	layout->setAlignment(Qt::AlignCenter);
+	if (icon != _EMPTY_STRING && text != _EMPTY_STRING) {
+		//同时具有图标和文字标签
+		layout->addSpacing(this->width() / 20);
+		layout->addWidget(iconLabel);
+		layout->addSpacing(this->width() / 30);
+		layout->addWidget(textLabel);
+		layout->setAlignment(Qt::AlignLeft);
+	}
+	else if (icon != _EMPTY_STRING) {
+		//只有图标
+		layout->addWidget(iconLabel);
+	}
+	else if (text != _EMPTY_STRING) {
+		//只有文字标签
+		layout->addWidget(textLabel);
+	}
+	layout->setMargin(0);
+
+	this->setLayout(layout);
+}
+
+AnimationButton::~AnimationButton() {
+	delete iconLabel;
+	delete textLabel;
+	delete hoverAnimation;
+	delete layout;
+}
+
+void AnimationButton::paintEvent(QPaintEvent* event) {
+	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);//抗锯齿
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(buttonColor);//按钮颜色
+	if (isChecked()) {
+		painter.setBrush(_buttonPressed_color);
+	}
+
+	QRect rt = this->rect();
+	rt.setWidth(rt.width());
+	rt.setHeight(rt.height());
+	painter.drawRoundedRect(rt, 8, 8);//绘制圆角
+}
+
+void AnimationButton::enterEvent(QEvent* event) {
+	setFocus();//设为焦点
+	hoverAnimation->stop();
+	hoverAnimation->setStartValue(this->color());
+	hoverAnimation->setEndValue(_buttonHover_color);
+	hoverAnimation->start();
+}
+
+void AnimationButton::leaveEvent(QEvent* event) {
+	clearFocus();//清除焦点
+
+	hoverAnimation->stop();
+	hoverAnimation->setStartValue(this->color());
+	hoverAnimation->setEndValue(_buttonNormal_color);
+	hoverAnimation->start();
+}
+
+void AnimationButton::mousePressEvent(QMouseEvent* e) {
+	hoverAnimation->stop();
+	hoverAnimation->setStartValue(this->color());
+	hoverAnimation->setEndValue(_buttonPressed_color);
+	hoverAnimation->start();
+}
+
+void AnimationButton::mouseReleaseEvent(QMouseEvent* e) {
+	hoverAnimation->stop();
+	hoverAnimation->setStartValue(this->color());
+	hoverAnimation->setEndValue(_buttonHover_color);
+	hoverAnimation->start();
+	emit click();
+}
+
+//MenuButton
+MenuButton::MenuButton(const QString& label, const QString& icon, const QSize& size) :
+	AnimationButton(label, icon, size) {
+	//设置大小
+	setFixedSize(_menuButton_size);
 
 	setAutoExclusive(true);//设置互斥
 	setCheckable(true);
 	setFont(QFont("Microsoft YaHei"));//设置字体：微软雅黑
 
-	//布局管理
-	layout->addSpacing(this->width() / 10);
-	layout->addWidget(iconLabel);
-	layout->addSpacing(this->width() / 10);
-	layout->addWidget(textLabel);
-	layout->addStretch(1);
-	layout->setMargin(0);
-
-	this->setLayout(layout);
-
-	//主菜单按钮样式
-	setStyleSheet(
-		"MenuButton:checked"	//选中时样式
-		"{"
-		"background-color:rgba(151,215,255,80);"
-		"border:0px;"
-		"border-radius:10px;"
-		"}"
-		"MenuButton:!checked"	//未选中时样式
-		"{"
-		"background-color:rgba(151,215,255,0);"
-		"border:0px;"
-		"}"
-		"MenuButton:hover"
-		"{"
-		"background-color:rgba(151,215,255,80);"
-		"border:0px;"
-		"border-radius:10px;"
-		"}"
-		"MenuButton:pressed"
-		"{"
-		"background-color:rgba(151,215,255,120);"
-		"border:0px;"
-		"border-radius:10px;"
-		"}"
-		);
-
 	//按钮按下发送对应窗口索引
 	connect(this, &QPushButton::clicked, this, &MenuButton::getIndex);
-}
-
-MenuButton::~MenuButton() {
-	delete iconLabel;
-	delete textLabel;
-	delete layout;
 }
 
 void MenuButton::setIndex(int id) {
@@ -75,37 +133,6 @@ void MenuButton::getIndex() {
 	emit indexSignal(this->index);
 }
 
-//ToolButton
-ToolButton::ToolButton(const QString& label, const QString& icon) {
-	//设置图标
-	this->setIconSize(QSize(24, 24));
-	this->setIcon(QIcon(icon));
-	//设置文字
-	this->setText(tr(label.toStdString().c_str()));
-	this->setFixedSize(_pixivDownloadButton_size);//设置大小
-	this->setFont(QFont("Microsoft YaHei", 9, 50));//设置字体：微软雅黑
-	//功能按钮样式
-	setStyleSheet(
-		"ToolButton"			//普通样式
-		"{"
-		"background-color:rgba(100,100,100,20);"
-		"border:0px;"
-		"border-radius:6px;"
-		"}"
-		"ToolButton:hover"		//鼠标悬浮时样式
-		"{"
-		"background-color:rgba(151,215,255,50);"
-		"border:0px;"
-		"border-radius:6px;"
-		"}"
-		"ToolButton:pressed"	//按下时样式
-		"{"
-		"background-color:rgba(151,215,255,150);"
-		"border:0px;"
-		"border-radius:6px;"
-		"}"
-	);
-}
 
 //TranslucentLineEdit
 TranslucentLineEdit::TranslucentLineEdit() {

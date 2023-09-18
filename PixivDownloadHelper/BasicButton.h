@@ -18,17 +18,48 @@
 
 #include <qdebug.h>
 /* 按钮样式 */
-class MenuButton ://主菜单按钮，互斥
+class AnimationButton ://动画按钮
 	public QPushButton
 {
 	Q_OBJECT
-public:
-	QLabel* iconLabel;
-	QLabel* textLabel;
-	QHBoxLayout* layout;
 
-	explicit MenuButton(const QString& label, const QString& icon = nullptr);
-	~MenuButton();
+	Q_PROPERTY(QColor color READ color WRITE setColor)
+public:
+	explicit AnimationButton(const QString& text = nullptr,
+		const QString& icon = nullptr,
+		const QSize& size = { 0,0 });
+	~AnimationButton();
+
+	inline QColor color() { return this->buttonColor; }//获取按钮颜色
+	inline void setColor(const QColor& color) {
+		this->buttonColor = color;
+		repaint();
+		return;
+	}//设置颜色
+
+	QLabel* iconLabel;//图标标签
+	QLabel* textLabel;//文字标签
+	QHBoxLayout* layout;//水平布局
+private:
+	QColor buttonColor;//按钮颜色
+	QPropertyAnimation* hoverAnimation;//鼠标进入动画
+
+	virtual void paintEvent(QPaintEvent* event) override;//重写绘制事件
+	virtual void enterEvent(QEvent* event) override;//重写鼠标进入事件
+	virtual void leaveEvent(QEvent* event) override;//重写鼠标离开事件
+	virtual void mousePressEvent(QMouseEvent* e) override;//重写鼠标按下事件
+	virtual void mouseReleaseEvent(QMouseEvent* e) override;//重写鼠标释放事件
+};
+
+class MenuButton ://主菜单按钮，互斥
+	public AnimationButton
+{
+	Q_OBJECT
+public:
+	explicit MenuButton(const QString& label = nullptr,
+		const QString& icon = nullptr,
+		const QSize& size = _menuButton_size);
+	~MenuButton() = default;
 
 	void setIndex(int id);//传入对应窗口索引
 public slots:
@@ -37,16 +68,6 @@ signals:
 	void indexSignal(int);//发送索引的信号
 private:
 	int index{};//按钮对应窗口索引
-};
-
-class ToolButton ://功能按钮
-	public QPushButton
-{
-	Q_OBJECT
-public:
-	explicit ToolButton(const QString& label, const QString& icon = nullptr);
-	~ToolButton() = default;
-private:
 };
 
 /* 单行文本框样式 */
