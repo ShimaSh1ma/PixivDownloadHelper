@@ -2,6 +2,7 @@
 //TransparentWidget
 TransparentWidget::TransparentWidget() {
 	setWindowFlags(Qt::FramelessWindowHint);//无边框化
+	this->setFocusPolicy(Qt::FocusPolicy::ClickFocus);//聚焦策略：点击聚焦
 }
 
 void TransparentWidget::paintEvent(QPaintEvent* paintE) {
@@ -45,6 +46,8 @@ TransparentScrollArea::TransparentScrollArea() {
 	QPalette pal = this->viewport()->palette();
 	pal.setColor(QPalette::Window, _transparentWidget_color);
 	this->viewport()->setPalette(pal);
+
+	setContentsMargins(0, 0, 0, 0);
 
 	//滚动条样式
 	this->verticalScrollBar()->setStyleSheet(
@@ -108,4 +111,75 @@ void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
 
 	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - changeValue);
 	scrollAnimation->start();
+}
+
+//StackedWidget
+StackedWidget::StackedWidget() {
+	//初始化切换动画
+	posAnimation = new QPropertyAnimation;
+	opacityAnimation = new QPropertyAnimation;
+
+	switchGroup = new QParallelAnimationGroup;
+
+	opacityEffect = new QGraphicsOpacityEffect;
+	//初始化索引
+	index = 0;
+
+	//设置动画
+	posAnimation->setDuration(150);
+	posAnimation->setEasingCurve(QEasingCurve::InCubic);
+
+	opacityAnimation->setDuration(150);
+	opacityAnimation->setEasingCurve(QEasingCurve::InOutCubic);
+
+	//切换动画完成切换窗口
+	connect(this->switchGroup, &QParallelAnimationGroup::finished,
+		this, &StackedWidget::setWidget);
+}
+
+StackedWidget::~StackedWidget() {
+
+	delete opacityAnimation;
+	delete posAnimation;
+	delete switchGroup;
+}
+
+void StackedWidget::switchWidget(int _index) {
+	if (_index == index) { return; }
+	//绑定透明度遮罩
+	this->currentWidget()->setGraphicsEffect(opacityEffect);
+	//绑定动画
+	posAnimation->setTargetObject(this->currentWidget());
+	posAnimation->setPropertyName("pos");
+
+	opacityAnimation->setTargetObject(opacityEffect);
+	opacityAnimation->setPropertyName("opacity");
+
+	//根据索引计算动画结束位置
+	QPoint endValue{ 0,this->currentWidget()->height() / 2 };
+	if (this->index > _index) {}
+	else {
+		endValue = -endValue;
+	}
+	posAnimation->setStartValue(QPoint(0, 0));
+	posAnimation->setEndValue(endValue);
+
+	opacityAnimation->setStartValue(1.0);
+	opacityAnimation->setEndValue(0.0);
+
+	switchGroup->addAnimation(posAnimation);
+	switchGroup->addAnimation(opacityAnimation);
+
+	switchGroup->start();
+
+	//保存索引
+	this->index = _index;
+}
+
+void StackedWidget::setWidget() {
+	this->setCurrentIndex(this->index);
+}
+
+void StackedWidget::enterEvent(QEvent* event) {
+	emit enterSignal();
 }

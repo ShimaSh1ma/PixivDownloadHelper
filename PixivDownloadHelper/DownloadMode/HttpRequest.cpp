@@ -1,4 +1,4 @@
-﻿#include "basicClass.h"
+﻿#include "NetworkClass.h"
 
 HttpRequest::HttpRequest() :urlSource({}), urlHost({}) {}
 

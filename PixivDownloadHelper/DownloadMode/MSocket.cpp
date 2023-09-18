@@ -1,4 +1,4 @@
-﻿#include "basicClass.h"
+﻿#include "NetworkClass.h"
 //int类型转为string类型，用于打印socket错误信息
 static std::string intToString(const int& a) {
 	std::stringstream ss;
@@ -223,8 +223,8 @@ bool MSocket::socketReceiveFile(const std::string& file_dir)
 	//分割http响应报文，提取有效载荷部分———————————————————
 	size_t key = temp->find("\r\n\r\n", 0) + sizeof("\r\n\r\n") - 1;
 	if (key == std::string::npos) {		//判断是否接收到http报文
+		qDebug() << "false";
 		updateLog(_DOWNLOAD_ERR);
-		qDebug() << "No recieve\r\n";
 		delete temp;
 		return false;
 	}

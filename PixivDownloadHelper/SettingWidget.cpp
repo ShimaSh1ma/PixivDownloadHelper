@@ -36,7 +36,9 @@ ChangeDownloadPathWidget::ChangeDownloadPathWidget() {
 
 	title = new TextLabel;
 	pathEdit = new DirEdit;
-	changeButton = new ToolButton(tr("Change Path"));
+	changeButton = new AnimationButton(tr("Change Path"));
+	//设置按钮大小
+	changeButton->setFixedSize(_toolButton_size);
 	//标题标签设置
 	title->setText(tr("Change Download Path"));
 	//显示下载路径的文本框设置
@@ -46,7 +48,7 @@ ChangeDownloadPathWidget::ChangeDownloadPathWidget() {
 	pathEdit->setMinimumWidth(_settingChangeDownloadPathLineEdit_size.width());
 
 	//信号与槽连接
-	connect(this->changeButton, &ToolButton::clicked, this,
+	connect(this->changeButton, &AnimationButton::clicked, this,
 		&ChangeDownloadPathWidget::chooseDownloadPath);//按下change按钮改变下载路径
 
 	//布局管理
@@ -82,9 +84,12 @@ ChangePixivCookieWidget::ChangePixivCookieWidget() {
 	//初始化组件
 	layout = new QGridLayout;
 	textEdit = new TransparentTextEdit;
-	changeButton = new ToolButton(tr("Change"));
-	saveButton = new ToolButton(tr("Save"));
+	changeButton = new AnimationButton(tr("Change"));
+	saveButton = new AnimationButton(tr("Save"));
 	title = new TextLabel;
+	//设置按钮大小
+	changeButton->setFixedSize(_toolButton_size);
+	saveButton->setFixedSize(_toolButton_size);
 	//标题设置
 	title->setText(tr("Change Pixiv Cookie"));
 	//显示文本框设置
@@ -93,9 +98,9 @@ ChangePixivCookieWidget::ChangePixivCookieWidget() {
 	textEdit->setReadOnly(true);//只读，在点击change按钮后可编辑,点击Save后恢复只读状态
 
 	//信号与槽连接
-	connect(changeButton, &ToolButton::clicked,
+	connect(changeButton, &AnimationButton::clicked,
 		this, &ChangePixivCookieWidget::turnEditable);//按下change按钮，编辑cookie
-	connect(saveButton, &ToolButton::clicked,
+	connect(saveButton, &AnimationButton::clicked,
 		this, &ChangePixivCookieWidget::saveCookie);//按下save按钮，保存cookie设置
 
 	//布局管理
@@ -149,7 +154,7 @@ void ChangePixivCookieWidget::mousePressEvent(QMouseEvent* mouseE) {
 			this->showOrNot = false;
 			return;
 		}
-		else if (!this->showOrNot) {
+		else{
 			this->textEdit->setVisible(true);
 			this->changeButton->setVisible(true);
 			this->saveButton->setVisible(true);
@@ -181,24 +186,6 @@ ChangeTransparencyWidget::ChangeTransparencyWidget() {
 		this, &ChangeTransparencyWidget::saveTranparency);//释放滚动条时，保存透明度信息
 
 	this->setLayout(layout);
-
-	//slider->setStyleSheet(
-	//	"QSlider:handle:horizontal{"
-	//	"background:rgba(200,200,200,200);"
-	//	"border-radius:4px;"
-	//	"width:16px;"
-	//	"}"
-	//	"QSlider:handle:horizontal:hover{"
-	//	"background:rgba(150,150,150,255);"
-	//	"border-radius:4px;"
-	//	"width:16px;"
-	//	"}"
-	//	"QSlider:groove:horizontal{"
-	//	"background:rgba(255,255,255,150);"
-	//	"border-radius:4px;"
-	//	"height:8px;"
-	//	"}"
-	//);
 }
 
 ChangeTransparencyWidget::~ChangeTransparencyWidget(){
@@ -218,7 +205,12 @@ ChangeBackgroundImageWidget::ChangeBackgroundImageWidget() {
 	layout = new QGridLayout;
 	title = new TextLabel;
 	imageView = new QLabel;
-	changeButton = new ToolButton(tr("Change"));
+	changeButton = new AnimationButton(tr("Change"));
+	removeButton = new AnimationButton(tr("Remove"));
+
+	//按钮大小设置
+	changeButton->setFixedSize(_toolButton_size);
+	removeButton->setFixedSize(_toolButton_size);
 	//标题标签设置
 	title->setText(tr("Change Background"));
 	//缩略图窗口设置
@@ -227,14 +219,16 @@ ChangeBackgroundImageWidget::ChangeBackgroundImageWidget() {
 	imageView->setPixmap(pix.scaled(imageView->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));//缩放适应大小
 
 	//信号与槽连接
-	connect(this->changeButton, &ToolButton::clicked,
+	connect(this->changeButton, &AnimationButton::clicked,
 		this, &ChangeBackgroundImageWidget::chooseImage);//按下切换按钮，选择背景图片
+	connect(this->removeButton, &AnimationButton::clicked,
+		this, &ChangeBackgroundImageWidget::removeImage);//按下移除按钮移除背景图片
 
 	//布局管理
-	layout->addWidget(title, 0, 0);
-	layout->addWidget(new QLabel, 0, 1);
-	layout->addWidget(imageView, 1, 0);
-	layout->addWidget(changeButton, 1, 3);
+	layout->addWidget(title, 0, 0, 1, 2);
+	layout->addWidget(imageView, 1, 0, 5, 2);
+	layout->addWidget(changeButton, 2, 1);
+	layout->addWidget(removeButton, 4, 1);
 
 	this->setLayout(layout);
 }
@@ -243,11 +237,14 @@ ChangeBackgroundImageWidget::~ChangeBackgroundImageWidget(){
 	delete title;
 	delete imageView;
 	delete changeButton;
+	delete removeButton;
 	delete layout;
 }
 
 void ChangeBackgroundImageWidget::chooseImage() {
-	std::string temp = QFileDialog::getOpenFileName(NULL, "Background", "./", "Image(*.png *.jpg)").toStdString();
+	//打开文件资源管理器
+	std::string temp = QFileDialog::getOpenFileName(NULL, "Background", "./",
+		"Image(*.png *.jpg)").toStdString();
 
 	if (temp != "") {
 		//打开文件资源管理器选择背景图片路径
@@ -260,6 +257,19 @@ void ChangeBackgroundImageWidget::chooseImage() {
 		//发送背景图片更改信号，供主窗口刷新
 		emit backgroundChanged();
 	}
+	return;
+}
+
+void ChangeBackgroundImageWidget::removeImage() {
+	//背景路径置空
+	_backgroundPicturePath = _EMPTY_STRING;
+	//清楚缩略图显示
+	imageView->clear();
+	//更新设置文件
+	changeBackgroundImagePath();
+	//通知主窗口刷新
+	emit backgroundChanged();
+	return;
 }
 
 //SettingWidget
@@ -269,7 +279,6 @@ SettingWidget::SettingWidget() {
 	scrollArea = new TransparentScrollArea;
 	layout = new QVBoxLayout;
 
-	this->setMouseTracking(true);
 	//给cookie编辑框安装事件过滤器，使滚轮事件不透射到setting窗口
 	this->scrollArea->viewport()-> installEventFilter(this->subWidget->changePixivCookieWidget->textEdit);
 
@@ -277,9 +286,10 @@ SettingWidget::SettingWidget() {
 	scrollArea->setWidget(subWidget);//指定窗口
 	scrollArea->setWidgetResizable(true);//设置窗口可缩放
 	scrollArea->setMinimumWidth(subWidget->minimumWidth());
+
 	//布局管理
-	layout->setMargin(0);
 	layout->addWidget(scrollArea);
+	layout->setMargin(0);
 
 	this->setLayout(layout);
 }

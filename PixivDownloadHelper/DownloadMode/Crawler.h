@@ -1,7 +1,7 @@
 ﻿#ifndef _Crawler
 #define _Crawler
 
-#include "basicClass.h"
+#include "NetworkClass.h"
 #include <qdebug.h>
 #include <vector>
 

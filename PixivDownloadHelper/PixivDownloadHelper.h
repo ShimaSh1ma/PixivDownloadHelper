@@ -19,16 +19,6 @@ class PixivDownloadHelper : public QWidget
     Q_OBJECT
 
 public:
-    QGridLayout* layout;//水平布局
-
-    MenuWidget* menuWidget;//界面切换按钮窗口
-
-    //功能窗口
-    PixivWidget* pixivWidget;//pixiv下载窗口
-    SettingWidget* settingWidget;//设置窗口
-
-    QStackedWidget* stackedWidget;//显示一个功能窗口，可以切换
-
     PixivDownloadHelper(QWidget *parent = nullptr);
     ~PixivDownloadHelper();
 
@@ -40,9 +30,20 @@ public slots:
 private:
     Ui::PixivDownloadHelperClass *ui;
 
+    QGridLayout* layout;//水平布局
+
+    MenuWidget* menuWidget;//界面切换按钮窗口
+
+    PixivWidget* pixivWidget;//pixiv下载窗口
+    SettingWidget* settingWidget;//设置窗口
+
+    StackedWidget* stackedWidget;//显示一个功能窗口，可以切换
+
     QImage image;//背景图片
     QPixmap pix;//背景图片缩放
     QPixmap temp;//临时背景缓冲
+
+    double opacity;//背景透明度
 
     //图片大小记录，用作缓冲
     int imageWidth{ 0 };
@@ -53,6 +54,8 @@ private:
     //图片位置记录，用作缓冲
     int xpos{ 0 };
     int ypos{ 0 };
+
+    void stretchImage();//拉伸背景图片大小，适应窗口变化
 protected:
     virtual void paintEvent(QPaintEvent* paintE);//重写paint事件，绘制背景图片
     virtual void resizeEvent(QResizeEvent* event);//重写resize事件，缩放背景图片

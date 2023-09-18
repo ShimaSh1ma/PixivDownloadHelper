@@ -21,12 +21,12 @@ public:
     //路径显示栏
     DirEdit* pathEdit;
     //路径切换按钮
-    ToolButton* changeButton;
+    AnimationButton* changeButton;
 
     //网格布局
     QGridLayout* layout;
 
-    ChangeDownloadPathWidget();
+    explicit ChangeDownloadPathWidget();
     ~ChangeDownloadPathWidget();
 public slots:
     void chooseDownloadPath();//打开文件资源管理器选择下载路径，并将更改后的路径写入downloadPath.cfg文件
@@ -42,9 +42,9 @@ public:
     //显示当前cookie的文本框
     TransparentTextEdit* textEdit;
     //更改按钮
-    ToolButton* changeButton;
+    AnimationButton* changeButton;
     //保存更改按键
-    ToolButton* saveButton;
+    AnimationButton* saveButton;
 
     //网格布局
     QGridLayout* layout;
@@ -87,15 +87,18 @@ public:
     TextLabel* title;
     //背景图片预览窗口
     QLabel* imageView;
-    //切换按钮
-    ToolButton* changeButton;
+    //按钮
+    AnimationButton* changeButton;//切换按钮
+    AnimationButton* removeButton;//移除按钮
+
     //网格布局
     QGridLayout* layout;
 
-    ChangeBackgroundImageWidget();
+    explicit ChangeBackgroundImageWidget();
     ~ChangeBackgroundImageWidget();
 public slots:
     void chooseImage();//打开资源管理器并选择背景图片，更新背景图片设置文件backgroundPicture.cfg
+    void removeImage();//移除背景图片
 signals:
     void backgroundChanged();//发送背景改变信号通知主窗口刷新
 };
@@ -135,7 +138,7 @@ public:
     //加入布局自适应窗口大小
     QVBoxLayout* layout;
 
-    SettingWidget();
+    explicit SettingWidget();
     ~SettingWidget();
 private:
 };

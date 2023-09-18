@@ -44,6 +44,9 @@ std::string MHttpDownload::requestHtml(const UrlParser& URL, const std::string& 
 						sslClose();
 						socketClose();
 					}
+					else {
+						delete sendbuffer;
+					}
 				}
 			}
 		}
@@ -77,6 +80,9 @@ bool MHttpDownload::fileDownload_nonreuse(const UrlParser& URL, const std::strin
 						socketReceiveFile(download_dir);
 						sslClose();
 						socketClose();
+					}
+					else {
+						delete sendbuffer;
 					}
 				}
 			}
