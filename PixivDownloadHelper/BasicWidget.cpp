@@ -183,3 +183,47 @@ void StackedWidget::setWidget() {
 void StackedWidget::enterEvent(QEvent* event) {
 	emit enterSignal();
 }
+
+PressWidget::PressWidget()
+{
+	hoverAnimation = new QPropertyAnimation(this, "color");
+
+	//设置初始颜色
+	backGroundColor = _translucentWidget_color;
+
+	//设置动画
+	hoverAnimation->setDuration(200);
+	hoverAnimation->setEasingCurve(QEasingCurve::OutCubic);
+}
+
+PressWidget::~PressWidget()
+{
+	delete hoverAnimation;
+}
+
+
+void PressWidget::paintEvent(QPaintEvent* paintE) {
+	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);//抗锯齿
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(this->backGroundColor);//背景颜色
+
+	QRect rt = this->rect();
+	rt.setWidth(rt.width() - 1);
+	rt.setHeight(rt.height() - 1);
+	painter.drawRoundedRect(rt, 10, 10);//绘制圆角
+}
+
+void PressWidget::enterEvent(QEvent* event) {
+	hoverAnimation->stop();
+	hoverAnimation->setStartValue(this->color());
+	hoverAnimation->setEndValue(_hoverWidget_color);
+	hoverAnimation->start();
+}
+
+void PressWidget::leaveEvent(QEvent* event) {
+	hoverAnimation->stop();
+	hoverAnimation->setStartValue(this->color());
+	hoverAnimation->setEndValue(_translucentWidget_color);
+	hoverAnimation->start();
+}

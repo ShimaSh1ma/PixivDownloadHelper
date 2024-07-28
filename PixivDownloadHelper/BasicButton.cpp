@@ -76,7 +76,7 @@ void AnimationButton::paintEvent(QPaintEvent* event) {
 	QRect rt = this->rect();
 	rt.setWidth(rt.width());
 	rt.setHeight(rt.height());
-	painter.drawRoundedRect(rt, 8, 8);//绘制圆角
+	painter.drawRoundedRect(rt, 9, 9);//绘制圆角
 }
 
 void AnimationButton::enterEvent(QEvent* event) {
@@ -237,27 +237,6 @@ void TransparentTextEdit::leaveEvent(QEvent* event) {
 void TransparentTextEdit::wheelEvent(QWheelEvent* wheelEvent) {
 	scrollAnimation->stop();
 	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->angleDelta().y());
-	scrollAnimation->start();
-}
-
-void TransparentTextEdit::keyPressEvent(QKeyEvent* ev) {
-	scrollAnimation->stop();
-	int changeValue{ 0 };
-	if (ev->key() == Qt::Key_Up) {
-		changeValue = _pixivDownloadItemWithoutPre_height;
-	}
-	else if (ev->key() == Qt::Key_Down) {
-		changeValue = -_pixivDownloadItemWithoutPre_height;
-	}
-	else if (ev->key() == Qt::Key_PageUp) {
-		changeValue = _pixivDownloadItemWithPre_height + 5;
-	}
-	else if (ev->key() == Qt::Key_PageDown) {
-		changeValue = -_pixivDownloadItemWithPre_height - 5;
-	}
-	else {}
-
-	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - changeValue);
 	scrollAnimation->start();
 }
 

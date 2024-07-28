@@ -1,4 +1,5 @@
-﻿#ifndef _BasicWidget
+﻿#pragma once
+#ifndef _BasicWidget
 #define _BasicWidget
 
 #include <qdebug.h>
@@ -26,7 +27,6 @@ public:
     ~TransparentWidget() = default;
 private:
     virtual void paintEvent(QPaintEvent* paintE) override;//重写绘制事件，实现窗口透明
-
 };
 
 class TranslucentWidget ://无边框圆角半透明窗口
@@ -36,7 +36,7 @@ public:
     explicit TranslucentWidget();//构造函数，用于设置窗口无边框
     ~TranslucentWidget() = default;//析构函数
 private:
-    virtual void paintEvent(QPaintEvent* paintE);//重写绘制事件，实现窗口半透明及圆角
+    virtual void paintEvent(QPaintEvent* paintE) override;//重写绘制事件，实现窗口半透明及圆角
 };
 
 class TransparentScrollArea ://透明滚动区域
@@ -75,6 +75,31 @@ private:
     int index;//当前页面索引
 protected:
     virtual void enterEvent(QEvent* event); //重写进入事件，发送信号
+};
+
+class PressWidget :
+    public TranslucentWidget
+{
+    Q_OBJECT
+    Q_PROPERTY(QColor color READ color WRITE setColor)
+public:
+    explicit PressWidget();
+    ~PressWidget();
+private:
+
+    QColor backGroundColor;//背景颜色，用于实现鼠标悬浮时的窗口变色效果
+    inline QColor color() { return this->backGroundColor; }//获取按钮颜色
+    inline void setColor(const QColor& color) {
+        this->backGroundColor = color;
+        repaint();
+        return;
+    }//设置颜色
+
+    QPropertyAnimation* hoverAnimation;//鼠标悬浮动画
+
+    virtual void paintEvent(QPaintEvent* paintE) override;//重写绘制事件实现悬浮动画
+    virtual void enterEvent(QEvent* event) override;//重写鼠标进入事件
+    virtual void leaveEvent(QEvent* event) override;//重写鼠标离开事件
 };
 
 #endif

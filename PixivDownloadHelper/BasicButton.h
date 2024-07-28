@@ -121,7 +121,6 @@ protected:
 	virtual void enterEvent(QEvent* event) override;//enter事件触发setfocus
 	virtual void leaveEvent(QEvent* event) override;//leave事件触发clearfocus
 	virtual void wheelEvent(QWheelEvent* wheelEvent) override;	//滚轮实现平滑动画
-	virtual void keyPressEvent(QKeyEvent* ev) override;			//按键平滑动画
 	virtual bool eventFilter(QObject* obj, QEvent* ev) override;//过滤滚轮事件，不透射到其他窗口
 };
 

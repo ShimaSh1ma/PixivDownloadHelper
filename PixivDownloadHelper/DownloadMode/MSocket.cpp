@@ -8,19 +8,19 @@ static std::string intToString(const int& a) {
 	return re;
 }
 
-inline void MSocket::updateLog(const std::string& massage)
+inline void ClientSocket::updateLog(const std::string& massage)
 {
 	this->log = {};
 	log += massage;
 }
 
-std::string MSocket::returnLog()
+std::string ClientSocket::returnLog()
 {
 	return this->log;
 }
 
 
-bool MSocket::socketInit(const std::string& Host,const std::string& _Port)
+bool ClientSocket::socketInit(const std::string& _Host,const std::string& _Port)
 {
 	//初始化socket环境
 	_Result = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -35,7 +35,7 @@ bool MSocket::socketInit(const std::string& Host,const std::string& _Port)
 	ipAddr.ai_protocol = IPPROTO_TCP;	//选择TCP
 
 	//———————————————通过getaddrinfo函数进行DNS请求————————————————
-	_Result = getaddrinfo(Host.c_str(), _Port.c_str(), &ipAddr, &ipResult);
+	_Result = getaddrinfo(_Host.c_str(), _Port.c_str(), &ipAddr, &ipResult);
 	if (_Result != 0) {
 		updateLog(_M_DNS_ERR + intToString(WSAGetLastError()) + "\n");
 		WSACleanup();
@@ -56,7 +56,7 @@ bool MSocket::socketInit(const std::string& Host,const std::string& _Port)
 	//——————————————————————————————————————————————
 }
 
-bool MSocket::sslInit()
+bool ClientSocket::sslInit()
 {
 	//初始化
 	SSL_library_init();
@@ -71,7 +71,7 @@ bool MSocket::sslInit()
 	return true;
 }
 
-bool MSocket::sockConnect()
+bool ClientSocket::sockConnect()
 {
 	//———————————————————连接到套接字—————————————————————
 	_Result = connect(mySocket, ipResult->ai_addr, (int)ipResult->ai_addrlen);	//尝试连接服务器
@@ -91,7 +91,7 @@ bool MSocket::sockConnect()
 	//——————————————————————————————————————————————
 }
 
-bool MSocket::sslConnect(const std::string& _Host)
+bool ClientSocket::sslConnect(const std::string& _Host)
 {
 	//——————————————————建立SSL连接———————————————————————
 	sslSocket = SSL_new(ctx);
@@ -121,7 +121,7 @@ bool MSocket::sslConnect(const std::string& _Host)
 	//———————————————————————————————————————————————
 }
 
-bool MSocket::socketSend(const std::string& sendbuf)
+bool ClientSocket::socketSend(const std::string& sendbuf)
 {
 	//——————————————————————向服务器发信息——————————————————
 	result = SSL_write(sslSocket, sendbuf.c_str(), (int)sendbuf.length());
@@ -139,7 +139,7 @@ bool MSocket::socketSend(const std::string& sendbuf)
 	//———————————————————————————————————————————————
 }
 
-std::string MSocket::socketReceiveHtml()
+std::string ClientSocket::socketReceiveHtml()
 {
 	//—————————————————从套接字缓冲中读取信息——————————————————
 	int ret{};//接收socket返回值
@@ -189,7 +189,7 @@ std::string MSocket::socketReceiveHtml()
 	return _EMPTY_STRING;
 }
 
-bool MSocket::socketReceiveFile(const std::string& file_dir)
+bool ClientSocket::socketReceiveFile(const std::string& file_dir)
 {
 	//————————从套接字缓冲中读取信息—————————————
 	//开辟缓冲区
@@ -211,7 +211,6 @@ bool MSocket::socketReceiveFile(const std::string& file_dir)
 		}
 		else {
 			updateLog(_DOWNLOAD_ERR);
-			qDebug() << "Socket close\r\n";
 			delete temp;
 			delete recvbuf;
 			return false;
@@ -219,11 +218,9 @@ bool MSocket::socketReceiveFile(const std::string& file_dir)
 	} while (result > 0 || SSL_get_error(sslSocket, result) == SSL_ERROR_WANT_READ);
 	//接收完毕清除缓冲区
 	delete recvbuf;
-
 	//分割http响应报文，提取有效载荷部分———————————————————
 	size_t key = temp->find("\r\n\r\n", 0) + sizeof("\r\n\r\n") - 1;
 	if (key == std::string::npos) {		//判断是否接收到http报文
-		qDebug() << "false";
 		updateLog(_DOWNLOAD_ERR);
 		delete temp;
 		return false;
@@ -236,28 +233,26 @@ bool MSocket::socketReceiveFile(const std::string& file_dir)
 	*temp = temp->substr(key, temp->size() - key);
 	//检查文件是否完整
 	if ((size_t)strtoull(responseParser.findKeyOfHeader("Content-Length").c_str(), NULL, 0) != temp->size()) {
-		qDebug() << "File incomplete\r\n" 
-			<< (size_t)strtoull(responseParser.findKeyOfHeader("Content-Length").c_str(), NULL, 0) << "\r\n"
-			<< temp->size() << "\r\n";
 		delete temp;
 		updateLog(_DOWNLOAD_ERR);
 		return false;
 	}
 	//————————————————————————————————
 	//将载荷写入文件—————————————————————————
-	std::ofstream out(file_dir, std::ios::binary);
-	if (out.is_open()) {
-		out << *temp;
-		out.close();
-	}
-	else {
-		updateLog(_FILE_OPEN_ERR + file_dir);
-	}
+	//std::ofstream out(file_dir, std::ios::binary);
+	//if (out.is_open()) {
+	//	out << *temp;
+	//	out.close();
+	//}
+	//else {
+	//	updateLog(_FILE_OPEN_ERR + file_dir);
+	//}
+	saveFile(file_dir, *temp);
 	delete temp;
 	return true;
 }
 
-bool MSocket::socketClose()
+bool ClientSocket::socketClose()
 {
 	//——————————————————————关闭套接字———————————————————
 	_Result = shutdown(mySocket, SD_SEND);			//尝试关闭套接字
@@ -273,7 +268,7 @@ bool MSocket::socketClose()
 	return true;
 }
 
-bool MSocket::sslClose()
+bool ClientSocket::sslClose()
 {
 	SSL_shutdown(sslSocket);
 	SSL_free(sslSocket);

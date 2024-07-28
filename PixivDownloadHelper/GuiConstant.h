@@ -17,6 +17,7 @@ extern const std::string _config_download_save_path;//下载根目录condig保�
 extern const std::string _config_pixivcookie_save_path;//pixivcookie config保存路径
 extern const std::string _config_background_picture_path;//背景文件config保存路径
 extern const std::string _config_window_tranparency_path;//背景透明度config保存路径
+extern const std::string _downloadDataFile;//保存用户未完成的下载项目信息
 
 //未获取到缩略图时的默认缩略图路径
 extern const std::string _default_preview_path;
@@ -34,6 +35,7 @@ extern const std::string _regex_pixiv_illust_url;					//pixiv单个作品中的�
 extern const std::string _regex_pixiv_artwork_url;                  //pixiv单个作品  url匹配规则
 extern const std::string _regex_pixiv_userAll_url;                  //pixiv一个用户所有作品  url匹配规则
 extern const std::string _regex_pixiv_userTagged_url;               //pixiv一个用户筛选后作品  url匹配规则
+extern const std::string _regex_telegram_url;                       //telegram匹配规则
 //——————————————————————————————————————
 
 //—————————————套接字缓冲区大小—————————————————
@@ -104,11 +106,12 @@ constexpr int _menuWidget_minwidth{ _extendButton_size.width()};//主菜单窗�
 //窗口颜色
 constexpr QColor _nontransparentWidget_color{ 255,255,255,255 };//不透明窗口颜色
 constexpr QColor _translucentWidget_color{ 255,255,255,150 };//半透明窗口颜色
+constexpr QColor _hoverWidget_color{ 165,226,255,150 };//鼠标悬浮时窗口颜色
 constexpr QColor _transparentWidget_color{ 255,255,255,0 };//透明窗口颜色
 
 //按钮颜色
-constexpr QColor _buttonNormal_color{ 200,200,200,100 };//按钮平常颜色
-constexpr QColor _buttonHover_color{ 180,180,180,150 };//按钮悬停颜色
-constexpr QColor _buttonPressed_color{ 160,160,160,180 };//按钮按下颜色
+constexpr QColor _buttonNormal_color{ 230,230,230,150 };//按钮平常颜色
+constexpr QColor _buttonHover_color{ 165,208,255,150 };//按钮悬停颜色
+constexpr QColor _buttonPressed_color{ 165,208,255,180 };//按钮按下颜色
 
 constexpr int _windowTransparency_division = 255;//背景透明度分度值
