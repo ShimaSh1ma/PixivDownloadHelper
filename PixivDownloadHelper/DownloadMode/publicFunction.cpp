@@ -38,83 +38,62 @@ std::string weiboUrl(const UrlParser& URL)
 	return  _Protocol + "://" + _Host + "/large" + _Id + _Extension;
 }
 
-void fileDownloadV(std::vector<std::string>& url, const std::string& refer) {
-	std::string file_path = _downloadPath;		
-	std::vector<std::string>::iterator it = url.begin();	//存放url的vector迭代器
-	std::vector<std::string> retry;			//暂时存放需要重新下载url的vector
-
-	while (it != url.end()) {
-
-		UrlParser P_url;
-		P_url.parseUrl(*it);
-
-		std::string filename;
-		filename = file_path + "\\" + P_url.fileName;
-
-		HttpRequest hr(P_url);
-		hr.referer = refer;
-		hr.accept = "image/*";
-
-		MHttpDownload M_thread;
-
-		if (!M_thread.fileDownload_nonreuse(P_url, filename, hr.request())) {
-			retry.push_back(*it);
-		}
-		else {
-		}
-		it++;
+void saveDownloadData(const std::string& data)
+{
+	auto f = [=]() {	
+	std::ofstream o(_downloadDataFile, std::ios::app);
+	if (o.is_open()) {
+		o << data << "\n";
+		o.close();
 	}
+	return; 
+	};
 
-	url = retry;
+	std::thread th(f);
+	th.detach();
+	return;
 }
 
-void pixivDownload_muti(const std::string& url) {
-	std::string refer = url;		//原url作为refer
+void deleteDownloadData(const std::string& data)
+{
+	auto f = [=]() {	
+		std::string out;
+		std::ifstream i(_downloadDataFile, std::ios::in);
+		if (i.is_open()) {
+			std::string temp{};
+			std::string check{};
+			while (std::getline(i, temp)) {
+				check += temp + "\n";
+				std::getline(i, temp);
+				check += temp + "\n";
+				if (check != (data + "\n")) {
+					out += check;
+				}
+				check.clear();
+			}
+			i.close();
+		}
 
-	//pixiv ajax接口url生成
-	std::string* ajaxurl = new std::string;
-	*ajaxurl = pixivAjaxurl(url);
-	if (*ajaxurl == "") {
-		delete ajaxurl;
-		return; }
+		std::ofstream o(_downloadDataFile, std::ios::out);
+		if (o.is_open()) {
+			o << out;
+			o.close();
+		}
 
-	UrlParser* urlP = new UrlParser;
-	urlP->parseUrl(*ajaxurl);
-	delete ajaxurl;
-
-	//组装请求json文件报文
-	HttpRequest* hr = new HttpRequest(*urlP);
-	hr->referer = refer;
-	hr->accept = "*/*";
-	hr->acceptCharset = "";
-	hr->cookie = _pixivCookie;
-	MHttpDownload* M = new MHttpDownload;
-	//请求json文件
-	std::string* json = new std::string;
-	*json = M->requestHtml(*urlP, hr->request());
-	if (*json == _EMPTY_STRING) {
-
-		delete json;
-		delete M;
-		delete hr;
-		delete urlP;
 		return;
-	}
-	else {
-		delete hr;
-		delete urlP;
-	}
-	//去除json文件中的转义字符
-	jsonParse(*json);
-	//提取图片url
-	std::vector<std::string> Vurl;				//存放url的向量数组
-	int total = M->parseHtmlForUrl(*json, Vurl, _regex_pixiv_illust_url);
-	delete json;
-	delete M;
+	};
 
-	if (!Vurl.empty()) {
-		fileDownloadV(Vurl,refer);
-	}
+	std::thread th(f);
+	th.detach();
+	return;
+}
 
+void saveFile(const std::string& dir, const std::string& data)
+{
+	std::ofstream out(dir, std::ios::binary);
+	if (out.is_open()) {
+		out << data;
+		out.close();
+	}
 	return;
 }

@@ -1,4 +1,5 @@
-﻿#ifndef _NetworkClass
+﻿#pragma once
+#ifndef _NetworkClass
 #define _NetworkClass
 
 /*
@@ -26,7 +27,11 @@
 
 #pragma comment(lib,"libssl.lib")
 #pragma comment(lib,"libcrypto.lib")
-#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib,"Ws2_32.lib")
+
+//保存文件
+void saveFile(const std::string& dir, const std::string& data);
+
 class UrlParser {	//Url解析类
 public:
 	std::string url = "";			//完整URL
@@ -70,18 +75,18 @@ public:
 	//Connection头
 	std::string connection = "close";
 
-	explicit HttpRequest(UrlParser& url);
+	explicit HttpRequest(const UrlParser& url);
 	explicit HttpRequest();
 	~HttpRequest() = default;
 
 	//传入新的url组装报文
-	void refreshUrl(UrlParser& url);
+	void refreshUrl(const UrlParser& url);
 
 	//组装http请求报文
 	std::string request();
 };
 
-class HttpResponseParser {		//http响应头解析类
+class HttpResponseParser {		//http响应报文解析类
 public:
 	//定义结构体存储一对 响应头部 与 其对应的值
 	struct HeaderLine{
@@ -107,7 +112,7 @@ private:
 	void parseHttpResponse();//解析http响应
 };
 
-class MSocket {	//封装win套接字
+class ClientSocket {	//封装win客户端套接字
 private:
 	//创建WSADATA对象
 	WSADATA wsaData{};
@@ -169,5 +174,4 @@ public:
 	//（1，file_dir）：下载文件存储地址
 	bool socketReceiveFile(const std::string& file_dir);
 };
-
 #endif

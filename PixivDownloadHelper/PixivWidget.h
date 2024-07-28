@@ -1,4 +1,5 @@
-﻿#ifndef _PixivWidget
+﻿#pragma once
+#ifndef _PixivWidget
 #define _PixivWidget
 
 #include <vector>
@@ -29,9 +30,8 @@ public:
 private:
 };
 
-class PixivDownloadItemTitleWidget :/*pixiv下载项目标题窗口，
-                                    由若干label组成*/
-    public TransparentWidget
+class PixivDownloadItemTitleWidget :/*pixiv下载项目标题窗口， 由若干label组成*/
+    public TransparentWidget                                 
 {
 public:
     TextLabel* urlLabel;//显示url的标签
@@ -40,10 +40,6 @@ public:
 
     explicit PixivDownloadItemTitleWidget(const std::string& str);
     ~PixivDownloadItemTitleWidget();
-
-    std::string getDownloadUrl();//返回下载url
-private:
-    std::string downloadUrl{};//目标下载url
 };
 
 class PixivDownloadItemPreviewWidget ://pixiv下载项目缩略图窗口
@@ -89,7 +85,7 @@ public slots:
 };
 
 class PixivDownloadItem ://pixiv下载项目
-    public TranslucentWidget
+    public PressWidget
 {
     Q_OBJECT
 public:
@@ -103,15 +99,20 @@ public:
         const bool& foldOrUnfold = true);
     ~PixivDownloadItem();
 
+    std::string getUrl();
+    std::string getPath();
 public slots:
-    void pixivDownload();//pixiv下载函数
+    void checkUrl();     //检查url类型
 signals:
     void previewImageSignal(std::string);//发射携带预览图路径的信号
     void downloadCompleteSignal();//下载完成时发射此信号
     void downloadProgressSignal(int total, int success);//下载过程中报告下载进度函数
 private:
-    const std::string downloadPath{};//下载路径
+    void pixivDownload();//pixiv下载函数
+    void telegramDownload();//telegram下载函数
 
+    std::string downloadUrl{};//下载URL
+    const std::string downloadPath{};//下载路径
     virtual void mouseDoubleClickEvent(QMouseEvent* mouseE) override;//重写鼠标双击事件，实现打开下载路径
 };
 
@@ -135,12 +136,13 @@ class PixivDownloadItemWidget ://pixiv下载项目总览窗口
 {
     Q_OBJECT
 public:
-    QGridLayout* Glayout;//网格布局
-
     explicit PixivDownloadItemWidget();//构造函数
     ~PixivDownloadItemWidget();
 public slots:
-    void addDownloadItem(const std::string& url);       /*按下download按键，判断url是否有效，
+    void initLoadItem(const std::string& url,
+        const std::string& downloadPath);//初始化时添加未完成项目
+    void addDownloadItem(const std::string& url,
+        const std::string& downloadPath = _downloadPath);       /*按下download按键，判断url是否有效，
                                              有效则添加下载项目, 并发出信号   （添加单个项目）    */
     void checkUrl(const std::string& url);              //判断url类型，发送不同信号
     void getPixivAllIllustsUrl(const std::string& id);  //获取用户所有作品url
@@ -160,18 +162,21 @@ signals:
     void itemAddedSignal();         //有新项目加入时发出信号
     void startDownloadSignal();     //开始下载信号
     void adjustLayoutSignal();      //调整布局信号
-    void urlIsSingleWorkSignal(std::string url);//输入url是单个作品url,携带单个作品url
+    void initLoadItemSignal(std::string url, std::string downloadPath);
+    void urlIsSingleWorkSignal(std::string url,std::string downloadPath);//输入url是单个作品url,携带单个作品url
     void urlIsAllWorkSignal(std::string id);//输入url是用户所有作品url，携带用户id
     void urlIsTaggedWorkSignal(std::string id, std::string tag);//输入url是用户筛选后作品url，携带用户id，筛选标签tag
 private:
+    void loadDownloadData();//读取上次未下载完成数据
+
+    QGridLayout* Glayout;//网格布局
+
     std::list<PixivDownloadItem*>* itemList;//储存所有下载项目的向量组
+    std::list<PixivDownloadItem*>::const_iterator downloadingItem;//指向正在下载项目的迭代器
 
     bool foldOrUnfold{ true };//下载项目是否展开状态位，在槽函数中改变
 
     bool downloadingOrNot{ false };//表示下载是否在进行中的状态位
-    std::list<PixivDownloadItem*>::const_iterator downloadingItem;//指向正在下载项目的迭代器
-    int downloadingIndex{ 0 };//当前下载项目索引序号
-    int itemCount{ 0 };//下载项目总数
 
     int row{ 1 };//布局行数
     int column{ 1 };//布局列数

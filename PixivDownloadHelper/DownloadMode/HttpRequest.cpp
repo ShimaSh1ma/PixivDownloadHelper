@@ -2,9 +2,9 @@
 
 HttpRequest::HttpRequest() :urlSource({}), urlHost({}) {}
 
-HttpRequest::HttpRequest(UrlParser& url) : urlSource(url.source), urlHost(url.host) {}
+HttpRequest::HttpRequest(const UrlParser& url) : urlSource(url.source), urlHost(url.host) {}
 
-void HttpRequest::refreshUrl(UrlParser& url)
+void HttpRequest::refreshUrl(const UrlParser& url)
 {
 	this->urlHost = url.host;
 	this->urlSource = url.source;

@@ -1,4 +1,5 @@
-﻿#ifndef _publicFunctions
+﻿#pragma once
+#ifndef _publicFunctions
 #define _publicFunctions
 
 /*本文件中函数：
@@ -10,6 +11,7 @@
 #include "Crawler.h"
 #include <io.h>
 #include <direct.h>
+#include <thread>
 
 //简单处理json，删去json中的转义字符“\”
 void jsonParse(std::string& json);
@@ -20,12 +22,10 @@ std::string pixivAjaxurl(const std::string& url);
 //从微博缩略图获取原图
 std::string weiboUrl(const UrlParser& url);
 
-//传入一个url集合vector数组下载其中文件
-//（1、url）：含有多个url的vector
-//（2、refer）：http报文中的referer头
-void fileDownloadV(std::vector<std::string>& url, const std::string& refer = "");
+//保存添加的下载信息
+void saveDownloadData(const std::string& data);
 
-//pixiv输入作品url下载所有图片
-void pixivDownload_muti(const std::string& url);
+//删除已完成的下载信息
+void deleteDownloadData(const std::string& data);
 
 #endif // !_public_functions

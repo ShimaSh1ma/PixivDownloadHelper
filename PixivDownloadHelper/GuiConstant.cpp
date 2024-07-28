@@ -9,6 +9,7 @@ const std::string _config_download_save_path = ".\\config\\downloadPath.cfg";//�
 const std::string _config_pixivcookie_save_path = ".\\config\\pixivCookie.cfg";//pixivcookie存放文件路径
 const std::string _config_background_picture_path=".\\config\\backgroundPicture.cfg";//背景文件config保存路径
 const std::string _config_window_tranparency_path=".\\config\\windowTransparency.cfg";//背景透明度config保存路径
+const std::string _downloadDataFile=".\\config\\downloadData.cfg";//保存用户未完成的下载项目信息
 
 const std::string _default_preview_path = ".\\resource\\image\\defaultPreview";//默认预览图路径
 
@@ -22,4 +23,5 @@ const std::string _icon_extend_path = ".\\resource\\icon\\ico_extend.png";//扩�
 const std::string _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";
 const std::string _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[\\d]{8,9}";
 const std::string _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([\\d]{1,8})(?:/artworks)?";
-const std::string _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([\\d]{1,8})/artworks/(.+)?";
+const std::string _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([\\d]{1,8})/(?:artworks|illustrations)/(.+)?";
+const std::string _regex_telegram_url = "https://telegra.ph/[\\S]+";

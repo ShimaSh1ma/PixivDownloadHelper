@@ -1,4 +1,5 @@
-﻿#ifndef _Crawler
+﻿#pragma once
+#ifndef _Crawler
 #define _Crawler
 
 #include "NetworkClass.h"
@@ -6,7 +7,7 @@
 #include <vector>
 
 class MHttpDownload :
-	public MSocket {
+	public ClientSocket {
 public:
 
 	//正则匹配解析HTML得到图片URL
@@ -32,4 +33,7 @@ public:
 		const std::string& download_dir,
 		const std::string& request);
 };
+
+
+
 #endif // !_clawer
