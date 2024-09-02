@@ -1,11 +1,11 @@
-#include "NetworkClass.h"
+#include "DataProcess.h"
 
 HttpResponseParser::HttpResponseParser() {
 	responseVector = new std::vector<HeaderLine>;//堆上开辟空间存储解析后数据
 	responseVector->reserve(20);				//预开辟20个元素空间
 	httpResponse = new std::string;
-	*httpResponse = _EMPTY_STRING;
-	statusCode = _EMPTY_STRING;
+	*httpResponse = "";
+	statusCode = "";
 }
 
 HttpResponseParser::~HttpResponseParser() {
@@ -21,7 +21,7 @@ std::string HttpResponseParser::findKeyOfHeader(const std::string& searchHeader)
 			return begin->key;
 		}
 	}
-	return _EMPTY_STRING;
+	return "";
 }
 
 void HttpResponseParser::operator()(const std::string& response) {
@@ -51,7 +51,7 @@ void HttpResponseParser::parseHttpResponse() {
 	}
 	//未匹配到状态码则置空并返回
 	else {
-		statusCode = _EMPTY_STRING;
+		statusCode = "";
 		return;
 	}
 }

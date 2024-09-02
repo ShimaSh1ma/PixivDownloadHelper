@@ -249,10 +249,10 @@ void PixivDownloadItem::mouseDoubleClickEvent(QMouseEvent* mouseE) {
 	return;
 }
 
-void PixivDownloadItem::checkUrl() {
+void PixivDownloadItem::checkUrlType() {
 	std::regex ruleTelegram(_regex_telegram_url);
 	std::smatch re;
-	std::string url = getUrl();
+	std::string url = downloadUrl;
 	if (std::regex_match(url, re, ruleTelegram)) {
 		this->telegramDownload();
 		return;
@@ -266,8 +266,8 @@ void PixivDownloadItem::checkUrl() {
 void PixivDownloadItem::pixivDownload() {
 	//将下载状态置为下载中
 	this->stateWidget->setState(downloadState::DOWNLOADING);
-	std::string url = getUrl();
-	std::string path = getPath();
+	std::string url = downloadUrl;
+	std::string path = downloadPath;
 
 	//lambd表达式作为子线程运行
 	auto f = [=]() {
@@ -289,7 +289,6 @@ void PixivDownloadItem::pixivDownload() {
 		jsonHttpRequest->accept = "*/*";
 		jsonHttpRequest->acceptCharset = "";
 		jsonHttpRequest->cookie = _pixivCookie;
-		MHttpDownload* M = new MHttpDownload;
 		//请求json文件
 		std::string* json = new std::string;
 		*json = M->requestHtml(*urlP, jsonHttpRequest->request());
@@ -313,7 +312,6 @@ void PixivDownloadItem::pixivDownload() {
 		int success{ 0 };//下载成功个数
 		emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
 		delete json;
-		delete M;
 
 		std::vector<std::string>::iterator it = Vurl.begin();	//存放url的vector迭代器
 		//url解析类
@@ -324,9 +322,6 @@ void PixivDownloadItem::pixivDownload() {
 		imageHttpRequest.referer = refer;
 		imageHttpRequest.accept = "image/*";
 		imageHttpRequest.cookie = _pixivCookie;
-
-		//下载函数类
-		MHttpDownload mDownload;
 
 		//图片文件路径
 		std::string filePath{};
@@ -364,8 +359,8 @@ void PixivDownloadItem::pixivDownload() {
 void PixivDownloadItem::telegramDownload() {
 	//将下载状态置为下载中
 	this->stateWidget->setState(downloadState::DOWNLOADING);
-	std::string url = getUrl();
-	std::string path = getPath();
+	std::string url = downloadUrl;
+	std::string path = downloadPath;
 
 	//lambd表达式作为子线程运行
 	auto f = [=]() {
@@ -377,7 +372,6 @@ void PixivDownloadItem::telegramDownload() {
 		jsonHttpRequest->referer = refer;
 		jsonHttpRequest->accept = "*/*";
 		jsonHttpRequest->acceptCharset = "";
-		MHttpDownload* M = new MHttpDownload;
 		//请求json文件
 		std::string* json = new std::string;
 		*json = M->requestHtml(*urlP, jsonHttpRequest->request());
@@ -399,7 +393,6 @@ void PixivDownloadItem::telegramDownload() {
 		int success{ 0 };//下载成功个数
 		emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
 		delete json;
-		delete M;
 
 		std::vector<std::string>::iterator it = Vurl.begin();	//存放url的vector迭代器
 		//url解析类
@@ -409,9 +402,6 @@ void PixivDownloadItem::telegramDownload() {
 		HttpRequest imageHttpRequest;
 		imageHttpRequest.referer = refer;
 		imageHttpRequest.accept = "image/*";
-
-		//下载函数类
-		MHttpDownload mDownload;
 
 		//图片文件路径
 		std::string filePath{};
@@ -556,7 +546,9 @@ void PixivDownloadItemWidget::addDownloadItem(const std::string& url,
 	//检查下载路径是否存在，及是否拥有写入权限
 	QTextCodec* code = QTextCodec::codecForName("GB2312");
 	if (_access(code->fromUnicode(downloadPath.c_str()), 2)) {
-		mkdir(code->fromUnicode(downloadPath.c_str()));
+		if (!_mkdir(code->fromUnicode(downloadPath.c_str()))) {
+			return;
+		}
 	}
 
 	//判断此url下载项目是否已经存在
@@ -612,7 +604,6 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 
 		UrlParser* urlP = new UrlParser;
 		urlP->parseUrl(ajaxUrl);
-		MHttpDownload* M = new MHttpDownload;
 		HttpRequest* hr = new HttpRequest(*urlP);
 		hr->cookie = _pixivCookie;
 		std::string* json = new std::string;
@@ -620,8 +611,6 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 		while (*json == _EMPTY_STRING) {
 			*json = M->requestHtml(*urlP, hr->request());
 		}
-
-		delete M;
 		delete hr;
 		delete urlP;
 
@@ -632,7 +621,6 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 		//预申请空间
 		url->reserve(200);
 		if (std::regex_search(*json, re, rule)) {
-			std::cout << re[1] << "\r\n";
 			*json = re[1];
 			auto begin = json->cbegin();
 			auto end = json->cend();
@@ -671,8 +659,6 @@ void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, co
 				"/illustmanga/tag?tag=" + tag + "&offset=" + std::to_string(page * 48) + "&limit=48&lang=zh";
 
 			UrlParser* urlP = new UrlParser;
-			urlP->parseUrl(ajaxUrl);
-			MHttpDownload* M = new MHttpDownload;
 			HttpRequest* hr = new HttpRequest(*urlP);
 			hr->cookie = _pixivCookie;
 			std::string* json = new std::string;
@@ -680,7 +666,6 @@ void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, co
 			while (*json == _EMPTY_STRING) {
 				*json = M->requestHtml(*urlP, hr->request());
 			}
-			delete M;
 			delete hr;
 			delete urlP;
 
@@ -730,7 +715,7 @@ void PixivDownloadItemWidget::startDownload() {
 		this, &PixivDownloadItemWidget::downloadCompleted);
 
 	this->downloadingOrNot = true;//标记正在下载
-	(*downloadingItem)->checkUrl();//开始下载
+	(*downloadingItem)->checkUrlType();//开始下载
 	return;
 }
 

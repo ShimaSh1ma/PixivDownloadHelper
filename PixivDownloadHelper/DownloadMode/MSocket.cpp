@@ -1,153 +1,124 @@
-﻿#include "NetworkClass.h"
-//int类型转为string类型，用于打印socket错误信息
-static std::string intToString(const int& a) {
-	std::stringstream ss;
-	std::string re;
-	ss << a;
-	ss >> re;
-	return re;
-}
+﻿#include "MSocket.h"
 
-inline void ClientSocket::updateLog(const std::string& massage)
-{
-	this->log = {};
-	log += massage;
-}
-
-std::string ClientSocket::returnLog()
-{
-	return this->log;
-}
-
-
-bool ClientSocket::socketInit(const std::string& _Host,const std::string& _Port)
-{
+void ClientSocket::WSAInit() {
 	//初始化socket环境
-	_Result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (_Result != 0) {
-		updateLog(_M_WSASTART_ERR + intToString(WSAGetLastError()) + "\n");
-		return false;
+	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (result != 0) {
+		exit(1);
+		return;
 	}
-
-	ZeroMemory(&ipAddr, sizeof(ipAddr));//置零避免错误
-	ipAddr.ai_family = AF_UNSPEC;		//不指定ip协议簇
-	ipAddr.ai_socktype = SOCK_STREAM;	//选择TCP
-	ipAddr.ai_protocol = IPPROTO_TCP;	//选择TCP
-
-	//———————————————通过getaddrinfo函数进行DNS请求————————————————
-	_Result = getaddrinfo(_Host.c_str(), _Port.c_str(), &ipAddr, &ipResult);
-	if (_Result != 0) {
-		updateLog(_M_DNS_ERR + intToString(WSAGetLastError()) + "\n");
-		WSACleanup();
-		return false;
-	}
-	//——————————————————————————————————————————————
-
-	//———————————————————创建套接字——————————————————————
-	mySocket = socket(ipResult->ai_family, ipResult->ai_socktype, ipResult->ai_protocol);
-	//调用套接字函数为socket对象添加参数
-	if (mySocket == INVALID_SOCKET) {			//套接字无效，清理套接字，返回失败标志
-		updateLog(_M_SOCKET_CREATE_ERR + intToString(WSAGetLastError()) + "\n");
-		freeaddrinfo(ipResult);
-		WSACleanup();
-		return false;
-	}
-	return true;
-	//——————————————————————————————————————————————
+	atexit(WSAClean);
 }
 
-bool ClientSocket::sslInit()
-{
+void ClientSocket::WSAClean() {
+	WSACleanup();
+	return;
+}
+
+void ClientSocket::sslInit() {
 	//初始化
 	SSL_library_init();
 	SSL_load_error_strings();
 	OpenSSL_add_all_algorithms();
+}
+
+void ClientSocket::sslConnectToServer(MSocket& _socket) {
+	//初始化socket信息结构体
+	ZeroMemory(&(_socket.ipAddr), sizeof(_socket.ipAddr));//置零避免错误
+	_socket.ipAddr.ai_family = AF_UNSPEC;		//不指定ip协议簇
+	_socket.ipAddr.ai_socktype = SOCK_STREAM;	//选择TCP
+	_socket.ipAddr.ai_protocol = IPPROTO_TCP;	//选择TCP
+
 	//建立SSL上下文
-	ctx = SSL_CTX_new(meth);
-	if (ctx == NULL) {
-		updateLog(_M_SSL_CONTEXT_ERR);
-		return false;
+	_socket.ctx = SSL_CTX_new(_socket.meth);
+	if (_socket.ctx == NULL) {
+		_socket.errorLog = _M_SSL_CONTEXT_ERR;
+		_socket.socket = INVALID_SOCKET;
+		return;
 	}
-	return true;
+
+	//通过getaddrinfo函数进行DNS请求
+	_socket.result = getaddrinfo(_socket.host.c_str(), _socket.port.c_str(), &_socket.ipAddr, &_socket.ipResult);
+	if (_socket.result != 0) {
+		_socket.errorLog = _M_DNS_ERR + std::to_string(WSAGetLastError()) + "\n";
+		_socket.socket = INVALID_SOCKET;
+		freeaddrinfo(_socket.ipResult);
+		return;
+	}
+
+	_socket.socket = socket(_socket.ipResult->ai_family, _socket.ipResult->ai_socktype, _socket.ipResult->ai_protocol);
+	//调用套接字函数为socket对象添加参数
+	if (_socket.socket == INVALID_SOCKET) {			//套接字无效，清理套接字，返回失败标志
+		_socket.errorLog = _M_SOCKET_CREATE_ERR + std::to_string(WSAGetLastError()) + "\n";
+		_socket.socket = INVALID_SOCKET;
+		freeaddrinfo(_socket.ipResult);
+		return;
+	}
+
+	//连接到远程服务器
+	_socket.result = connect(_socket.socket, _socket.ipResult->ai_addr, static_cast<int>(_socket.ipResult->ai_addrlen));
+	if (_socket.result == SOCKET_ERROR) {
+		closesocket(_socket.socket);
+		_socket.errorLog = _M_SOCKET_CONNECT_ERR + std::to_string(WSAGetLastError());
+		_socket.socket = INVALID_SOCKET;
+	}
+
+	freeaddrinfo(_socket.ipResult);
+
+	//建立ssl连接
+	_socket.sslSocket = SSL_new(_socket.ctx);
+	if (_socket.sslSocket == NULL) {
+		SSL_free(_socket.sslSocket);
+		SSL_CTX_free(_socket.ctx);
+		closesocket(_socket.socket);
+		_socket.errorLog = _M_SSL_CREATE_ERR;
+		_socket.socket = INVALID_SOCKET;
+		return;
+	}
+
+	SSL_set_mode(_socket.sslSocket, SSL_MODE_AUTO_RETRY);//自动重试
+	SSL_set_tlsext_host_name(_socket.sslSocket, _socket.host.c_str());//tls握手失败时尝试指定主机名
+
+	//建立SSL连接
+	SSL_set_fd(_socket.sslSocket, _socket.socket);
+	_socket.result = SSL_connect(_socket.sslSocket);
+	if (_socket.result == -1) {
+		SSL_free(_socket.sslSocket);
+		SSL_CTX_free(_socket.ctx);
+		closesocket(_socket.socket);
+		_socket.errorLog = _M_SSL_CONNECT_ERR + SSL_get_error(_socket.sslSocket, _socket.result);
+		_socket.socket = INVALID_SOCKET;
+		return;
+	}
+
+	return;
 }
 
-bool ClientSocket::sockConnect()
+void ClientSocket::socketSend(MSocket& _socket, const std::string& sendBuf)
 {
-	//———————————————————连接到套接字—————————————————————
-	_Result = connect(mySocket, ipResult->ai_addr, (int)ipResult->ai_addrlen);	//尝试连接服务器
-	if (_Result == SOCKET_ERROR) {												//连接失败则关闭套接字
-		updateLog(_M_SOCKET_CONNECT_ERR + intToString(WSAGetLastError()));
-		closesocket(mySocket);
-		mySocket = INVALID_SOCKET;
+	//发送报文
+	_socket.result = SSL_write(_socket.sslSocket, sendBuf.c_str(), static_cast<int>(sendBuf.length()));
+	if (_socket.result == -1) {
+		_socket.errorLog = _M_SSL_WRITE_ERR + SSL_get_error(_socket.sslSocket, _socket.result);
+		SSL_shutdown(_socket.sslSocket);
+		SSL_free(_socket.sslSocket);
+		SSL_CTX_free(_socket.ctx);
+		closesocket(_socket.socket);
+		return;
 	}
 
-	freeaddrinfo(ipResult);							//尝试连接后释放ip信息
-
-	if (mySocket == INVALID_SOCKET) {				//连接失败后清理套接字服务
-		WSACleanup();
-		return false;
-	}
-	return true;
-	//——————————————————————————————————————————————
+	return;
 }
 
-bool ClientSocket::sslConnect(const std::string& _Host)
+std::string ClientSocket::socketReceive()
 {
-	//——————————————————建立SSL连接———————————————————————
-	sslSocket = SSL_new(ctx);
-	if (sslSocket == NULL) {
-		updateLog(_M_SSL_CREATE_ERR);
-		SSL_free(sslSocket);
-		SSL_CTX_free(ctx);
-		closesocket(mySocket);
-		WSACleanup();
-		return false;
-	}
-
-	SSL_set_mode(sslSocket, SSL_MODE_AUTO_RETRY);//自动重试
-	SSL_set_tlsext_host_name(sslSocket, _Host.c_str());//tls握手失败时尝试指定主机名
-
-	SSL_set_fd(sslSocket, mySocket);
-	result = SSL_connect(sslSocket);
-	if (result == -1) {
-		updateLog(_M_SSL_CONNECT_ERR + SSL_get_error(sslSocket, result));
-		SSL_free(sslSocket);
-		SSL_CTX_free(ctx);
-		closesocket(mySocket);
-		WSACleanup();
-		return false;
-	}
-	return true;
-	//———————————————————————————————————————————————
-}
-
-bool ClientSocket::socketSend(const std::string& sendbuf)
-{
-	//——————————————————————向服务器发信息——————————————————
-	result = SSL_write(sslSocket, sendbuf.c_str(), (int)sendbuf.length());
-	if (result == -1) {
-
-		updateLog(_M_SSL_WRITE_ERR + SSL_get_error(sslSocket, result));
-		SSL_shutdown(sslSocket);
-		SSL_free(sslSocket);
-		SSL_CTX_free(ctx);
-		closesocket(mySocket);
-		WSACleanup();
-		return false;
-	}
-	return true;
-	//———————————————————————————————————————————————
-}
-
-std::string ClientSocket::socketReceiveHtml()
-{
-	//—————————————————从套接字缓冲中读取信息——————————————————
-	int ret{};//接收socket返回值
+	//接收socket返回值
+	int ret{};
 	//开辟缓冲区
 	char* recvbuf = new char[_socket_buffer_size];
 	std::string temp;
-
-	do {	//循环读取socket缓冲区
+	//循环读取socket缓冲区
+	do {
 		result = SSL_read(sslSocket, recvbuf, _socket_buffer_size);
 		if (result > 0) {
 			for (int i = 0; i < result; i++) {
@@ -155,10 +126,10 @@ std::string ClientSocket::socketReceiveHtml()
 			}
 		}
 		else if (result == 0) {
-			updateLog(_REQUEST_SUCCESS);
+			errorLog = _REQUEST_SUCCESS;
 		}
 		else {
-			updateLog(_REQUEST_ERR);
+			errorLog = _REQUEST_ERR;
 			delete[] recvbuf;
 			return _EMPTY_STRING;
 		}
@@ -168,8 +139,9 @@ std::string ClientSocket::socketReceiveHtml()
 
 	//分割http响应报文，提取有效载荷部分
 	size_t key = temp.find("\r\n\r\n", 0) + sizeof("\r\n\r\n") - 1;
-	if (key == std::string::npos) {		//判断是否接收到http报文
-		updateLog(_REQUEST_ERR);
+	//判断是否接收到http报文
+	if (key == std::string::npos) {
+		errorLog = _REQUEST_ERR;
 		return _EMPTY_STRING;
 	}
 	//http响应解析
@@ -189,89 +161,27 @@ std::string ClientSocket::socketReceiveHtml()
 	return _EMPTY_STRING;
 }
 
-bool ClientSocket::socketReceiveFile(const std::string& file_dir)
-{
-	//————————从套接字缓冲中读取信息—————————————
-	//开辟缓冲区
-	std::array<char, _socket_buffer_size>* recvbuf = new std::array<char, _socket_buffer_size>;
-	//暂时存放字节流的字符串
-	std::string* temp = new std::string;
+void ClientSocket::sslDisconnectToServer(MSocket& _socket) {
+	//断开ssl连接
+	SSL_shutdown(_socket.sslSocket);
+	SSL_free(_socket.sslSocket);
+	SSL_CTX_free(_socket.ctx);
 
-	int c{};
-	//从套接字接收字节流———————————————————————
-	do {
-		result = SSL_read(sslSocket, recvbuf, _socket_buffer_size);
-		if (result > 0) {
-			for (int i = 0; i < result; i++) {
-				*temp += (*recvbuf)[i];
-			}
-		}
-		else if (result == 0) {
-			updateLog(_DOWNLOAD_SUCCESS);
-		}
-		else {
-			updateLog(_DOWNLOAD_ERR);
-			delete temp;
-			delete recvbuf;
-			return false;
-		}
-	} while (result > 0 || SSL_get_error(sslSocket, result) == SSL_ERROR_WANT_READ);
-	//接收完毕清除缓冲区
-	delete recvbuf;
-	//分割http响应报文，提取有效载荷部分———————————————————
-	size_t key = temp->find("\r\n\r\n", 0) + sizeof("\r\n\r\n") - 1;
-	if (key == std::string::npos) {		//判断是否接收到http报文
-		updateLog(_DOWNLOAD_ERR);
-		delete temp;
-		return false;
+	//断开tcp连接
+	_socket.result = shutdown(_socket.socket, SD_SEND);
+	if (_socket.socket == SOCKET_ERROR) {
+		_socket.errorLog = _M_SOCKET_CLOSE_ERR;
+		closesocket(_socket.socket);
+		_socket.socket = INVALID_SOCKET;
 	}
-	//——————————判断文件是否完整—————————————
-	//获取http报头
-	HttpResponseParser responseParser;
-	responseParser(temp->substr(0, key));
-	//提取载荷
-	*temp = temp->substr(key, temp->size() - key);
-	//检查文件是否完整
-	if ((size_t)strtoull(responseParser.findKeyOfHeader("Content-Length").c_str(), NULL, 0) != temp->size()) {
-		delete temp;
-		updateLog(_DOWNLOAD_ERR);
-		return false;
-	}
-	//————————————————————————————————
-	//将载荷写入文件—————————————————————————
-	//std::ofstream out(file_dir, std::ios::binary);
-	//if (out.is_open()) {
-	//	out << *temp;
-	//	out.close();
-	//}
-	//else {
-	//	updateLog(_FILE_OPEN_ERR + file_dir);
-	//}
-	saveFile(file_dir, *temp);
-	delete temp;
-	return true;
 }
 
-bool ClientSocket::socketClose()
-{
-	//——————————————————————关闭套接字———————————————————
-	_Result = shutdown(mySocket, SD_SEND);			//尝试关闭套接字
-	if (mySocket == SOCKET_ERROR) {					//关闭失败，清理套接字服务
-		updateLog(_M_SOCKET_CLOSE_ERR);
-
-		closesocket(mySocket);
-		WSACleanup();
-		return false;
-	}
-	closesocket(mySocket);
-	WSACleanup();
-	return true;
+//MSocket
+MSocket::MSocket(const char* host, const char* port) {
+	setHostAndPort(host, port);
 }
 
-bool ClientSocket::sslClose()
-{
-	SSL_shutdown(sslSocket);
-	SSL_free(sslSocket);
-	SSL_CTX_free(ctx);
-	return true;
+void MSocket::setHostAndPort(const char* host, const char* port) {
+	this->host = host;
+	this->port = port;
 }

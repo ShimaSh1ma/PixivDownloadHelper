@@ -1,4 +1,4 @@
-﻿#include "NetworkClass.h"
+﻿#include "DataProcess.h"
 
 UrlParser::UrlParser() {
 

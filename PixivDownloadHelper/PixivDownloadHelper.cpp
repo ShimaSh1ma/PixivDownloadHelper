@@ -127,3 +127,8 @@ void PixivDownloadHelper::resizeEvent(QResizeEvent* event) {
     //调用重绘
     this->repaint();
 }
+
+void PixivDownloadHelper::closeEvent(QCloseEvent* event) {
+    //注销WSA
+    ClientSocket::WSAClean();
+}

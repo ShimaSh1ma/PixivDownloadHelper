@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <qdebug.h>
+#include <DownloadMode\MSocket.h>
 #include "GuiConstant.h"
 
 //³õÊ¼»¯º¯Êý

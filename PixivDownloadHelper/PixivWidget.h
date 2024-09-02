@@ -12,7 +12,6 @@
 #include <QtGui/qevent.h>
 #include <QtGui/qdesktopservices.h>
 
-#include "DownloadMode/Crawler.h"
 #include "DownloadMode/publicFunction.h"
 #include "BasicWidget.h"
 #include "BasicButton.h"
@@ -102,7 +101,7 @@ public:
     std::string getUrl();
     std::string getPath();
 public slots:
-    void checkUrl();     //检查url类型
+    void checkUrlType();     //检查url类型
 signals:
     void previewImageSignal(std::string);//发射携带预览图路径的信号
     void downloadCompleteSignal();//下载完成时发射此信号

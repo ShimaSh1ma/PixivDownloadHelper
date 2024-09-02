@@ -8,7 +8,9 @@
 3、程序用的到各种类型转换、文件创建、文件删除等函数
 */
 
-#include "Crawler.h"
+#include "GuiConstant.h"
+#include "DataProcess.h"
+#include <fstream>
 #include <io.h>
 #include <direct.h>
 #include <thread>
@@ -28,4 +30,6 @@ void saveDownloadData(const std::string& data);
 //删除已完成的下载信息
 void deleteDownloadData(const std::string& data);
 
+//保存文件
+void saveFile(const std::string& dir, const std::string& data);
 #endif // !_public_functions

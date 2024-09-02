@@ -1,6 +1,7 @@
 #include "InitFunctions.h"
 
 void init() {
+	ClientSocket::WSAInit();
 	initDownloadPath();
 	initPixivCookie();
 	initBackgroundImagePath();

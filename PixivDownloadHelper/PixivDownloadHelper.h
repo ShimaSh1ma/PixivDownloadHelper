@@ -57,8 +57,9 @@ private:
 
     void stretchImage();//拉伸背景图片大小，适应窗口变化
 protected:
-    virtual void paintEvent(QPaintEvent* paintE);//重写paint事件，绘制背景图片
-    virtual void resizeEvent(QResizeEvent* event);//重写resize事件，缩放背景图片
+    virtual void paintEvent(QPaintEvent* paintE) override;//重写paint事件，绘制背景图片
+    virtual void resizeEvent(QResizeEvent* event) override;//重写resize事件，缩放背景图片
+    virtual void closeEvent(QCloseEvent* event) override;//关闭时间
 };
 
 #endif
