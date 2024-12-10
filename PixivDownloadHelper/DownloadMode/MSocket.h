@@ -1,63 +1,90 @@
 ﻿#pragma once
-#ifndef _NetworkClass
-#define _NetworkClass
 
-/*
-	文件名：basicClass.h
-	功能：定义了爬虫需要的基本类型
-	1、url解析类
-	2、http报文组装类
-	3、封装winsock类
-*/
-#include <qdebug.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
+#if defined(_WIN32)
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
+
+#pragma comment(lib,"libssl.lib")
+#pragma comment(lib,"libcrypto.lib")
+#pragma comment(lib,"Ws2_32.lib")
+
+#endif
+
+#if defined(__linux__ )|| defined(__APPLE__)
+
+#include <errno.h>
+
+#include <sys/types.h>  // 提供数据类型，比如 ssize_t
+#include <sys/socket.h> // 提供 socket 函数和数据结构
+#include <netinet/in.h> // 提供字节顺序转换函数和结构体，比如 sockaddr_in
+#include <arpa/inet.h>  // 提供 IP 地址转换函数，比如 inet_pton 和 inet_ntop
+#include <unistd.h>     // 提供 close() 函数
+#include <netdb.h>      // 提供网络数据库操作的函数，比如 getaddrinfo
+
+using SOCKET = int;
+constexpr const int INVALID_SOCKET = -1;
+constexpr const int SOCKET_ERROR = -1;
+
+#define SD_SEND SHUT_WR
+#define SD_RECEIVE SHUT_RD
+#define SD_BOTH SHUT_RDWR
+
+#define WSAGetLastError() (errno)
+
+#endif 
+
+constexpr const size_t _socket_buffer_size{ 1024 * 4 };
 
 #include <vector>
 #include <string>
 
 #include "DataProcess.h"
 
-#pragma comment(lib,"libssl.lib")
-#pragma comment(lib,"libcrypto.lib")
-#pragma comment(lib,"Ws2_32.lib")
-
 //——————————————异常检查宏常量定义———————————————
-#define _M_WSASTART_ERR				"WSAStartup Error"			//winsock环境初始化异常
-#define _M_DNS_ERR					"DNS Error"					//域名转换异常
-#define _M_SOCKET_CREATE_ERR		"Socket Create Error"		//创建winsock套接字失败
-#define _M_SOCKET_CONNECT_ERR		"Socket Connect Error"		//连接到服务器失败
-#define _M_SOCKET_CLOSE_ERR			"Socket Close Error"		//关闭winsock套接字失败
+constexpr const char* _M_WSASTART_ERR = "WSAStartup Error";
+constexpr const char* _M_DNS_ERR = "DNS Error";
+constexpr const char* _M_SOCKET_CREATE_ERR = "Socket Create Error";
+constexpr const char* _M_SOCKET_CONNECT_ERR = "Socket Connect Error";
+constexpr const char* _M_SOCKET_CLOSE_ERR = "Socket Close Error";
 
-#define _M_SSL_CONTEXT_ERR			"SSL_CTX_new Error"			//ssl上下文建立失败
-#define _M_SSL_CREATE_ERR			"SSL New Error"				//ssl套接字创建失败
-#define _M_SSL_CONNECT_ERR			"SSL Connect error"			//ssl握手失败
-#define _M_SSL_WRITE_ERR			"SSL Write Error"			//ssl发送信息失败
+constexpr const char* _M_SSL_CONTEXT_ERR = "SSL_CTX_new Error";
+constexpr const char* _M_SSL_CREATE_ERR = "SSL New Error";
+constexpr const char* _M_SSL_CONNECT_ERR = "SSL Connect error";
+constexpr const char* _M_SSL_WRITE_ERR = "SSL Write Error";
 
-#define _DOWNLOAD_ERR				"Download Error"			//下载文件失败
-#define	_DOWNLOAD_SUCCESS			"Download Success"			//下载文件成功
-#define _REQUEST_ERR				"Request Error"				//请求页面失败
-#define _REQUEST_SUCCESS			"Request Success"			//请求页面成功
+constexpr const char* _DOWNLOAD_ERR = "Download Error";
+constexpr const char* _DOWNLOAD_SUCCESS = "Download Success";
+constexpr const char* _REQUEST_ERR = "Request Error";
+constexpr const char* _REQUEST_SUCCESS = "Request Success";
 
-#define _FILE_OPEN_ERR				"Error Open "				//文件打开失败
-#define _FILE_CREATE_ERR			"Error Create "				//文件创建失败
-
-#define _EMPTY_STRING				""							//空字符串
+constexpr const char* _FILE_OPEN_ERR = "Error Open ";
+constexpr const char* _FILE_CREATE_ERR = "Error Create ";
 //——————————————————————————————————————
 
 class MSocket;
 
 //客户端套接字
-class ClientSocket {
+class ClientSocketPool {
 private:
+	ClientSocketPool() = default;
+	~ClientSocketPool() = default;
+
+	ClientSocketPool(const ClientSocketPool&) = delete;
+	ClientSocketPool& operator=(const ClientSocketPool&) = delete;
+	ClientSocketPool(ClientSocketPool&&) = delete;
+	ClientSocketPool& operator=(ClientSocketPool&&) = delete;
+
+#ifdef _WIN32
 	//WSADATA对象，用于向winsock注册本应用
 	static WSADATA wsaData;
+#endif
 
 	//套接字数组
-	static std::vector<MSocket> socketPool;
+	static std::vector<SOCKET> socketPool;
 
 public:
 	//初始化WSA环境
@@ -76,7 +103,7 @@ public:
 	static void socketSend(MSocket& _socket, const std::string& sendbuf) noexcept;
 
 	//从服务器接收报文
-	static std::string socketReceive() noexcept;
+	static std::string socketReceive(MSocket& _socket) noexcept;
 
 	//断开连接并关闭套接字
 	static void sslDisconnectToServer(MSocket& _socket) noexcept;
@@ -89,28 +116,36 @@ public:
 private:
 };
 
-WSADATA ClientSocket::wsaData = {};
+#ifdef _WIN32
+WSADATA ClientSocketPool::wsaData = {};
+#endif
 
-class MSocket final{
+class MSocket final {
 public:
-	MSocket() = delete;
 	MSocket(const char* host, const char* port);
+	~MSocket();
+
+	MSocket(const MSocket&) = delete;
+	MSocket& operator=(const MSocket&) = delete;
+	MSocket(MSocket&&) = delete;
+	MSocket& operator=(MSocket&&) = delete;
 
 	void setHostAndPort(const char* host, const char* port) noexcept;
-
+	void socketClean();
 private:
 	//socket对象
 	SOCKET socket = INVALID_SOCKET;
+
 	//sslsocket对象
 	SSL* sslSocket = nullptr;
 
 	//目标主机名
-	std::string host = {};
+	std::string host;
 	//目标端口号
-	std::string port = {};
+	std::string port;
 
 	//存储ip地址类型及协议相关信息
-	struct addrinfo ipAddr = {};
+	struct addrinfo ipAddr;
 	//存放DNS请求后的ip地址信息
 	struct addrinfo* ipResult = nullptr;
 
@@ -119,16 +154,11 @@ private:
 	//声明SSL上下文
 	SSL_CTX* ctx = nullptr;
 
-	//缓冲区大小
-	int bufSize;
-
 	//函数返回结果
 	int result;
 	//错误信息
-	std::string errorLog = {};
+	std::string errorLog;
 
 	//ClientSocket静态类控制socket
-	friend class ClientSocket;
+	friend class ClientSocketPool;
 };
-
-#endif

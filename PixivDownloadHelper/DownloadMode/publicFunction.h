@@ -1,18 +1,19 @@
 ﻿#pragma once
-#ifndef _publicFunctions
-#define _publicFunctions
 
 /*本文件中函数：
 1、处理不同网站的原始url和真正资源url之间的映射关系
 2、处理接收到的json文件中的转义字符
 3、程序用的到各种类型转换、文件创建、文件删除等函数
 */
+#ifdef _WIN32
+#include <io.h>
+#include <direct.h>
+#endif
 
 #include "GuiConstant.h"
 #include "DataProcess.h"
+
 #include <fstream>
-#include <io.h>
-#include <direct.h>
 #include <thread>
 
 //简单处理json，删去json中的转义字符“\”
@@ -32,4 +33,3 @@ void deleteDownloadData(const std::string& data);
 
 //保存文件
 void saveFile(const std::string& dir, const std::string& data);
-#endif // !_public_functions

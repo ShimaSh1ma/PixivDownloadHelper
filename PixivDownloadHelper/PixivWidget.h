@@ -1,6 +1,4 @@
 ﻿#pragma once
-#ifndef _PixivWidget
-#define _PixivWidget
 
 #include <vector>
 #include <regex>
@@ -30,7 +28,7 @@ private:
 };
 
 class PixivDownloadItemTitleWidget :/*pixiv下载项目标题窗口， 由若干label组成*/
-    public TransparentWidget                                 
+    public TransparentWidget
 {
 public:
     TextLabel* urlLabel;//显示url的标签
@@ -162,7 +160,7 @@ signals:
     void startDownloadSignal();     //开始下载信号
     void adjustLayoutSignal();      //调整布局信号
     void initLoadItemSignal(std::string url, std::string downloadPath);
-    void urlIsSingleWorkSignal(std::string url,std::string downloadPath);//输入url是单个作品url,携带单个作品url
+    void urlIsSingleWorkSignal(std::string url, std::string downloadPath);//输入url是单个作品url,携带单个作品url
     void urlIsAllWorkSignal(std::string id);//输入url是用户所有作品url，携带用户id
     void urlIsTaggedWorkSignal(std::string id, std::string tag);//输入url是用户筛选后作品url，携带用户id，筛选标签tag
 private:
@@ -184,7 +182,7 @@ private:
 };
 
 class PixivDownloadWidget ://用scrollarea提供滚动条显示PixivDownloadItemWidget
-    public TransparentWidget 
+    public TransparentWidget
 {
     Q_OBJECT
 public:
@@ -223,5 +221,3 @@ public:
     ~PixivWidget();
 private:
 };
-
-#endif

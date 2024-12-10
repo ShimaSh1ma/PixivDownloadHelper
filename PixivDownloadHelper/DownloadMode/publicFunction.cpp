@@ -1,4 +1,4 @@
-﻿#include"publicFunction.h"
+﻿#include "publicFunction.h"
 
 std::string pixivAjaxurl(const std::string& url)
 {
@@ -40,23 +40,21 @@ std::string weiboUrl(const UrlParser& URL)
 
 void saveDownloadData(const std::string& data)
 {
-	auto f = [=]() {	
-	std::ofstream o(_downloadDataFile, std::ios::app);
-	if (o.is_open()) {
-		o << data << "\n";
-		o.close();
-	}
-	return; 
+	auto f = [=]() {
+		std::ofstream o(_downloadDataFile, std::ios::app);
+		if (o.is_open()) {
+			o << data << "\n";
+			o.close();
+		}
 	};
 
 	std::thread th(f);
 	th.detach();
-	return;
 }
 
 void deleteDownloadData(const std::string& data)
 {
-	auto f = [=]() {	
+	auto f = [=]() {
 		std::string out;
 		std::ifstream i(_downloadDataFile, std::ios::in);
 		if (i.is_open()) {
@@ -79,13 +77,10 @@ void deleteDownloadData(const std::string& data)
 			o << out;
 			o.close();
 		}
-
-		return;
 	};
 
 	std::thread th(f);
 	th.detach();
-	return;
 }
 
 void saveFile(const std::string& dir, const std::string& data)
@@ -95,5 +90,4 @@ void saveFile(const std::string& dir, const std::string& data)
 		out << data;
 		out.close();
 	}
-	return;
 }

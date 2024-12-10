@@ -1,6 +1,6 @@
 ﻿#include "PixivWidget.h"
 //PixivUrlInputWidget
-PixivUrlInputWidget::PixivUrlInputWidget(): TranslucentWidget(){
+PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {
 	setMinimumSize(_pixivUrlWidget_size);//设置最小大小
 	setMaximumHeight(_pixivUrlWidget_size.height());
 
@@ -94,7 +94,7 @@ void PixivDownloadItemPreviewWidget::loadPreviewImage(const std::string& imagePa
 		previewImage->setPixmap(pix->scaled(previewImage->size(),
 			Qt::KeepAspectRatio, Qt::SmoothTransformation));//缩放缩略图适应窗口大小
 		delete pix;
-	};
+		};
 
 	std::thread thd(f);
 	thd.detach();
@@ -156,7 +156,7 @@ void PixivDownloadItemStateWidget::setState(const downloadState& _state) {
 		tr(downloadStateString().toStdString().c_str()));
 }
 
-void PixivDownloadItemStateWidget::setProgress(const int& total,const int& success) {
+void PixivDownloadItemStateWidget::setProgress(const int& total, const int& success) {
 	this->imageCount = total;
 	this->successCount = success;
 	//图片数量标签设置
@@ -183,8 +183,8 @@ QString PixivDownloadItemStateWidget::downloadStateString() {
 }
 
 //PixivDownloadItem
-PixivDownloadItem::PixivDownloadItem(const std::string& _url, 
-	const std::string& _path, 
+PixivDownloadItem::PixivDownloadItem(const std::string& _url,
+	const std::string& _path,
 	const bool& foldOrUnfold)
 	:downloadPath(_path) {
 	qRegisterMetaType<std::string>("std::string");//注册std::string作为信号槽参数
@@ -330,7 +330,7 @@ void PixivDownloadItem::pixivDownload() {
 			//解析图片url
 			imageUrl.parseUrl(*it);
 			//组装对应url请求报文
-			imageHttpRequest.refreshUrl(imageUrl);
+			imageHttpRequest.remakeRequest(imageUrl);
 			//文件路径utf-8转GB2312，确保正确打开中文路径文件
 			QTextCodec* code = QTextCodec::codecForName("GB2312");
 			filePath = code->fromUnicode((path + "/" + imageUrl.fileName).c_str());
@@ -349,7 +349,7 @@ void PixivDownloadItem::pixivDownload() {
 		this->stateWidget->setState(downloadState::SUCCESS);
 		emit downloadCompleteSignal();//发射下载完成信号
 		return;
-	};
+		};
 
 	std::thread t(f);
 	t.detach();
@@ -389,7 +389,7 @@ void PixivDownloadItem::telegramDownload() {
 		delete urlP;
 		//提取图片url
 		std::vector<std::string> Vurl;//存放url的向量数组
-		int total = M->parseHtmlForUrl(*json, Vurl,"(?:file)/[\\S]+.(?:jpg|png)");//总图片数
+		int total = M->parseHtmlForUrl(*json, Vurl, "(?:file)/[\\S]+.(?:jpg|png)");//总图片数
 		int success{ 0 };//下载成功个数
 		emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
 		delete json;
@@ -410,10 +410,10 @@ void PixivDownloadItem::telegramDownload() {
 			//解析图片url
 			imageUrl.parseUrl("https://telegra.ph/" + *it);
 			//组装对应url请求报文
-			imageHttpRequest.refreshUrl(imageUrl);
+			imageHttpRequest.remakeRequest(imageUrl);
 			//文件路径utf-8转GB2312，确保正确打开中文路径文件
 			QTextCodec* code = QTextCodec::codecForName("GB2312");
-			filePath = code->fromUnicode((path + "/" + std::to_string(success) +imageUrl.fileExtension).c_str());
+			filePath = code->fromUnicode((path + "/" + std::to_string(success) + imageUrl.fileExtension).c_str());
 
 			if (mDownload.fileDownload_nonreuse(imageUrl, filePath, imageHttpRequest.request())) {
 				++success;
@@ -431,7 +431,7 @@ void PixivDownloadItem::telegramDownload() {
 		emit downloadCompleteSignal();//发射下载完成信号
 
 		return;
-	};
+		};
 
 	std::thread t(f);
 	t.detach();
@@ -522,7 +522,7 @@ PixivDownloadItemWidget::PixivDownloadItemWidget() :TransparentWidget() {
 	loadDownloadData();
 }
 
-PixivDownloadItemWidget::~PixivDownloadItemWidget(){
+PixivDownloadItemWidget::~PixivDownloadItemWidget() {
 	delete Glayout;
 	delete itemList;
 	delete hashTable;
@@ -639,7 +639,7 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 		delete url;
 		delete json;
 		return;
-	};
+		};
 
 	std::thread t(lamda);
 	t.detach();
@@ -701,7 +701,7 @@ void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, co
 		} while (page < pageCount);
 
 		return;
-	};
+		};
 
 	std::thread t(lambda);
 	t.detach();
@@ -840,7 +840,7 @@ void PixivDownloadItemWidget::loadDownloadData() {
 		emit adjustLayoutSignal();//刷新布局
 		//emit itemAddedSignal();//发送信号提示有新项目加入
 		return;
-	};
+		};
 
 	std::thread th(f);
 	th.detach();
@@ -881,7 +881,7 @@ PixivDownloadWidget::PixivDownloadWidget() {
 	this->setLayout(layout);
 }
 
-PixivDownloadWidget::~PixivDownloadWidget(){
+PixivDownloadWidget::~PixivDownloadWidget() {
 	delete layout;
 	delete topWidget;
 	delete itemWidget;

@@ -1,5 +1,6 @@
-﻿#ifndef _BasicButton
-#define _BasicButton
+﻿#pragma once
+
+#include <QtCore/qdebug.h>
 /* 定义基本的组件样式类 */
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qlineedit.h>
@@ -16,33 +17,36 @@
 
 #include "GuiConstant.h"
 
-#include <qdebug.h>
 /* 按钮样式 */
 class AnimationButton ://动画按钮
 	public QPushButton
 {
-	Q_OBJECT
+	Q_OBJECT;
 
-	Q_PROPERTY(QColor color READ color WRITE setColor)
+	Q_PROPERTY(QColor color READ color WRITE setColor);
 public:
 	explicit AnimationButton(const QString& text = nullptr,
 		const QString& icon = nullptr,
 		const QSize& size = { 0,0 });
-	~AnimationButton();
+	~AnimationButton() = default;
+
+	AnimationButton(const AnimationButton&) = delete;
+	AnimationButton& operator=(const AnimationButton&) = delete;
+	AnimationButton(AnimationButton&&) = delete;
+	AnimationButton& operator=(AnimationButton&&) = delete;
+
+	std::unique_ptr<QLabel> iconLabel;//图标标签
+	std::unique_ptr<QLabel> textLabel;//文字标签
+	std::unique_ptr<QHBoxLayout> layout;//水平布局
+private:
+	QColor buttonColor;//按钮颜色
+	std::unique_ptr<QPropertyAnimation> hoverAnimation;//鼠标进入动画
 
 	inline QColor color() { return this->buttonColor; }//获取按钮颜色
 	inline void setColor(const QColor& color) {
 		this->buttonColor = color;
 		repaint();
-		return;
-	}//设置颜色
-
-	QLabel* iconLabel;//图标标签
-	QLabel* textLabel;//文字标签
-	QHBoxLayout* layout;//水平布局
-private:
-	QColor buttonColor;//按钮颜色
-	QPropertyAnimation* hoverAnimation;//鼠标进入动画
+	}
 
 	virtual void paintEvent(QPaintEvent* event) override;//重写绘制事件
 	virtual void enterEvent(QEvent* event) override;//重写鼠标进入事件
@@ -92,8 +96,6 @@ public slots:
 signals:
 	void TextS(std::string);//携带文本框内容的信号
 public:
-	QClipboard* clipboard;//剪切板对象
-
 	explicit PixivUrlEdit();
 	~PixivUrlEdit() = default;
 private:
@@ -112,7 +114,6 @@ class TransparentTextEdit ://透明多行文本框
 	public QTextEdit
 {
 public:
-
 	explicit TransparentTextEdit();
 	~TransparentTextEdit();
 private:
@@ -138,9 +139,6 @@ private:
 class Slider :
 	public QSlider
 {
-
 protected:
 	void wheelEvent(QWheelEvent* wheelE) override;
 };
-
-#endif

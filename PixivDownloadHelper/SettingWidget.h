@@ -1,18 +1,21 @@
-﻿#ifndef _SettingWidget
-#define _SettingWidget
+﻿#pragma once
 
 /* 定义用户设置窗口 */
 #include "GuiConstant.h"
 #include "InitFunctions.h"
 #include "BasicWidget.h"
 #include "BasicButton.h"
-#include <qscrollbar.h>
-#include <qfiledialog.h>
-#include <qlabel.h>
-#include <qlayout.h>
-class ChangeDownloadPathWidget :/*切换下载路径子窗口，具有一个路径显示editline
-                               和一个切换路径按钮，切换路径按钮打开文件资源管理器选择路径
-                               */
+
+#include <QtWidgets/qscrollbar.h>
+#include <QtWidgets/qfiledialog.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qlayout.h>
+
+/*
+    切换下载路径子窗口，具有一个显示路径的文本框，
+    和一个切换路径按钮，切换路径按钮打开文件资源管理器选择路径
+*/
+class ChangeDownloadPathWidget :
     public TranslucentWidget
 {
     Q_OBJECT
@@ -142,5 +145,3 @@ public:
     ~SettingWidget();
 private:
 };
-
-#endif

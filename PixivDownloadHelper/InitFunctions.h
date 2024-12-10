@@ -1,26 +1,27 @@
-#ifndef _InitFunction
-#define _InitFunction
-/* ╤╗рЕЁлпРЁУй╪╩╞╪╟╦Э╦диХжц╨╞йЩ
-1║╒╪стьобтьб╥╬╤║╒сц╩╖cookie║╒╠Ё╬╟м╪ф╛╣хвт╤╗рЕиХжцё╗init©╙м╥╨╞йЩё╘
-2║╒╦Э╦добтьб╥╬╤║╒сц╩╖cookie║╒╠Ё╬╟м╪ф╛╣хвт╤╗рЕиХжцё╗change©╙м╥╨╞йЩё╘*/
+#pragma once
+
+/* О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫й╪О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ц╨О©╫О©╫О©╫
+1О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫б╥О©╫О©╫О©╫О©╫О©╫ц╩О©╫cookieО©╫О©╫О©╫О©╫О©╫О©╫м╪ф╛О©╫О©╫О©╫т╤О©╫О©╫О©╫О©╫О©╫О©╫цёО©╫initО©╫О©╫м╥О©╫О©╫О©╫О©╫О©╫О©╫
+2О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫б╥О©╫О©╫О©╫О©╫О©╫ц╩О©╫cookieО©╫О©╫О©╫О©╫О©╫О©╫м╪ф╛О©╫О©╫О©╫т╤О©╫О©╫О©╫О©╫О©╫О©╫цёО©╫changeО©╫О©╫м╥О©╫О©╫О©╫О©╫О©╫О©╫*/
 
 #include <fstream>
-#include <qdebug.h>
-#include <DownloadMode\MSocket.h>
+
+#include <QtCore/qdebug.h>
+
+#include "MSocket.h"
+
 #include "GuiConstant.h"
 
-//ЁУй╪╩╞╨╞йЩ
+//О©╫О©╫й╪О©╫О©╫О©╫О©╫О©╫О©╫
 void init();
 
-void initDownloadPath();//╪стьобтьб╥╬╤
-void initPixivCookie();//╪стьpixivcookie
-void initBackgroundImagePath();//╪сть╠Ё╬╟м╪ф╛б╥╬╤
-void initWindowTransparency();//╪сть╠Ё╬╟м╦цВ╤х
+void initDownloadPath();//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫б╥О©╫О©╫
+void initPixivCookie();//О©╫О©╫О©╫О©╫pixivcookie
+void initBackgroundImagePath();//О©╫О©╫О©╫ь╠О©╫О©╫О©╫м╪ф╛б╥О©╫О©╫
+void initWindowTransparency();//О©╫О©╫О©╫ь╠О©╫О©╫О©╫м╦О©╫О©╫О©╫О©╫
 
-//╦Э╦диХжц╨╞йЩ
+//О©╫О©╫О©╫О©╫О©╫О©╫О©╫ц╨О©╫О©╫О©╫
 void changeDownloadPath();
 void changePixivCookie();
 void changeBackgroundImagePath();
 void changeWindowTransparency();
-
-#endif

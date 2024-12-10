@@ -5,10 +5,10 @@ AnimationButton::AnimationButton(const QString& text,
 	const QString& icon,
 	const QSize& size) {
 	//初始化组件
-	iconLabel = new QLabel;
-	textLabel = new QLabel;
-	hoverAnimation = new QPropertyAnimation(this, "color");
-	layout = new QHBoxLayout;
+	iconLabel = std::make_unique<QLabel>();
+	textLabel = std::make_unique<QLabel>();
+	hoverAnimation = std::make_unique<QPropertyAnimation>(this, "color");
+	layout = std::make_unique<QHBoxLayout>();
 
 	//设置颜色
 	buttonColor = _buttonNormal_color;
@@ -39,29 +39,22 @@ AnimationButton::AnimationButton(const QString& text,
 	if (icon != _EMPTY_STRING && text != _EMPTY_STRING) {
 		//同时具有图标和文字标签
 		layout->addSpacing(this->width() / 20);
-		layout->addWidget(iconLabel);
+		layout->addWidget(iconLabel.release());
 		layout->addSpacing(this->width() / 30);
-		layout->addWidget(textLabel);
+		layout->addWidget(textLabel.release());
 		layout->setAlignment(Qt::AlignLeft);
 	}
 	else if (icon != _EMPTY_STRING) {
 		//只有图标
-		layout->addWidget(iconLabel);
+		layout->addWidget(iconLabel.release());
 	}
 	else if (text != _EMPTY_STRING) {
 		//只有文字标签
-		layout->addWidget(textLabel);
+		layout->addWidget(textLabel.release());
 	}
 	layout->setMargin(0);
 
-	this->setLayout(layout);
-}
-
-AnimationButton::~AnimationButton() {
-	delete iconLabel;
-	delete textLabel;
-	delete hoverAnimation;
-	delete layout;
+	this->setLayout(layout.release());
 }
 
 void AnimationButton::paintEvent(QPaintEvent* event) {
@@ -140,7 +133,7 @@ TranslucentLineEdit::TranslucentLineEdit() {
 	this->setStyleSheet(
 		"border-radius:5px;"
 		"background-color:rgba(255,255,255,0.4);"
-		);//样式表设置圆角和背景色
+	);//样式表设置圆角和背景色
 	setFont(QFont("Microsoft YaHei", 8, 50));//设置字体：微软雅黑
 }
 
@@ -149,10 +142,8 @@ PixivUrlEdit::PixivUrlEdit() {
 	//PixivUrlEdit文本框设置
 	setFixedHeight(_pixivUrlLineEdit_size.height());//设置高度
 	setPlaceholderText("https://www.pixiv.net/artworks/XXXXXXXXX");//背景提示
-	//初始化剪切板
-	clipboard = QApplication::clipboard();
 
-	connect(clipboard, &QClipboard::dataChanged,
+	connect(QApplication::clipboard(), &QClipboard::dataChanged,
 		this, &PixivUrlEdit::readClipboard);//剪切板更改时，将剪切板内容读取到文本框
 }
 
@@ -161,9 +152,9 @@ void PixivUrlEdit::sendText() {
 }
 
 void PixivUrlEdit::readClipboard() {
-	if (clipboard->text() != this->text()) {
+	if (QApplication::clipboard()->text() != this->text()) {
 		this->clear();//清理文本框
-		this->setText(clipboard->text());//将剪切板内容读取到文本框
+		this->setText(QApplication::clipboard()->text());//将剪切板内容读取到文本框
 		emit returnPressed();/*发送returnPressed()直接创建下载项目
 							returnPressed()信号在PixivUrlWidget中绑定下载按钮按下click()信号*/
 	}
@@ -185,7 +176,7 @@ TransparentTextEdit::TransparentTextEdit() {
 
 	this->setStyleSheet(
 		"background-color:rgba(255,255,255,0);"
-		);
+	);
 
 	this->verticalScrollBar()->setStyleSheet(
 		"QScrollBar:vertical{"

@@ -1,5 +1,4 @@
-﻿#ifndef _PixivDownloadHelper
-#define _PixivDownloadHelper
+﻿#pragma once
 
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QStackedWidget>
@@ -19,7 +18,7 @@ class PixivDownloadHelper : public QWidget
     Q_OBJECT
 
 public:
-    PixivDownloadHelper(QWidget *parent = nullptr);
+    PixivDownloadHelper(QWidget* parent = nullptr);
     ~PixivDownloadHelper();
 
 public slots:
@@ -28,7 +27,7 @@ public slots:
     //响应改变背景图片产生的valueChanged信号改变背景图片，调用一次repaint()
     void changeBackgroundImage();
 private:
-    Ui::PixivDownloadHelperClass *ui;
+    Ui::PixivDownloadHelperClass* ui;
 
     QGridLayout* layout;//水平布局
 
@@ -61,5 +60,3 @@ protected:
     virtual void resizeEvent(QResizeEvent* event) override;//重写resize事件，缩放背景图片
     virtual void closeEvent(QCloseEvent* event) override;//关闭时间
 };
-
-#endif

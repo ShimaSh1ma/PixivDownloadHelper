@@ -10,7 +10,7 @@ void TransparentWidget::paintEvent(QPaintEvent* paintE) {
 	painter.setRenderHint(QPainter::Antialiasing);//抗锯齿
 	painter.setPen(Qt::NoPen);
 	painter.setBrush(_transparentWidget_color);//背景颜色
-	
+
 	painter.drawRect(rect());
 }
 
@@ -38,7 +38,7 @@ TransparentScrollArea::TransparentScrollArea() {
 	setFrameStyle(Qt::FramelessWindowHint);
 
 	//初始化滚动动画
-	scrollAnimation = new QPropertyAnimation(this->verticalScrollBar(), "value");
+	scrollAnimation = std::make_unique<QPropertyAnimation>(this->verticalScrollBar(), "value");
 	scrollAnimation->setDuration(200);
 	scrollAnimation->setEasingCurve(QEasingCurve::OutCubic);
 
@@ -82,10 +82,6 @@ TransparentScrollArea::TransparentScrollArea() {
 	);
 }
 
-TransparentScrollArea::~TransparentScrollArea() {
-	delete scrollAnimation;
-}
-
 void TransparentScrollArea::wheelEvent(QWheelEvent* wheelEvent) {
 	scrollAnimation->stop();
 	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->angleDelta().y());
@@ -107,7 +103,7 @@ void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
 	else if (ev->key() == Qt::Key_PageDown) {
 		changeValue = -_pixivDownloadItemWithPre_height - 5;
 	}
-	else{}
+	else {}
 
 	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - changeValue);
 	scrollAnimation->start();
@@ -116,12 +112,10 @@ void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
 //StackedWidget
 StackedWidget::StackedWidget() {
 	//初始化切换动画
-	posAnimation = new QPropertyAnimation;
-	opacityAnimation = new QPropertyAnimation;
-
-	switchGroup = new QParallelAnimationGroup;
-
-	opacityEffect = new QGraphicsOpacityEffect;
+	posAnimation = std::make_unique<QPropertyAnimation>();
+	opacityAnimation = std::make_unique<QPropertyAnimation>();
+	switchAnimeGroup = std::make_unique<QParallelAnimationGroup>();
+	opacityEffect = std::make_unique<QGraphicsOpacityEffect>();
 	//初始化索引
 	index = 0;
 
@@ -133,26 +127,19 @@ StackedWidget::StackedWidget() {
 	opacityAnimation->setEasingCurve(QEasingCurve::InOutCubic);
 
 	//切换动画完成切换窗口
-	connect(this->switchGroup, &QParallelAnimationGroup::finished,
+	connect(this->switchAnimeGroup.get(), &QParallelAnimationGroup::finished,
 		this, &StackedWidget::setWidget);
-}
-
-StackedWidget::~StackedWidget() {
-
-	delete opacityAnimation;
-	delete posAnimation;
-	delete switchGroup;
 }
 
 void StackedWidget::switchWidget(int _index) {
 	if (_index == index) { return; }
 	//绑定透明度遮罩
-	this->currentWidget()->setGraphicsEffect(opacityEffect);
+	this->currentWidget()->setGraphicsEffect(opacityEffect.release());
 	//绑定动画
 	posAnimation->setTargetObject(this->currentWidget());
 	posAnimation->setPropertyName("pos");
 
-	opacityAnimation->setTargetObject(opacityEffect);
+	opacityAnimation->setTargetObject(opacityEffect.release());
 	opacityAnimation->setPropertyName("opacity");
 
 	//根据索引计算动画结束位置
@@ -167,10 +154,10 @@ void StackedWidget::switchWidget(int _index) {
 	opacityAnimation->setStartValue(1.0);
 	opacityAnimation->setEndValue(0.0);
 
-	switchGroup->addAnimation(posAnimation);
-	switchGroup->addAnimation(opacityAnimation);
+	switchAnimeGroup->addAnimation(posAnimation.release());
+	switchAnimeGroup->addAnimation(opacityAnimation.release());
 
-	switchGroup->start();
+	switchAnimeGroup->start();
 
 	//保存索引
 	this->index = _index;
@@ -186,7 +173,7 @@ void StackedWidget::enterEvent(QEvent* event) {
 
 PressWidget::PressWidget()
 {
-	hoverAnimation = new QPropertyAnimation(this, "color");
+	hoverAnimation = std::make_unique<QPropertyAnimation>(this, "color");
 
 	//设置初始颜色
 	backGroundColor = _translucentWidget_color;
@@ -195,12 +182,6 @@ PressWidget::PressWidget()
 	hoverAnimation->setDuration(200);
 	hoverAnimation->setEasingCurve(QEasingCurve::OutCubic);
 }
-
-PressWidget::~PressWidget()
-{
-	delete hoverAnimation;
-}
-
 
 void PressWidget::paintEvent(QPaintEvent* paintE) {
 	QPainter painter(this);
