@@ -4,15 +4,10 @@
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/qopenglwidget.h>
 
-#include "ui_PixivDownloadHelper.h"
 #include "MenuWidget.h"
 #include "PixivWidget.h"
 #include "SettingWidget.h"
 /*  主界面窗口  */
-QT_BEGIN_NAMESPACE
-namespace Ui { class PixivDownloadHelperClass; };
-QT_END_NAMESPACE
-
 class PixivDownloadHelper : public QWidget
 {
     Q_OBJECT
@@ -27,8 +22,6 @@ public slots:
     //响应改变背景图片产生的valueChanged信号改变背景图片，调用一次repaint()
     void changeBackgroundImage();
 private:
-    Ui::PixivDownloadHelperClass* ui;
-
     QGridLayout* layout;//水平布局
 
     MenuWidget* menuWidget;//界面切换按钮窗口

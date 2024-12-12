@@ -18,12 +18,12 @@
 
 #include <errno.h>
 
-#include <sys/types.h>  // 提供数据类型，比如 ssize_t
-#include <sys/socket.h> // 提供 socket 函数和数据结构
-#include <netinet/in.h> // 提供字节顺序转换函数和结构体，比如 sockaddr_in
-#include <arpa/inet.h>  // 提供 IP 地址转换函数，比如 inet_pton 和 inet_ntop
-#include <unistd.h>     // 提供 close() 函数
-#include <netdb.h>      // 提供网络数据库操作的函数，比如 getaddrinfo
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <netdb.h>
 
 using SOCKET = int;
 constexpr const int INVALID_SOCKET = -1;
@@ -32,6 +32,8 @@ constexpr const int SOCKET_ERROR = -1;
 #define SD_SEND SHUT_WR
 #define SD_RECEIVE SHUT_RD
 #define SD_BOTH SHUT_RDWR
+
+#define closesocket close
 
 #define WSAGetLastError() (errno)
 
@@ -63,6 +65,7 @@ constexpr const char* _REQUEST_SUCCESS = "Request Success";
 
 constexpr const char* _FILE_OPEN_ERR = "Error Open ";
 constexpr const char* _FILE_CREATE_ERR = "Error Create ";
+constexpr const char* _EMPTY_STRING = "";
 //——————————————————————————————————————
 
 class MSocket;
@@ -131,7 +134,7 @@ public:
 	MSocket& operator=(MSocket&&) = delete;
 
 	void setHostAndPort(const char* host, const char* port) noexcept;
-	void socketClean();
+	void socketClose();
 private:
 	//socket对象
 	SOCKET socket = INVALID_SOCKET;

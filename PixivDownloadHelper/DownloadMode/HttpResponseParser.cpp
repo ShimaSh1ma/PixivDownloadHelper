@@ -1,4 +1,4 @@
-#include "DataProcess.h"
+﻿#include "DataProcess.h"
 std::string HttpResponseParser::findKeyOfHeader(const std::string& searchHeader) {
 	auto iter = responseMap.find(searchHeader);
 	return iter == responseMap.end() ? "" : iter->second;
@@ -8,7 +8,7 @@ void HttpResponseParser::operator()(const std::string& response) {
 	std::regex rule1("HTTP/\\d(?:\\.\\d)? (\\d{3}) \\w+\\r\\n");
 	std::smatch re;
 
-	if (std::regex_search(response, re, rule1)) {	//��һ��ƥ��״̬��
+	if (std::regex_search(response, re, rule1)) {
 		this->statusCode = re[1];
 		std::regex rule2("([A-Za-z\\-]+): ([\\S]+)\\r\\n");
 		auto begin = response.cbegin();
@@ -18,7 +18,6 @@ void HttpResponseParser::operator()(const std::string& response) {
 			begin = re[0].second;
 		}
 	}
-	//δƥ�䵽״̬�����ÿղ�����
 	else {
 		statusCode = "";
 	}

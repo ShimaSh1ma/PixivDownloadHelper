@@ -5,35 +5,29 @@ PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {
 	setMaximumHeight(_pixivUrlWidget_size.height());
 
 	//初始化布局
-	layout = new QHBoxLayout;
+	layout = std::make_unique<QHBoxLayout>();
 
 	//初始化控件
-	edit = new PixivUrlEdit;
-	dButton = new AnimationButton("Download", nullptr, _toolButton_size);
+	edit = std::make_unique<PixivUrlEdit>();
+	dButton = std::make_unique<AnimationButton>("Download", nullptr, _toolButton_size);
 
 	//设置按钮大小
 	dButton->setFixedSize(_toolButton_size);
 
+	//信号与槽连接
+	connect(edit.get(), &PixivUrlEdit::returnPressed,
+		dButton.get(), &AnimationButton::click);//文本框按下回车触发下载按钮点击效果
+
+	connect(dButton.get(), &QPushButton::clicked,
+		edit.get(), &PixivUrlEdit::sendText);//按下下载按钮，文本框发送携带文本内容的Text信号
+
 	//控件加入布局
-	layout->addWidget(edit);
-	layout->addWidget(dButton);
+	layout->addWidget(edit.release());
+	layout->addWidget(dButton.release());
 	layout->setMargin(_margin_width);
 
-	//信号与槽连接
-	connect(edit, &PixivUrlEdit::returnPressed,
-		dButton, &AnimationButton::click);//文本框按下回车触发下载按钮点击效果
-
-	connect(dButton, &QPushButton::clicked,
-		edit, &PixivUrlEdit::sendText);//按下下载按钮，文本框发送携带文本内容的Text信号
-
 	//应用布局
-	this->setLayout(layout);
-}
-
-PixivUrlInputWidget::~PixivUrlInputWidget() {
-	delete layout;
-	delete dButton;
-	delete edit;
+	this->setLayout(layout.release());
 }
 
 //PixivDownloadItemTitleWidget
@@ -272,46 +266,41 @@ void PixivDownloadItem::pixivDownload() {
 	//lambd表达式作为子线程运行
 	auto f = [=]() {
 		std::string refer = url;		//原url作为refer
-		std::string* ajaxurl = new std::string;//pixiv ajax接口url生成
-		*ajaxurl = pixivAjaxurl(url);
-		if (*ajaxurl == "") {
-			delete ajaxurl;
+		std::string ajaxurl;//pixiv ajax接口url生成
+		ajaxurl = pixivAjaxurl(url);
+		if (ajaxurl == "") {
 			return;
 		}
 
-		UrlParser* urlP = new UrlParser;
-		urlP->parseUrl(*ajaxurl);
-		delete ajaxurl;
+		auto urlP = std::make_unique<UrlParser>();
+		urlP->parseUrl(ajaxurl);
 
 		//组装请求json文件报文
-		HttpRequest* jsonHttpRequest = new HttpRequest(*urlP);
+		auto jsonHttpRequest = std::make_unique<HttpRequest>(*urlP);
 		jsonHttpRequest->referer = refer;
 		jsonHttpRequest->accept = "*/*";
 		jsonHttpRequest->acceptCharset = "";
 		jsonHttpRequest->cookie = _pixivCookie;
 		//请求json文件
-		std::string* json = new std::string;
-		*json = M->requestHtml(*urlP, jsonHttpRequest->request());
+		std::string json;
+		json = M->requestHtml(*urlP, jsonHttpRequest->request());
 		//http请求失败
-		while (*json == _EMPTY_STRING || json->size() == 3) {
+		while (json == _EMPTY_STRING || json.size() == 3) {
 			//更改状态为http请求失败
 			this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
 			//重试直到请求成功
 			jsonHttpRequest->cookie = _pixivCookie;
-			*json = M->requestHtml(*urlP, jsonHttpRequest->request());
+			json = M->requestHtml(*urlP, jsonHttpRequest->request());
 		}
 		//更改状态为下载中
 		this->stateWidget->setState(downloadState::DOWNLOADING);
-		delete jsonHttpRequest;
-		delete urlP;
 		//去除json文件中的转义字符
-		jsonParse(*json);
+		jsonParse(json);
 		//提取图片url
 		std::vector<std::string> Vurl;//存放url的向量数组
-		int total = M->parseHtmlForUrl(*json, Vurl, _regex_pixiv_illust_url);//总图片数
+		int total = M->parseHtmlForUrl(json, Vurl, _regex_pixiv_illust_url);//总图片数
 		int success{ 0 };//下载成功个数
 		emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
-		delete json;
 
 		std::vector<std::string>::iterator it = Vurl.begin();	//存放url的vector迭代器
 		//url解析类
@@ -324,7 +313,7 @@ void PixivDownloadItem::pixivDownload() {
 		imageHttpRequest.cookie = _pixivCookie;
 
 		//图片文件路径
-		std::string filePath{};
+		std::string filePath;
 
 		while (it != Vurl.end()) {
 			//解析图片url

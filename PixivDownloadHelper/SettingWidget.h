@@ -103,7 +103,7 @@ public slots:
     void chooseImage();//打开资源管理器并选择背景图片，更新背景图片设置文件backgroundPicture.cfg
     void removeImage();//移除背景图片
 signals:
-    void backgroundChanged();//发送背景改变信号通知主窗口刷新
+    void backgroundChanged();//发送背景Í改变信号通知主窗口刷新
 };
 
 class SubSettingWidget ://用户设置窗口

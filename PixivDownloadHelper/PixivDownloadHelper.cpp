@@ -1,10 +1,8 @@
 ﻿#include "PixivDownloadHelper.h"
 
-PixivDownloadHelper::PixivDownloadHelper(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::PixivDownloadHelperClass())
+PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
+    : QWidget(parent), opacity(1.0)
 {
-    ui->setupUi(this);
     if (_backgroundPicturePath == _EMPTY_STRING) {
         image.fill(Qt::transparent);
         pix.fill(Qt::transparent);
@@ -71,7 +69,6 @@ PixivDownloadHelper::~PixivDownloadHelper()
     delete settingWidget;
     delete pixivWidget;
     delete stackedWidget;
-    delete ui;
 }
 
 void PixivDownloadHelper::changeTransparency(int transparency) {
@@ -130,5 +127,5 @@ void PixivDownloadHelper::resizeEvent(QResizeEvent* event) {
 
 void PixivDownloadHelper::closeEvent(QCloseEvent* event) {
     //注销WSA
-    ClientSocket::WSAClean();
+    ClientSocketPool::WSAClean();
 }

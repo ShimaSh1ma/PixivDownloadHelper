@@ -9,7 +9,6 @@ void ClientSocketPool::WSAInit() {
 		return;
 	}
 #endif
-	atexit(WSAClean);
 }
 
 void ClientSocketPool::WSAClean() {
@@ -36,7 +35,7 @@ void ClientSocketPool::sslConnectToServer(MSocket& _socket) {
 	_socket.ctx = SSL_CTX_new(_socket.meth);
 	if (_socket.ctx == NULL) {
 		_socket.errorLog = _M_SSL_CONTEXT_ERR;
-		_socket.socketClean();
+		_socket.socketClose();
 		return;
 	}
 
@@ -44,7 +43,7 @@ void ClientSocketPool::sslConnectToServer(MSocket& _socket) {
 	_socket.result = getaddrinfo(_socket.host.c_str(), _socket.port.c_str(), &_socket.ipAddr, &_socket.ipResult);
 	if (_socket.result != 0) {
 		_socket.errorLog = _M_DNS_ERR + std::to_string(WSAGetLastError()) + "\n";
-		_socket.socketClean();
+		_socket.socketClose();
 		freeaddrinfo(_socket.ipResult);
 		return;
 	}
@@ -53,7 +52,7 @@ void ClientSocketPool::sslConnectToServer(MSocket& _socket) {
 	//调用套接字函数为socket对象添加参数
 	if (_socket.socket == INVALID_SOCKET) {
 		_socket.errorLog = _M_SOCKET_CREATE_ERR + std::to_string(WSAGetLastError()) + "\n";
-		_socket.socketClean();
+		_socket.socketClose();
 		freeaddrinfo(_socket.ipResult);
 		return;
 	}
@@ -62,7 +61,7 @@ void ClientSocketPool::sslConnectToServer(MSocket& _socket) {
 	_socket.result = connect(_socket.socket, _socket.ipResult->ai_addr, static_cast<int>(_socket.ipResult->ai_addrlen));
 	if (_socket.result == SOCKET_ERROR) {
 		_socket.errorLog = _M_SOCKET_CONNECT_ERR + std::to_string(WSAGetLastError());
-		_socket.socketClean();
+		_socket.socketClose();
 		freeaddrinfo(_socket.ipResult);
 		return;
 	}
@@ -73,7 +72,7 @@ void ClientSocketPool::sslConnectToServer(MSocket& _socket) {
 	_socket.sslSocket = SSL_new(_socket.ctx);
 	if (_socket.sslSocket == NULL) {
 		_socket.errorLog = _M_SSL_CREATE_ERR;
-		_socket.socketClean();
+		_socket.socketClose();
 		return;
 	}
 
@@ -85,7 +84,7 @@ void ClientSocketPool::sslConnectToServer(MSocket& _socket) {
 	_socket.result = SSL_connect(_socket.sslSocket);
 	if (_socket.result == -1) {
 		_socket.errorLog = _M_SSL_CONNECT_ERR + SSL_get_error(_socket.sslSocket, _socket.result);
-		_socket.socketClean();
+		_socket.socketClose();
 	}
 }
 
@@ -95,7 +94,7 @@ void ClientSocketPool::socketSend(MSocket& _socket, const std::string& sendBuf)
 	_socket.result = SSL_write(_socket.sslSocket, sendBuf.c_str(), static_cast<int>(sendBuf.length()));
 	if (_socket.result == -1) {
 		_socket.errorLog = _M_SSL_WRITE_ERR + SSL_get_error(_socket.sslSocket, _socket.result);
-		_socket.socketClean();
+		_socket.socketClose();
 		return;
 	}
 
@@ -163,7 +162,7 @@ void ClientSocketPool::sslDisconnectToServer(MSocket& _socket) {
 	_socket.result = shutdown(_socket.socket, SD_SEND);
 	if (_socket.socket == SOCKET_ERROR) {
 		_socket.errorLog = _M_SOCKET_CLOSE_ERR;
-		_socket.socketClean();
+		_socket.socketClose();
 	}
 }
 
@@ -173,7 +172,7 @@ MSocket::MSocket(const char* host, const char* port) {
 }
 
 MSocket::~MSocket() {
-	this->socketClean();
+	this->socketClose();
 }
 
 void MSocket::setHostAndPort(const char* host, const char* port) {
@@ -181,7 +180,7 @@ void MSocket::setHostAndPort(const char* host, const char* port) {
 	this->port = port;
 }
 
-void MSocket::socketClean() {
+void MSocket::socketClose() {
 	if (sslSocket) {
 		SSL_shutdown(sslSocket);
 		SSL_free(sslSocket);

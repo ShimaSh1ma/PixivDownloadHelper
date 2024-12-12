@@ -1,4 +1,4 @@
-#include "InitFunctions.h"
+﻿#include "InitFunctions.h"
 
 void init() {
 	ClientSocketPool::WSAInit();

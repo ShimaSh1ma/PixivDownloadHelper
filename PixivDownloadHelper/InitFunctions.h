@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /* ��������ʼ�����������ú���
 1����������·�����û�cookie������ͼƬ���Զ������ã�init��ͷ������
@@ -12,15 +12,13 @@
 
 #include "GuiConstant.h"
 
-//��ʼ������
 void init();
 
-void initDownloadPath();//��������·��
-void initPixivCookie();//����pixivcookie
-void initBackgroundImagePath();//���ر���ͼƬ·��
-void initWindowTransparency();//���ر���͸����
+void initDownloadPath();
+void initPixivCookie();
+void initBackgroundImagePath();
+void initWindowTransparency();
 
-//�������ú���
 void changeDownloadPath();
 void changePixivCookie();
 void changeBackgroundImagePath();

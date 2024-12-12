@@ -4,6 +4,7 @@
 #include <regex>
 #include <thread>
 #include <unordered_set>
+#include <memory>
 
 #include <QtWidgets/qlayout.h>
 #include <QtCore/qtextcodec.h>
@@ -17,13 +18,18 @@ class PixivUrlInputWidget ://输入url的窗口
     public TranslucentWidget    /*含有一个文本框和下载按钮*/
 {
 public:
-    QHBoxLayout* layout;//水平布局
+    std::unique_ptr<QHBoxLayout> layout;//水平布局
 
-    PixivUrlEdit* edit;//文本框
-    AnimationButton* dButton;//下载按钮
+    std::unique_ptr<PixivUrlEdit> edit;//文本框
+    std::unique_ptr<AnimationButton> dButton;//下载按钮
 
     explicit PixivUrlInputWidget();//构造
-    ~PixivUrlInputWidget();
+    ~PixivUrlInputWidget() = default;
+
+    PixivUrlInputWidget(const PixivUrlInputWidget&) = delete;
+    PixivUrlInputWidget& operator=(const PixivUrlInputWidget&) = delete;
+    PixivUrlInputWidget(PixivUrlInputWidget&&) = delete;
+    PixivUrlInputWidget& operator =(PixivUrlInputWidget&&) = delete;
 private:
 };
 
