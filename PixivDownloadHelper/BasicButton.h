@@ -89,12 +89,6 @@ class PixivUrlEdit ://pixiv url输入文本框
 	public TranslucentLineEdit
 {
 	Q_OBJECT
-
-public slots:
-	void sendText();//发送Text()信号的槽函数
-	void readClipboard();//读取剪切板
-signals:
-	void TextS(std::string);//携带文本框内容的信号
 public:
 	explicit PixivUrlEdit();
 	~PixivUrlEdit() = default;

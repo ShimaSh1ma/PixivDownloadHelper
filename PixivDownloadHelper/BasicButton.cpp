@@ -144,20 +144,14 @@ PixivUrlEdit::PixivUrlEdit() {
 	setPlaceholderText("https://www.pixiv.net/artworks/XXXXXXXXX");//背景提示
 
 	connect(QApplication::clipboard(), &QClipboard::dataChanged,
-		this, &PixivUrlEdit::readClipboard);//剪切板更改时，将剪切板内容读取到文本框
-}
-
-void PixivUrlEdit::sendText() {
-	emit TextS(this->text().toStdString());
-}
-
-void PixivUrlEdit::readClipboard() {
-	if (QApplication::clipboard()->text() != this->text()) {
-		this->clear();//清理文本框
-		this->setText(QApplication::clipboard()->text());//将剪切板内容读取到文本框
-		emit returnPressed();/*发送returnPressed()直接创建下载项目
-							returnPressed()信号在PixivUrlWidget中绑定下载按钮按下click()信号*/
-	}
+		this, [this]() {
+			if (QApplication::clipboard()->text() != this->text()) {
+				this->clear();//清理文本框
+				this->setText(QApplication::clipboard()->text());//将剪切板内容读取到文本框
+				emit returnPressed();/*发送returnPressed()直接创建下载项目
+									returnPressed()信号在PixivUrlWidget中绑定下载按钮按下click()信号*/
+			}
+		});//剪切板更改时，将剪切板内容读取到文本框
 }
 
 //DirEdit
