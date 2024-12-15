@@ -154,8 +154,8 @@ void StackedWidget::switchWidget(int _index) {
 	opacityAnimation->setStartValue(1.0);
 	opacityAnimation->setEndValue(0.0);
 
-	switchAnimeGroup->addAnimation(posAnimation.get());
-	switchAnimeGroup->addAnimation(opacityAnimation.get());
+	switchAnimeGroup->addAnimation(posAnimation.release());
+	switchAnimeGroup->addAnimation(opacityAnimation.release());
 
 	switchAnimeGroup->start();
 

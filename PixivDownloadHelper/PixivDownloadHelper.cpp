@@ -53,13 +53,13 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
         this->menuWidget.get(), &MenuWidget::widgetFold);
 
     //窗口加入布局
-    layout->addWidget(menuWidget.get(), 0, 0);
-    layout->addWidget(stackedWidget.get(), 0, 1);
+    layout->addWidget(menuWidget.release(), 0, 0);
+    layout->addWidget(stackedWidget.release(), 0, 1);
     layout->setSpacing(_margin_width);
     layout->setMargin(_margin_width);
 
     //设置布局
-    setLayout(layout.get());
+    setLayout(layout.release());
 }
 
 void PixivDownloadHelper::changeTransparency(int transparency) {
