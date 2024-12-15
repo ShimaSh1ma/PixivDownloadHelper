@@ -39,34 +39,11 @@ constexpr const int SOCKET_ERROR = -1;
 
 #endif 
 
-constexpr const size_t _socket_buffer_size{ 1024 * 4 };
-
 #include <vector>
 #include <string>
 
 #include "DataProcess.h"
-
-//——————————————异常检查宏常量定义———————————————
-constexpr const char* _M_WSASTART_ERR = "WSAStartup Error";
-constexpr const char* _M_DNS_ERR = "DNS Error";
-constexpr const char* _M_SOCKET_CREATE_ERR = "Socket Create Error";
-constexpr const char* _M_SOCKET_CONNECT_ERR = "Socket Connect Error";
-constexpr const char* _M_SOCKET_CLOSE_ERR = "Socket Close Error";
-
-constexpr const char* _M_SSL_CONTEXT_ERR = "SSL_CTX_new Error";
-constexpr const char* _M_SSL_CREATE_ERR = "SSL New Error";
-constexpr const char* _M_SSL_CONNECT_ERR = "SSL Connect error";
-constexpr const char* _M_SSL_WRITE_ERR = "SSL Write Error";
-
-constexpr const char* _DOWNLOAD_ERR = "Download Error";
-constexpr const char* _DOWNLOAD_SUCCESS = "Download Success";
-constexpr const char* _REQUEST_ERR = "Request Error";
-constexpr const char* _REQUEST_SUCCESS = "Request Success";
-
-constexpr const char* _FILE_OPEN_ERR = "Error Open ";
-constexpr const char* _FILE_CREATE_ERR = "Error Create ";
-constexpr const char* _EMPTY_STRING = "";
-//——————————————————————————————————————
+#include "SocketConstant.h"
 
 class MSocket;
 
@@ -100,16 +77,16 @@ public:
 	static void sslInit();
 
 	//创建并连接到远程服务器
-	static void sslConnectToServer(MSocket& _socket) noexcept;
+	static void sslConnectToServer(MSocket& _socket);
 
 	//向服务器发送信息
-	static void socketSend(MSocket& _socket, const std::string& sendbuf) noexcept;
+	static void socketSend(MSocket& _socket, const std::string& sendbuf);
 
 	//从服务器接收报文
-	static std::string socketReceive(MSocket& _socket) noexcept;
+	static std::string socketReceive(MSocket& _socket);
 
 	//断开连接并关闭套接字
-	static void sslDisconnectToServer(MSocket& _socket) noexcept;
+	static void sslDisconnectToServer(MSocket& _socket);
 
 	//创建socket
 	static SOCKET creatSocket() noexcept;
@@ -118,10 +95,6 @@ public:
 	static void deleteSocket() noexcept;
 private:
 };
-
-#ifdef _WIN32
-WSADATA ClientSocketPool::wsaData = {};
-#endif
 
 class MSocket final {
 public:

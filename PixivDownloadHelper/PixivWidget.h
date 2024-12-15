@@ -17,6 +17,7 @@
 class PixivUrlInputWidget final ://输入url的窗口
     public TranslucentWidget     //含有一个文本框和下载按钮
 {
+    Q_OBJECT
 public:
     explicit PixivUrlInputWidget();
     ~PixivUrlInputWidget() = default;
@@ -218,7 +219,7 @@ class PixivDownloadWidget ://用scrollarea提供滚动条显示PixivDownloadItem
     Q_OBJECT
 public:
     explicit PixivDownloadWidget();
-    ~PixivDownloadWidget();
+    ~PixivDownloadWidget() = default;
 signals:
     void sizeChangedSignal();
 private:
@@ -235,6 +236,7 @@ private:
     void virtual resizeEvent(QResizeEvent* ev);
 
     friend class PixivWidget;
+    friend class PixivDownloadHelper;
 };
 
 class PixivWidget ://pixiv下载界面
@@ -254,4 +256,6 @@ private:
     //包含的窗口
     std::unique_ptr<PixivUrlInputWidget> inputWidget;
     std::unique_ptr<PixivDownloadWidget> downloadWidget;
+
+    friend class PixivDownloadHelper;
 };

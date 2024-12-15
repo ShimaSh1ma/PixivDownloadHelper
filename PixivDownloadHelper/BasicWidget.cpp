@@ -134,12 +134,12 @@ StackedWidget::StackedWidget() {
 void StackedWidget::switchWidget(int _index) {
 	if (_index == index) { return; }
 	//绑定透明度遮罩
-	this->currentWidget()->setGraphicsEffect(opacityEffect.release());
+	this->currentWidget()->setGraphicsEffect(opacityEffect.get());
 	//绑定动画
 	posAnimation->setTargetObject(this->currentWidget());
 	posAnimation->setPropertyName("pos");
 
-	opacityAnimation->setTargetObject(opacityEffect.release());
+	opacityAnimation->setTargetObject(opacityEffect.get());
 	opacityAnimation->setPropertyName("opacity");
 
 	//根据索引计算动画结束位置
@@ -154,8 +154,8 @@ void StackedWidget::switchWidget(int _index) {
 	opacityAnimation->setStartValue(1.0);
 	opacityAnimation->setEndValue(0.0);
 
-	switchAnimeGroup->addAnimation(posAnimation.release());
-	switchAnimeGroup->addAnimation(opacityAnimation.release());
+	switchAnimeGroup->addAnimation(posAnimation.get());
+	switchAnimeGroup->addAnimation(opacityAnimation.get());
 
 	switchAnimeGroup->start();
 

@@ -24,20 +24,20 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
     opacity = (double)_windowTransparency / _windowTransparency_division;
 
     //初始化组件
-    layout = new QGridLayout;
-    menuWidget = new MenuWidget;
-    pixivWidget = new PixivWidget;
-    settingWidget = new SettingWidget;
+    layout = std::make_unique<QGridLayout>();
+    menuWidget = std::make_unique<MenuWidget>();
+    pixivWidget = std::make_unique<PixivWidget>();
+    settingWidget = std::make_unique<SettingWidget>();
 
-    stackedWidget = new StackedWidget;
+    stackedWidget = std::make_unique<StackedWidget>();
 
     //功能窗口加入窗口堆栈，索引返回到对应菜单按钮
-    menuWidget->pixivButton->setIndex(stackedWidget->addWidget(pixivWidget));
-    menuWidget->settingButton->setIndex(stackedWidget->addWidget(settingWidget));
+    menuWidget->pixivButton->setIndex(stackedWidget->addWidget(pixivWidget.get()));
+    menuWidget->settingButton->setIndex(stackedWidget->addWidget(settingWidget.get()));
 
     //信号槽实现切换窗口
-    connect(menuWidget->pixivButton, &MenuButton::indexSignal, stackedWidget, &StackedWidget::switchWidget);
-    connect(menuWidget->settingButton, &MenuButton::indexSignal, stackedWidget, &StackedWidget::switchWidget);
+    connect(menuWidget->pixivButton, &MenuButton::indexSignal, stackedWidget.get(), &StackedWidget::switchWidget);
+    connect(menuWidget->settingButton, &MenuButton::indexSignal, stackedWidget.get(), &StackedWidget::switchWidget);
     //信号槽实现滑块改变背景透明度
     connect(settingWidget->subWidget->changeTransparencyWidget->slider, &QSlider::valueChanged,
         this, &PixivDownloadHelper::changeTransparency);
@@ -45,30 +45,21 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
     connect(settingWidget->subWidget->changeBackImageWidget, &ChangeBackgroundImageWidget::backgroundChanged,
         this, &PixivDownloadHelper::changeBackgroundImage);
     //切换窗口时重新计算下载项目窗口动态布局
-    connect(this->stackedWidget, &QStackedWidget::currentChanged,
-        this->pixivWidget->downloadWidget->itemWidget, &PixivDownloadItemWidget::caculateColumn);
+    connect(this->stackedWidget.get(), &QStackedWidget::currentChanged,
+        this->pixivWidget->downloadWidget->itemWidget.get(), &PixivDownloadItemWidget::caculateColumn);
 
     //鼠标进入右侧界面则折叠菜单界面
-    connect(this->stackedWidget, &StackedWidget::enterSignal,
-        this->menuWidget, &MenuWidget::widgetFold);
+    connect(this->stackedWidget.get(), &StackedWidget::enterSignal,
+        this->menuWidget.get(), &MenuWidget::widgetFold);
 
     //窗口加入布局
-    layout->addWidget(menuWidget, 0, 0);
-    layout->addWidget(stackedWidget, 0, 1);
+    layout->addWidget(menuWidget.get(), 0, 0);
+    layout->addWidget(stackedWidget.get(), 0, 1);
     layout->setSpacing(_margin_width);
     layout->setMargin(_margin_width);
 
     //设置布局
-    setLayout(layout);
-}
-
-PixivDownloadHelper::~PixivDownloadHelper()
-{
-    delete layout;
-    delete menuWidget;
-    delete settingWidget;
-    delete pixivWidget;
-    delete stackedWidget;
+    setLayout(layout.get());
 }
 
 void PixivDownloadHelper::changeTransparency(int transparency) {

@@ -24,12 +24,12 @@ PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {
 		});//按下下载按钮，文本框发送携带文本内容的Text信号
 
 	//控件加入布局
-	layout->addWidget(textEdit.release());
-	layout->addWidget(downloadButton.release());
+	layout->addWidget(textEdit.get());
+	layout->addWidget(downloadButton.get());
 	layout->setMargin(_margin_width);
 
 	//应用布局
-	this->setLayout(layout.release());
+	this->setLayout(layout.get());
 }
 
 //PixivDownloadItemTitleWidget
@@ -45,10 +45,10 @@ PixivDownloadItemTitleWidget::PixivDownloadItemTitleWidget(const std::string& ur
 	urlLabel->setMinimumWidth(200);
 	urlLabel->setAlignment(Qt::AlignCenter);//居中显示
 	//布局设置
-	layout->addWidget(urlLabel.release());
+	layout->addWidget(urlLabel.get());
 
 	layout->setMargin(0);
-	this->setLayout(layout.release());
+	this->setLayout(layout.get());
 }
 
 //PixivDownloadItemPreviewWidget
@@ -65,10 +65,10 @@ PixivDownloadItemPreviewWidget::PixivDownloadItemPreviewWidget() {
 	previewImage->setAlignment(Qt::AlignCenter);//居中显示
 
 	//布局设置
-	layout->addWidget(previewImage.release());
+	layout->addWidget(previewImage.get());
 	layout->setMargin(0);
 
-	this->setLayout(layout.release());
+	this->setLayout(layout.get());
 }
 
 void PixivDownloadItemPreviewWidget::loadPreviewImage(const std::string& imagePath) {
@@ -118,14 +118,14 @@ PixivDownloadItemStateWidget::PixivDownloadItemStateWidget() {
 	downloadStateLabel->setAlignment(Qt::AlignCenter);
 	//布局管理
 	layout->addStretch(1);
-	layout->addWidget(successCountLabel.release());
-	layout->addWidget(separatorLabel.release());
-	layout->addWidget(totalCountLabel.release());
-	layout->addWidget(downloadStateLabel.release());
+	layout->addWidget(successCountLabel.get());
+	layout->addWidget(separatorLabel.get());
+	layout->addWidget(totalCountLabel.get());
+	layout->addWidget(downloadStateLabel.get());
 	layout->addStretch(1);
 	layout->setMargin(0);
 
-	this->setLayout(layout.release());
+	this->setLayout(layout.get());
 }
 
 void PixivDownloadItemStateWidget::setState(const downloadState& _state) {
@@ -192,14 +192,14 @@ PixivDownloadItem::PixivDownloadItem(const std::string& _url,
 		this->previewWidget.get(), &PixivDownloadItemPreviewWidget::loadPreviewImage);//收到缩略图路径信号，更新缩略图
 
 	//布局管理
-	layout->addWidget(titleWidget.release());
+	layout->addWidget(titleWidget.get());
 	layout->addStretch(1);
-	layout->addWidget(previewWidget.release());
+	layout->addWidget(previewWidget.get());
 	layout->addStretch(1);
-	layout->addWidget(stateWidget.release());
+	layout->addWidget(stateWidget.get());
 	layout->setMargin(_margin_width);
 
-	this->setLayout(layout.release());
+	this->setLayout(layout.get());
 }
 
 std::string PixivDownloadItem::getUrl()
@@ -239,174 +239,174 @@ void PixivDownloadItem::checkUrlType() {
 }
 
 void PixivDownloadItem::pixivDownload() {
-	//将下载状态置为下载中
-	this->stateWidget->setState(downloadState::DOWNLOADING);
-	std::string url = downloadUrl;
-	std::string path = downloadPath;
+	////将下载状态置为下载中
+	//this->stateWidget->setState(downloadState::DOWNLOADING);
+	//std::string url = downloadUrl;
+	//std::string path = downloadPath;
 
-	//lambd表达式作为子线程运行
-	auto f = [=]() {
-		std::string refer = url;		//原url作为refer
-		std::string ajaxurl;//pixiv ajax接口url生成
-		ajaxurl = pixivAjaxurl(url);
-		if (ajaxurl == "") {
-			return;
-		}
+	////lambd表达式作为子线程运行
+	//auto f = [=]() {
+	//	std::string refer = url;		//原url作为refer
+	//	std::string ajaxurl;//pixiv ajax接口url生成
+	//	ajaxurl = pixivAjaxurl(url);
+	//	if (ajaxurl == "") {
+	//		return;
+	//	}
 
-		auto urlP = std::make_unique<UrlParser>();
-		urlP->parseUrl(ajaxurl);
+	//	auto urlP = std::make_unique<UrlParser>();
+	//	urlP->parseUrl(ajaxurl);
 
-		//组装请求json文件报文
-		auto jsonHttpRequest = std::make_unique<HttpRequest>(*urlP);
-		jsonHttpRequest->referer = refer;
-		jsonHttpRequest->accept = "*/*";
-		jsonHttpRequest->acceptCharset = "";
-		jsonHttpRequest->cookie = _pixivCookie;
-		//请求json文件
-		std::string json;
-		json = M->requestHtml(*urlP, jsonHttpRequest->request());
-		//http请求失败
-		while (json == _EMPTY_STRING || json.size() == 3) {
-			//更改状态为http请求失败
-			this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
-			//重试直到请求成功
-			jsonHttpRequest->cookie = _pixivCookie;
-			json = M->requestHtml(*urlP, jsonHttpRequest->request());
-		}
-		//更改状态为下载中
-		this->stateWidget->setState(downloadState::DOWNLOADING);
-		//去除json文件中的转义字符
-		jsonParse(json);
-		//提取图片url
-		std::vector<std::string> Vurl;//存放url的向量数组
-		int total = M->parseHtmlForUrl(json, Vurl, _regex_pixiv_illust_url);//总图片数
-		int success{ 0 };//下载成功个数
-		emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
+	//	//组装请求json文件报文
+	//	auto jsonHttpRequest = std::make_unique<HttpRequest>(*urlP);
+	//	jsonHttpRequest->referer = refer;
+	//	jsonHttpRequest->accept = "*/*";
+	//	jsonHttpRequest->acceptCharset = "";
+	//	jsonHttpRequest->cookie = _pixivCookie;
+	//	//请求json文件
+	//	std::string json;
+	//	json = M->requestHtml(*urlP, jsonHttpRequest->request());
+	//	//http请求失败
+	//	while (json == _EMPTY_STRING || json.size() == 3) {
+	//		//更改状态为http请求失败
+	//		this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
+	//		//重试直到请求成功
+	//		jsonHttpRequest->cookie = _pixivCookie;
+	//		json = M->requestHtml(*urlP, jsonHttpRequest->request());
+	//	}
+	//	//更改状态为下载中
+	//	this->stateWidget->setState(downloadState::DOWNLOADING);
+	//	//去除json文件中的转义字符
+	//	jsonParse(json);
+	//	//提取图片url
+	//	std::vector<std::string> Vurl;//存放url的向量数组
+	//	int total = M->parseHtmlForUrl(json, Vurl, _regex_pixiv_illust_url);//总图片数
+	//	int success{ 0 };//下载成功个数
+	//	emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
 
-		std::vector<std::string>::iterator it = Vurl.begin();	//存放url的vector迭代器
-		//url解析类
-		UrlParser imageUrl;
+	//	std::vector<std::string>::iterator it = Vurl.begin();	//存放url的vector迭代器
+	//	//url解析类
+	//	UrlParser imageUrl;
 
-		//创建http请求报文类
-		HttpRequest imageHttpRequest;
-		imageHttpRequest.referer = refer;
-		imageHttpRequest.accept = "image/*";
-		imageHttpRequest.cookie = _pixivCookie;
+	//	//创建http请求报文类
+	//	HttpRequest imageHttpRequest;
+	//	imageHttpRequest.referer = refer;
+	//	imageHttpRequest.accept = "image/*";
+	//	imageHttpRequest.cookie = _pixivCookie;
 
-		//图片文件路径
-		std::string filePath;
+	//	//图片文件路径
+	//	std::string filePath;
 
-		while (it != Vurl.end()) {
-			//解析图片url
-			imageUrl.parseUrl(*it);
-			//组装对应url请求报文
-			imageHttpRequest.remakeRequest(imageUrl);
-			//文件路径utf-8转GB2312，确保正确打开中文路径文件
-			QTextCodec* code = QTextCodec::codecForName("GB2312");
-			filePath = code->fromUnicode((path + "/" + imageUrl.fileName).c_str());
-			if (mDownload.fileDownload_nonreuse(imageUrl, filePath, imageHttpRequest.request())) {
-				++success;
-				it++;					//迭代器递增，下载下一张图片
-				if (success == 1) {		//获取第一张图片作为下载项目的预览缩略图
-					emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
-				}
-				emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
-			}
-			filePath = {};	//文件名重置
-		}
+	//	while (it != Vurl.end()) {
+	//		//解析图片url
+	//		imageUrl.parseUrl(*it);
+	//		//组装对应url请求报文
+	//		imageHttpRequest.remakeRequest(imageUrl);
+	//		//文件路径utf-8转GB2312，确保正确打开中文路径文件
+	//		QTextCodec* code = QTextCodec::codecForName("GB2312");
+	//		filePath = code->fromUnicode((path + "/" + imageUrl.fileName).c_str());
+	//		if (mDownload.fileDownload_nonreuse(imageUrl, filePath, imageHttpRequest.request())) {
+	//			++success;
+	//			it++;					//迭代器递增，下载下一张图片
+	//			if (success == 1) {		//获取第一张图片作为下载项目的预览缩略图
+	//				emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
+	//			}
+	//			emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
+	//		}
+	//		filePath = {};	//文件名重置
+	//	}
 
-		//将下载状态置为下载完成
-		this->stateWidget->setState(downloadState::SUCCESS);
-		emit downloadCompleteSignal();//发射下载完成信号
-		return;
-		};
+	//	//将下载状态置为下载完成
+	//	this->stateWidget->setState(downloadState::SUCCESS);
+	//	emit downloadCompleteSignal();//发射下载完成信号
+	//	return;
+	//	};
 
-	std::thread t(f);
-	t.detach();
-	return;
+	//std::thread t(f);
+	//t.detach();
+	//return;
 }
 
 void PixivDownloadItem::telegramDownload() {
-	//将下载状态置为下载中
-	this->stateWidget->setState(downloadState::DOWNLOADING);
-	std::string url = downloadUrl;
-	std::string path = downloadPath;
+	////将下载状态置为下载中
+	//this->stateWidget->setState(downloadState::DOWNLOADING);
+	//std::string url = downloadUrl;
+	//std::string path = downloadPath;
 
-	//lambd表达式作为子线程运行
-	auto f = [=]() {
-		std::string refer = url;		//原url作为refer
-		UrlParser* urlP = new UrlParser();
-		urlP->parseUrl(url);
-		//组装请求json文件报文
-		HttpRequest* jsonHttpRequest = new HttpRequest(*urlP);
-		jsonHttpRequest->referer = refer;
-		jsonHttpRequest->accept = "*/*";
-		jsonHttpRequest->acceptCharset = "";
-		//请求json文件
-		std::string* json = new std::string;
-		*json = M->requestHtml(*urlP, jsonHttpRequest->request());
-		//http请求失败
-		while (*json == _EMPTY_STRING || json->size() == 3) {
-			//更改状态为http请求失败
-			this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
-			//重试直到请求成功
-			jsonHttpRequest->cookie = _pixivCookie;
-			*json = M->requestHtml(*urlP, jsonHttpRequest->request());
-		}
-		//更改状态为下载中
-		this->stateWidget->setState(downloadState::DOWNLOADING);
-		delete jsonHttpRequest;
-		delete urlP;
-		//提取图片url
-		std::vector<std::string> Vurl;//存放url的向量数组
-		int total = M->parseHtmlForUrl(*json, Vurl, "(?:file)/[\\S]+.(?:jpg|png)");//总图片数
-		int success{ 0 };//下载成功个数
-		emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
-		delete json;
+	////lambd表达式作为子线程运行
+	//auto f = [=]() {
+	//	std::string refer = url;		//原url作为refer
+	//	UrlParser* urlP = new UrlParser();
+	//	urlP->parseUrl(url);
+	//	//组装请求json文件报文
+	//	HttpRequest* jsonHttpRequest = new HttpRequest(*urlP);
+	//	jsonHttpRequest->referer = refer;
+	//	jsonHttpRequest->accept = "*/*";
+	//	jsonHttpRequest->acceptCharset = "";
+	//	//请求json文件
+	//	std::string* json = new std::string;
+	//	*json = M->requestHtml(*urlP, jsonHttpRequest->request());
+	//	//http请求失败
+	//	while (*json == _EMPTY_STRING || json->size() == 3) {
+	//		//更改状态为http请求失败
+	//		this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
+	//		//重试直到请求成功
+	//		jsonHttpRequest->cookie = _pixivCookie;
+	//		*json = M->requestHtml(*urlP, jsonHttpRequest->request());
+	//	}
+	//	//更改状态为下载中
+	//	this->stateWidget->setState(downloadState::DOWNLOADING);
+	//	delete jsonHttpRequest;
+	//	delete urlP;
+	//	//提取图片url
+	//	std::vector<std::string> Vurl;//存放url的向量数组
+	//	int total = M->parseHtmlForUrl(*json, Vurl, "(?:file)/[\\S]+.(?:jpg|png)");//总图片数
+	//	int success{ 0 };//下载成功个数
+	//	emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
+	//	delete json;
 
-		std::vector<std::string>::iterator it = Vurl.begin();	//存放url的vector迭代器
-		//url解析类
-		UrlParser imageUrl;
+	//	std::vector<std::string>::iterator it = Vurl.begin();	//存放url的vector迭代器
+	//	//url解析类
+	//	UrlParser imageUrl;
 
-		//创建http请求报文类
-		HttpRequest imageHttpRequest;
-		imageHttpRequest.referer = refer;
-		imageHttpRequest.accept = "image/*";
+	//	//创建http请求报文类
+	//	HttpRequest imageHttpRequest;
+	//	imageHttpRequest.referer = refer;
+	//	imageHttpRequest.accept = "image/*";
 
-		//图片文件路径
-		std::string filePath{};
+	//	//图片文件路径
+	//	std::string filePath{};
 
-		while (it != Vurl.end()) {
-			//解析图片url
-			imageUrl.parseUrl("https://telegra.ph/" + *it);
-			//组装对应url请求报文
-			imageHttpRequest.remakeRequest(imageUrl);
-			//文件路径utf-8转GB2312，确保正确打开中文路径文件
-			QTextCodec* code = QTextCodec::codecForName("GB2312");
-			filePath = code->fromUnicode((path + "/" + std::to_string(success) + imageUrl.fileExtension).c_str());
+	//	while (it != Vurl.end()) {
+	//		//解析图片url
+	//		imageUrl.parseUrl("https://telegra.ph/" + *it);
+	//		//组装对应url请求报文
+	//		imageHttpRequest.remakeRequest(imageUrl);
+	//		//文件路径utf-8转GB2312，确保正确打开中文路径文件
+	//		QTextCodec* code = QTextCodec::codecForName("GB2312");
+	//		filePath = code->fromUnicode((path + "/" + std::to_string(success) + imageUrl.fileExtension).c_str());
 
-			if (mDownload.fileDownload_nonreuse(imageUrl, filePath, imageHttpRequest.request())) {
-				++success;
-				it++;					//迭代器递增，下载下一张图片
-				if (success == 1) {		//获取第一张图片作为下载项目的预览缩略图
-					emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
-				}
-				emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
-			}
-			filePath = {};	//文件名重置
-		}
+	//		if (mDownload.fileDownload_nonreuse(imageUrl, filePath, imageHttpRequest.request())) {
+	//			++success;
+	//			it++;					//迭代器递增，下载下一张图片
+	//			if (success == 1) {		//获取第一张图片作为下载项目的预览缩略图
+	//				emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
+	//			}
+	//			emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
+	//		}
+	//		filePath = {};	//文件名重置
+	//	}
 
-		//将下载状态置为下载完成
-		this->stateWidget->setState(downloadState::SUCCESS);
-		emit downloadCompleteSignal();//发射下载完成信号
+	//	//将下载状态置为下载完成
+	//	this->stateWidget->setState(downloadState::SUCCESS);
+	//	emit downloadCompleteSignal();//发射下载完成信号
 
-		return;
-		};
+	//	return;
+	//	};
 
-	std::thread t(f);
-	t.detach();
+	//std::thread t(f);
+	//t.detach();
 
-	return;
+	//return;
 }
 
 //PixivDownloadTopWidget
@@ -429,11 +429,11 @@ PixivDownloadTopWidget::PixivDownloadTopWidget() {
 	//布局管理
 	//layout->addWidget(countLabel);
 	layout->addStretch(1);
-	layout->addWidget(foldButton.release());
-	layout->addWidget(unfoldButton.release());
+	layout->addWidget(foldButton.get());
+	layout->addWidget(unfoldButton.get());
 
 	layout->setMargin(0);
-	this->setLayout(layout.release());
+	this->setLayout(layout.get());
 }
 
 //PixivDownloadItemWidget
@@ -447,7 +447,7 @@ PixivDownloadItemWidget::PixivDownloadItemWidget() :TransparentWidget() {
 	itemList = std::list<PixivDownloadItem*>();
 	//哈希表初始化
 	hashTable = std::unordered_set<std::string>();
-	Glayout = std::unique_ptr<QGridLayout>();
+	Glayout = std::make_unique<QGridLayout>();
 
 	//itemList添加头节点
 	itemList.emplace_back(nullptr);
@@ -479,7 +479,7 @@ PixivDownloadItemWidget::PixivDownloadItemWidget() :TransparentWidget() {
 
 	Glayout->setMargin(0);//布局周围间距为零
 	Glayout->setAlignment(Qt::AlignTop);//默认上对齐
-	this->setLayout(Glayout.release());
+	this->setLayout(Glayout.get());
 
 	//加载未完成下载项目
 	loadDownloadData();
@@ -566,7 +566,7 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 		std::string* json = new std::string;
 		//请求json
 		while (*json == _EMPTY_STRING) {
-			*json = M->requestHtml(*urlP, hr->request());
+			//*json = M->requestHtml(*urlP, hr->request());
 		}
 		delete hr;
 		delete urlP;
@@ -621,7 +621,7 @@ void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, co
 			std::string* json = new std::string;
 			//请求json
 			while (*json == _EMPTY_STRING) {
-				*json = M->requestHtml(*urlP, hr->request());
+				//*json = M->requestHtml(*urlP, hr->request());
 			}
 			delete hr;
 			delete urlP;
@@ -726,9 +726,9 @@ void PixivDownloadItemWidget::adjustLayout() {
 		return;
 	}
 	//删除原有布局
-	Glayout = nullptr;
+	Glayout.reset();
 	//新建布局
-	Glayout = std::unique_ptr<QGridLayout>();
+	Glayout = std::make_unique<QGridLayout>();
 	Glayout->setMargin(0);//布局周围间距为零
 	Glayout->setSpacing(5);//设置间距
 	Glayout->setAlignment(Qt::AlignTop);//默认上对齐
@@ -751,7 +751,7 @@ void PixivDownloadItemWidget::adjustLayout() {
 	this->row = ++_row;
 	this->setMinimumHeight(row * (_pixivDownloadItemWithPre_height * (int)foldOrUnfold
 		+ _pixivDownloadItemWithoutPre_height * (int)!foldOrUnfold) + (row - 1) * this->Glayout->spacing());
-	this->setLayout(Glayout.release());
+	this->setLayout(Glayout.get());
 	this->resize(sizeHint());//强制刷新，防止布局错误
 }
 
@@ -824,7 +824,7 @@ PixivDownloadWidget::PixivDownloadWidget() {
 
 	//设置滚动窗口
 	scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	scrollArea->setWidget(itemWidget.release());
+	scrollArea->setWidget(itemWidget.get());
 	scrollArea->setWidgetResizable(true);
 
 	//布局管理
@@ -857,10 +857,10 @@ PixivWidget::PixivWidget() {
 	connect(inputWidget.get(), &PixivUrlInputWidget::TextS, downloadWidget->itemWidget.get(), &PixivDownloadItemWidget::checkUrl);
 
 	//窗口加入布局，修改布局样式
-	layout->addWidget(inputWidget.release());
-	layout->addWidget(downloadWidget.release());
+	layout->addWidget(inputWidget.get());
+	layout->addWidget(downloadWidget.get());
 	layout->setMargin(0);
 
 	//设置布局
-	setLayout(layout.release());
+	setLayout(layout.get());
 }

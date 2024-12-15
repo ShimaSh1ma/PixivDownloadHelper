@@ -1,7 +1,11 @@
 ﻿#include "MSocket.h"
 
+#ifdef _WIN32
+WSADATA ClientSocketPool::wsaData = {};
+#endif
+
 void ClientSocketPool::WSAInit() {
-#if defined(_WIN21)
+#if defined(_WIN32)
 	//初始化socket环境
 	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0) {
@@ -106,11 +110,11 @@ std::string ClientSocketPool::socketReceive(MSocket& _socket)
 	//接收socket返回值
 	int ret{};
 	//开辟缓冲区
-	char* recvbuf = new char[_socket_buffer_size];
+	char* recvbuf = new char[_BUFFER_SIZE];
 	std::string temp;
 	//循环读取socket缓冲区
 	do {
-		_socket.result = SSL_read(_socket.sslSocket, recvbuf, _socket_buffer_size);
+		_socket.result = SSL_read(_socket.sslSocket, recvbuf, _BUFFER_SIZE);
 		if (_socket.result > 0) {
 			for (int i = 0; i < _socket.result; i++) {
 				temp += recvbuf[i];
@@ -122,7 +126,7 @@ std::string ClientSocketPool::socketReceive(MSocket& _socket)
 		else {
 			_socket.errorLog = _REQUEST_ERR;
 			delete[] recvbuf;
-			return _EMPTY_STRING;
+			return "";
 		}
 	} while (_socket.result > 0 || SSL_get_error(_socket.sslSocket, ret) == SSL_ERROR_WANT_READ);
 	//释放缓冲区
@@ -133,7 +137,7 @@ std::string ClientSocketPool::socketReceive(MSocket& _socket)
 	//判断是否接收到http报文
 	if (key == std::string::npos) {
 		_socket.errorLog = _REQUEST_ERR;
-		return _EMPTY_STRING;
+		return "";
 	}
 	//http响应解析
 	HttpResponseParser responseParser;
@@ -149,7 +153,7 @@ std::string ClientSocketPool::socketReceive(MSocket& _socket)
 	if (responseParser.statusCode != "200") {
 		return responseParser.statusCode;
 	}
-	return _EMPTY_STRING;
+	return "";
 }
 
 void ClientSocketPool::sslDisconnectToServer(MSocket& _socket) {
@@ -175,7 +179,7 @@ MSocket::~MSocket() {
 	this->socketClose();
 }
 
-void MSocket::setHostAndPort(const char* host, const char* port) {
+void MSocket::setHostAndPort(const char* host, const char* port) noexcept{
 	this->host = host;
 	this->port = port;
 }

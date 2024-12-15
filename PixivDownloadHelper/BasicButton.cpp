@@ -39,22 +39,22 @@ AnimationButton::AnimationButton(const QString& text,
 	if (icon != _EMPTY_STRING && text != _EMPTY_STRING) {
 		//同时具有图标和文字标签
 		layout->addSpacing(this->width() / 20);
-		layout->addWidget(iconLabel.release());
+		layout->addWidget(iconLabel.get());
 		layout->addSpacing(this->width() / 30);
-		layout->addWidget(textLabel.release());
+		layout->addWidget(textLabel.get());
 		layout->setAlignment(Qt::AlignLeft);
 	}
 	else if (icon != _EMPTY_STRING) {
 		//只有图标
-		layout->addWidget(iconLabel.release());
+		layout->addWidget(iconLabel.get());
 	}
 	else if (text != _EMPTY_STRING) {
 		//只有文字标签
-		layout->addWidget(textLabel.release());
+		layout->addWidget(textLabel.get());
 	}
 	layout->setMargin(0);
 
-	this->setLayout(layout.release());
+	this->setLayout(layout.get());
 }
 
 void AnimationButton::paintEvent(QPaintEvent* event) {

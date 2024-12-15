@@ -108,6 +108,9 @@
     <ClInclude Include="DownloadMode\DataProcess.h">
       <Filter>Header Files\DownloadMode Header</Filter>
     </ClInclude>
+    <ClInclude Include="SocketConstant.h">
+      <Filter>Header Files\Constant</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="BasicButton.h">

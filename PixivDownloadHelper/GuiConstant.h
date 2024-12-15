@@ -41,11 +41,7 @@ extern const std::string _regex_pixiv_userTagged_url;               //pixiv一�
 extern const std::string _regex_telegram_url;                       //telegram匹配规则
 //——————————————————————————————————————
 
-//—————————————套接字缓冲区大小—————————————————
-constexpr size_t _socket_buffer_size{ 1024 * 4 };
-//——————————————————————————————————————
-
-constexpr const char* _EMPTY_STRING = "";
+extern constexpr const char* _EMPTY_STRING = "";
 
 enum class downloadState {
    WAITING,

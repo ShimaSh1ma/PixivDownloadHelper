@@ -14,7 +14,7 @@ class PixivDownloadHelper : public QWidget
 
 public:
     PixivDownloadHelper(QWidget* parent = nullptr);
-    ~PixivDownloadHelper();
+    ~PixivDownloadHelper() = default;
 
 public slots:
     //响应改变不透明度的滑块产生的valueChanged信号改变窗口透明度，调用一次repaint()
@@ -22,14 +22,14 @@ public slots:
     //响应改变背景图片产生的valueChanged信号改变背景图片，调用一次repaint()
     void changeBackgroundImage();
 private:
-    QGridLayout* layout;//水平布局
+    std::unique_ptr<QGridLayout> layout;//水平布局
 
-    MenuWidget* menuWidget;//界面切换按钮窗口
+    std::unique_ptr<MenuWidget> menuWidget;//界面切换按钮窗口
 
-    PixivWidget* pixivWidget;//pixiv下载窗口
-    SettingWidget* settingWidget;//设置窗口
+    std::unique_ptr<PixivWidget> pixivWidget;//pixiv下载窗口
+    std::unique_ptr<SettingWidget> settingWidget;//设置窗口
 
-    StackedWidget* stackedWidget;//显示一个功能窗口，可以切换
+    std::unique_ptr<StackedWidget> stackedWidget;//显示一个功能窗口，可以切换
 
     QImage image;//背景图片
     QPixmap pix;//背景图片缩放
