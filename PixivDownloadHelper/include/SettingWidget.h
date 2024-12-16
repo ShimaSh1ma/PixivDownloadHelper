@@ -20,6 +20,11 @@ class ChangeDownloadPathWidget :
 {
     Q_OBJECT
 public:
+    explicit ChangeDownloadPathWidget();
+    ~ChangeDownloadPathWidget();
+public slots:
+    void chooseDownloadPath();//打开文件资源管理器选择下载路径，并将更改后的路径写入downloadPath.cfg文件
+private:
     TextLabel* title;
     //路径显示栏
     DirEdit* pathEdit;
@@ -28,11 +33,6 @@ public:
 
     //网格布局
     QGridLayout* layout;
-
-    explicit ChangeDownloadPathWidget();
-    ~ChangeDownloadPathWidget();
-public slots:
-    void chooseDownloadPath();//打开文件资源管理器选择下载路径，并将更改后的路径写入downloadPath.cfg文件
 };
 
 class ChangePixivCookieWidget ://更改PixivCookie的窗口

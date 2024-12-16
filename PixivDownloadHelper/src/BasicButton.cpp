@@ -39,22 +39,22 @@ AnimationButton::AnimationButton(const QString& text,
 	if (icon != _EMPTY_STRING && text != _EMPTY_STRING) {
 		//同时具有图标和文字标签
 		layout->addSpacing(this->width() / 20);
-		layout->addWidget(iconLabel.get());
+		layout->addWidget(iconLabel.release());
 		layout->addSpacing(this->width() / 30);
-		layout->addWidget(textLabel.get());
+		layout->addWidget(textLabel.release());
 		layout->setAlignment(Qt::AlignLeft);
 	}
 	else if (icon != _EMPTY_STRING) {
 		//只有图标
-		layout->addWidget(iconLabel.get());
+		layout->addWidget(iconLabel.release());
 	}
 	else if (text != _EMPTY_STRING) {
 		//只有文字标签
-		layout->addWidget(textLabel.get());
+		layout->addWidget(textLabel.release());
 	}
 	layout->setMargin(0);
 
-	this->setLayout(layout.get());
+	this->setLayout(layout.release());
 }
 
 void AnimationButton::paintEvent(QPaintEvent* event) {
@@ -113,19 +113,15 @@ MenuButton::MenuButton(const QString& label, const QString& icon, const QSize& s
 	setAutoExclusive(true);//设置互斥
 	setCheckable(true);
 	setFont(QFont("Microsoft YaHei"));//设置字体：微软雅黑
-
-	//按钮按下发送对应窗口索引
-	connect(this, &QPushButton::clicked, this, &MenuButton::getIndex);
 }
 
 void MenuButton::setIndex(int id) {
 	this->index = id;
 }
 
-void MenuButton::getIndex() {
-	emit indexSignal(this->index);
+int MenuButton::getIndex() {
+	return this->index;
 }
-
 
 //TranslucentLineEdit
 TranslucentLineEdit::TranslucentLineEdit() {

@@ -11,7 +11,6 @@
 class PixivDownloadHelper : public QWidget
 {
     Q_OBJECT
-
 public:
     PixivDownloadHelper(QWidget* parent = nullptr);
     ~PixivDownloadHelper() = default;

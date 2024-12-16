@@ -11,7 +11,8 @@
 #endif
 
 #if defined(__linux__)||defined(__APPLE__)
-
+#include <unistd.h>
+#include <sys/stat.h>
 #endif
 
 //int类型转为string类型

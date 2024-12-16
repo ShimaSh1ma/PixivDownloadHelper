@@ -35,11 +35,11 @@ public:
 	AnimationButton(AnimationButton&&) = delete;
 	AnimationButton& operator=(AnimationButton&&) = delete;
 
+private:
+	QColor buttonColor;//按钮颜色
 	std::unique_ptr<QLabel> iconLabel;//图标标签
 	std::unique_ptr<QLabel> textLabel;//文字标签
 	std::unique_ptr<QHBoxLayout> layout;//水平布局
-private:
-	QColor buttonColor;//按钮颜色
 	std::unique_ptr<QPropertyAnimation> hoverAnimation;//鼠标进入动画
 
 	inline QColor color() { return this->buttonColor; }//获取按钮颜色
@@ -65,11 +65,13 @@ public:
 		const QSize& size = _menuButton_size);
 	~MenuButton() = default;
 
+	MenuButton(const MenuButton&) = delete;
+	MenuButton& operator=(const MenuButton&) = delete;
+	MenuButton(MenuButton&&) = delete;
+	MenuButton& operator=(MenuButton&&) = delete;
+
 	void setIndex(int id);//传入对应窗口索引
-public slots:
-	void getIndex();//按钮按下时执行，发出带索引的showIndex()信号
-signals:
-	void indexSignal(int);//发送索引的信号
+	int getIndex();
 private:
 	int index{};//按钮对应窗口索引
 };
@@ -88,7 +90,6 @@ private:
 class PixivUrlEdit ://pixiv url输入文本框
 	public TranslucentLineEdit
 {
-	Q_OBJECT
 public:
 	explicit PixivUrlEdit();
 	~PixivUrlEdit() = default;

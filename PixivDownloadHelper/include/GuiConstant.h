@@ -10,35 +10,34 @@
 #include <string>
 
    //用户设置（config）信息
-extern std::string _backgroundPicturePath;//背景图片路径
-extern size_t _windowTransparency;//背景图片透明度
-extern std::string _downloadPath;//下载根目录
-extern std::string _pixivCookie;//pixivcookie字符串
+extern std::string _backgroundPicturePath{};//背景图片路径
+extern std::string _downloadPath{};//下载根目录
+extern std::string _pixivCookie{};//pixivcookie字符串
+extern size_t _windowTransparency{ 255 };//背景图片透明度
 
-//config文件保存路径
-extern const std::string _config_download_save_path;//下载根目录condig保存路径
-extern const std::string _config_pixivcookie_save_path;//pixivcookie config保存路径
-extern const std::string _config_background_picture_path;//背景文件config保存路径
-extern const std::string _config_window_tranparency_path;//背景透明度config保存路径
-extern const std::string _downloadDataFile;//保存用户未完成的下载项目信息
+extern constexpr const char* _config_download_save_path = ".\\config\\downloadPath.cfg";//下载根目录设置文件路径
+extern constexpr const char* _config_pixivcookie_save_path = ".\\config\\pixivCookie.cfg";//pixivcookie存放文件路径
+extern constexpr const char* _config_background_picture_path = ".\\config\\backgroundPicture.cfg";//背景文件config保存路径
+extern constexpr const char* _config_window_tranparency_path = ".\\config\\windowTransparency.cfg";//背景透明度config保存路径
+extern constexpr const char* _downloadDataFile = ".\\config\\downloadData.cfg";//保存用户未完成的下载项目信息
 
 //未获取到缩略图时的默认缩略图路径
-extern const std::string _default_preview_path;
+extern constexpr const char* _default_preview_path = ".\\resource\\image\\defaultPreview";//默认预览图路径
 
 //程序图标路径
-extern const std::string _icon_main_path;
-extern const std::string _icon_fold_path;//折叠图标路径
-extern const std::string _icon_unfold_path;//展开图标路径
-extern const std::string _icon_pixiv_path;//pixiv图标路径
-extern const std::string _icon_setting_path;//设置图标路径
-extern const std::string _icon_extend_path;//扩展图标路径
+extern constexpr const char* _icon_main_path = ".\\resource\\icon\\main.ico";//程序图标路径
+extern constexpr const char* _icon_fold_path = ".\\resource\\icon\\ico_fold.png";//折叠图标路径
+extern constexpr const char* _icon_unfold_path = ".\\resource\\icon\\ico_unfold.png";//展开图标路径
+extern constexpr const char* _icon_pixiv_path = ".\\resource\\icon\\ico_pixiv.png";//展开图标路径
+extern constexpr const char* _icon_setting_path = ".\\resource\\icon\\ico_setting.png";//设置图标路径
+extern constexpr const char* _icon_extend_path = ".\\resource\\icon\\ico_extend.png";//扩展图标路径
 
 //——————————————正则匹配规则表达式—————————————————
-extern const std::string _regex_pixiv_illust_url;					//pixiv单个作品中的图片  url匹配规则
-extern const std::string _regex_pixiv_artwork_url;                  //pixiv单个作品  url匹配规则
-extern const std::string _regex_pixiv_userAll_url;                  //pixiv一个用户所有作品  url匹配规则
-extern const std::string _regex_pixiv_userTagged_url;               //pixiv一个用户筛选后作品  url匹配规则
-extern const std::string _regex_telegram_url;                       //telegram匹配规则
+extern constexpr const char* _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";					//pixiv单个作品中的图片  url匹配规则
+extern constexpr const char* _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[\\d]{8,9}";                  //pixiv单个作品  url匹配规则
+extern constexpr const char* _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([\\d]{1,8})(?:/artworks)?";                  //pixiv一个用户所有作品  url匹配规则
+extern constexpr const char* _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([\\d]{1,8})/(?:artworks|illustrations)/(.+)?";               //pixiv一个用户筛选后作品  url匹配规则
+extern constexpr const char* _regex_telegram_url = "https://telegra.ph/[\\S]+";                       //telegram匹配规则
 //——————————————————————————————————————
 
 extern constexpr const char* _EMPTY_STRING = "";
