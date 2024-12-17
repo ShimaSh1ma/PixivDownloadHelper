@@ -44,7 +44,8 @@ MenuWidget::MenuWidget() {
 }
 
 template<typename T>void MenuWidget::bindButtonSignal(const T& button) {
-	static_assert(std::is_base_of<MenuButton, T>::value, "button不是MenuButton及其子类");
+	static_assert(std::is_base_of<MenuButton, typename std::remove_pointer<T>::type>::value,
+		"button不是MenuButton及其子类");
 	connect(button, &MenuButton::clicked, this, [this, button]() {emit menuButtonIndexSignal(button->getIndex());});
 }
 

@@ -4,7 +4,7 @@
 
 #include <QtCore/qdebug.h>
 
-#include "./DownloadMode/MSocket.h"
+#include "SocketModule/include/MSocket.h"
 
 #include "GuiConstant.h"
 

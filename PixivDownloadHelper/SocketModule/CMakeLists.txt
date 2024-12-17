@@ -5,9 +5,6 @@ project(SocketModule)
 # 自动查找src目录下所有的.cpp文件
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
-# 添加包含的头文件目录
-file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h")
-
 # 寻找 OpenSSL 库
 find_package(OpenSSL REQUIRED)
 

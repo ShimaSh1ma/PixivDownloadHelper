@@ -10,10 +10,10 @@
 #include <string>
 
    //用户设置（config）信息
-extern std::string _backgroundPicturePath{};//背景图片路径
-extern std::string _downloadPath{};//下载根目录
-extern std::string _pixivCookie{};//pixivcookie字符串
-extern size_t _windowTransparency{ 255 };//背景图片透明度
+extern std::string _backgroundPicturePath;//背景图片路径
+extern std::string _downloadPath;//下载根目录
+extern std::string _pixivCookie;//pixivcookie字符串
+extern size_t _windowTransparency;//背景图片透明度
 
 extern constexpr const char* _config_download_save_path = ".\\config\\downloadPath.cfg";//下载根目录设置文件路径
 extern constexpr const char* _config_pixivcookie_save_path = ".\\config\\pixivCookie.cfg";//pixivcookie存放文件路径
@@ -32,7 +32,7 @@ extern constexpr const char* _icon_pixiv_path = ".\\resource\\icon\\ico_pixiv.pn
 extern constexpr const char* _icon_setting_path = ".\\resource\\icon\\ico_setting.png";//设置图标路径
 extern constexpr const char* _icon_extend_path = ".\\resource\\icon\\ico_extend.png";//扩展图标路径
 
-//——————————————正则匹配规则表达式—————————————————
+//正则匹配规则表达式
 extern constexpr const char* _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";					//pixiv单个作品中的图片  url匹配规则
 extern constexpr const char* _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[\\d]{8,9}";                  //pixiv单个作品  url匹配规则
 extern constexpr const char* _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([\\d]{1,8})(?:/artworks)?";                  //pixiv一个用户所有作品  url匹配规则
@@ -42,12 +42,13 @@ extern constexpr const char* _regex_telegram_url = "https://telegra.ph/[\\S]+"; 
 
 extern constexpr const char* _EMPTY_STRING = "";
 
+//下载状态枚举量
 enum class downloadState {
    WAITING,
    DOWNLOADING,
    SUCCESS,
    HTTPREQUESTFAILED
-};//下载状态枚举量
+};
 
 //统一边框宽度
 constexpr size_t _margin_width{ 10 };

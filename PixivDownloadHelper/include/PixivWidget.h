@@ -11,7 +11,7 @@
 #include <QtGui/qevent.h>
 #include <QtGui/qdesktopservices.h>
 
-#include "DownloadMode/publicFunction.h"
+#include "publicFunction.h"
 #include "BasicWidget.h"
 #include "BasicButton.h"
 #include "basicFunction.h"
