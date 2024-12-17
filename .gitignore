@@ -4,6 +4,8 @@ PixivDownloadHelper/.vs/
 
 PixivDownloadHelper/x64/
 
+PixivDownloadHelper/build
+
 *.hint
 
 *.aps
