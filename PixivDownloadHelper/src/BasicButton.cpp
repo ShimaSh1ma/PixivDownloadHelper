@@ -3,15 +3,23 @@
 //AnimationButton
 AnimationButton::AnimationButton(const QString& text,
 	const QString& icon,
-	const QSize& size) {
+	const QSize& size,
+	const size_t borderRadius) :borderRadius(borderRadius) {
 	//初始化组件
-	iconLabel = std::make_unique<QLabel>();
-	textLabel = std::make_unique<QLabel>();
+	iconLabel = new QLabel();
+	textLabel = new QLabel();
+	layout = new QHBoxLayout();
 	hoverAnimation = std::make_unique<QPropertyAnimation>(this, "color");
-	layout = std::make_unique<QHBoxLayout>();
 
 	//设置颜色
 	buttonColor = _buttonNormal_color;
+
+#if defined(__APPLE__)
+	setAttribute(Qt::WA_LayoutUsesWidgetRect);
+#endif
+
+	//设置样式
+	setStyleSheet("QPushButton:hover { border: none; }");
 
 	//大小设置
 	this->resize(size);
@@ -39,22 +47,22 @@ AnimationButton::AnimationButton(const QString& text,
 	if (icon != _EMPTY_STRING && text != _EMPTY_STRING) {
 		//同时具有图标和文字标签
 		layout->addSpacing(this->width() / 20);
-		layout->addWidget(iconLabel.release());
+		layout->addWidget(iconLabel);
 		layout->addSpacing(this->width() / 30);
-		layout->addWidget(textLabel.release());
+		layout->addWidget(textLabel);
 		layout->setAlignment(Qt::AlignLeft);
 	}
 	else if (icon != _EMPTY_STRING) {
 		//只有图标
-		layout->addWidget(iconLabel.release());
+		layout->addWidget(iconLabel);
 	}
 	else if (text != _EMPTY_STRING) {
 		//只有文字标签
-		layout->addWidget(textLabel.release());
+		layout->addWidget(textLabel);
 	}
 	layout->setMargin(0);
 
-	this->setLayout(layout.release());
+	this->setLayout(layout);
 }
 
 void AnimationButton::paintEvent(QPaintEvent* event) {
@@ -69,7 +77,7 @@ void AnimationButton::paintEvent(QPaintEvent* event) {
 	QRect rt = this->rect();
 	rt.setWidth(rt.width());
 	rt.setHeight(rt.height());
-	painter.drawRoundedRect(rt, 9, 9);//绘制圆角
+	painter.drawRoundedRect(rt, borderRadius, borderRadius);//绘制圆角
 }
 
 void AnimationButton::enterEvent(QEvent* event) {
@@ -105,8 +113,11 @@ void AnimationButton::mouseReleaseEvent(QMouseEvent* e) {
 }
 
 //MenuButton
-MenuButton::MenuButton(const QString& label, const QString& icon, const QSize& size) :
-	AnimationButton(label, icon, size) {
+MenuButton::MenuButton(const QString& label,
+	const QString& icon,
+	const QSize& size,
+	const size_t borderRadius) :
+	AnimationButton(label, icon, size, borderRadius) {
 	//设置大小
 	setFixedSize(_menuButton_size);
 
@@ -159,10 +170,13 @@ DirEdit::DirEdit() {
 TransparentTextEdit::TransparentTextEdit() {
 	setFrameStyle(NoFrame);//无边框
 
+	//关闭水平滚动条
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
 	//初始化滚动动画
-	scrollAnimation = new QPropertyAnimation(this->verticalScrollBar(), "value");
-	scrollAnimation->setDuration(200);
-	scrollAnimation->setEasingCurve(QEasingCurve::OutCubic);
+	verticalScrollAnimation = std::make_unique<QPropertyAnimation>(this->verticalScrollBar(), "value");
+	verticalScrollAnimation->setDuration(100);
+	verticalScrollAnimation->setEasingCurve(QEasingCurve::OutCubic);
 
 	this->setStyleSheet(
 		"background-color:rgba(255,255,255,0);"
@@ -200,34 +214,19 @@ TransparentTextEdit::TransparentTextEdit() {
 	);
 
 	setFont(QFont("Microsoft YaHei", 8, 50));//设置字体：微软雅黑
-	setAlignment(Qt::AlignLeft);//靠左显示
-}
-
-TransparentTextEdit::~TransparentTextEdit() {
-	delete scrollAnimation;
-}
-
-void TransparentTextEdit::enterEvent(QEvent* event) {
-	setFocus();
-}
-
-void TransparentTextEdit::leaveEvent(QEvent* event) {
-	clearFocus();
+	// setAlignment(Qt::AlignLeft);//靠左显示
 }
 
 void TransparentTextEdit::wheelEvent(QWheelEvent* wheelEvent) {
-	scrollAnimation->stop();
-	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->angleDelta().y());
-	scrollAnimation->start();
-}
-
-bool TransparentTextEdit::eventFilter(QObject* obj, QEvent* ev) {
-	if (this->hasFocus()) {
-		if (ev->type() == QEvent::Wheel) {
-			return true;
-		}
+	if (wheelEvent->source() == Qt::MouseEventNotSynthesized) {
+		verticalScrollAnimation->stop();
+		verticalScrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->pixelDelta().y());
+		verticalScrollAnimation->start();
+		wheelEvent->accept();
 	}
-	return false;
+	else {
+		QPlainTextEdit::wheelEvent(wheelEvent);
+	}
 }
 
 //TextLabel
@@ -238,6 +237,4 @@ TextLabel::TextLabel() {
 }
 
 //Slider
-void Slider::wheelEvent(QWheelEvent* wheelE) {
-
-}
+void Slider::wheelEvent(QWheelEvent* wheelE) {}

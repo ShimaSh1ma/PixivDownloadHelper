@@ -39,3 +39,9 @@ target_link_libraries(${PROJECT_NAME}
         OpenSSL::Crypto
         SocketModule
 )
+
+# 设置资源图片目录路径变量
+set(RESOURCE_DIR "${CMAKE_SOURCE_DIR}/resource")
+
+# 在项目构建时，将资源文件或目录复制到目标目录
+file(COPY ${RESOURCE_DIR} DESTINATION ${CMAKE_BINARY_DIR})

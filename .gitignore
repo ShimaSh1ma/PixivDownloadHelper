@@ -1,10 +1,14 @@
 .vs/
 
+.vscode/
+
 PixivDownloadHelper/.vs/
 
 PixivDownloadHelper/x64/
 
 PixivDownloadHelper/build
+
+build/
 
 *.hint
 
@@ -22,3 +26,4 @@ PixivDownloadHelper/build
 
 #*.user
 
+.vscode/c_cpp_properties.json

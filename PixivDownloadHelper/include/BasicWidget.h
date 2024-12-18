@@ -83,9 +83,9 @@ public slots:
 signals:
     void enterSignal();
 private:
-    std::unique_ptr<QPropertyAnimation> posAnimation;//切换动画：位置动画
-    std::unique_ptr<QPropertyAnimation> opacityAnimation;//切换动画：透明度动画
-    std::unique_ptr<QGraphicsOpacityEffect> opacityEffect;//透明度遮罩
+    QPropertyAnimation* posAnimation;//切换动画：位置动画
+    QPropertyAnimation* opacityAnimation;//切换动画：透明度动画
+    QGraphicsOpacityEffect* opacityEffect;//透明度遮罩
     std::unique_ptr<QParallelAnimationGroup> switchAnimeGroup;//切换动画组
 
     size_t index;//当前页面索引

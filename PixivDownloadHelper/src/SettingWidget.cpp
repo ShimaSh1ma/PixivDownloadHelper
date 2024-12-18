@@ -9,6 +9,11 @@ SubSettingWidget::SubSettingWidget() {
 	changeTransparencyWidget = new ChangeTransparencyWidget;
 	changeBackImageWidget = new ChangeBackgroundImageWidget;
 
+	connect(this->changeTransparencyWidget, &ChangeTransparencyWidget::sliderValueChange,
+		this, &SubSettingWidget::changeTransparencySliderValueChange);
+	connect(this->changeBackImageWidget, &ChangeBackgroundImageWidget::backgroundImgChanged,
+		this, &SubSettingWidget::backgroundImgChanged);
+
 	//布局管理
 	layout->addWidget(changeDirWidget);
 	layout->addWidget(changePixivCookieWidget);
@@ -16,7 +21,7 @@ SubSettingWidget::SubSettingWidget() {
 	layout->addWidget(changeBackImageWidget);
 	layout->addStretch(1);
 
-	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, _margin_width - (_margin_width - _scrollerBar_width) / 2, 0);
 
 	setLayout(layout);
 }
@@ -94,7 +99,7 @@ ChangePixivCookieWidget::ChangePixivCookieWidget() {
 	title->setText(tr("Change Pixiv Cookie"));
 	//显示文本框设置
 	textEdit->setMinimumSize(_settingChangePixivCookieTextEdit_size);//设置最小大小
-	textEdit->setText(QString::fromStdString(_pixivCookie));//展示现在的cookie
+	textEdit->setPlainText(QString::fromStdString(_pixivCookie));//展示现在的cookie
 	textEdit->setReadOnly(true);//只读，在点击change按钮后可编辑,点击Save后恢复只读状态
 
 	//信号与槽连接
@@ -116,7 +121,7 @@ ChangePixivCookieWidget::ChangePixivCookieWidget() {
 	this->setLayout(layout);
 }
 
-ChangePixivCookieWidget::~ChangePixivCookieWidget(){
+ChangePixivCookieWidget::~ChangePixivCookieWidget() {
 	delete textEdit;
 	delete changeButton;
 	delete saveButton;
@@ -154,7 +159,7 @@ void ChangePixivCookieWidget::mousePressEvent(QMouseEvent* mouseE) {
 			this->showOrNot = false;
 			return;
 		}
-		else{
+		else {
 			this->textEdit->setVisible(true);
 			this->changeButton->setVisible(true);
 			this->saveButton->setVisible(true);
@@ -185,13 +190,10 @@ ChangeTransparencyWidget::ChangeTransparencyWidget() {
 	connect(this->slider, &QSlider::sliderReleased,
 		this, &ChangeTransparencyWidget::saveTranparency);//释放滚动条时，保存透明度信息
 
-	this->setLayout(layout);
-}
+	connect(this->slider, &QSlider::valueChanged,
+		this, &ChangeTransparencyWidget::sliderValueChange);
 
-ChangeTransparencyWidget::~ChangeTransparencyWidget(){
-	delete title;
-	delete slider;
-	delete layout;
+	this->setLayout(layout);
 }
 
 void ChangeTransparencyWidget::saveTranparency() {
@@ -233,7 +235,7 @@ ChangeBackgroundImageWidget::ChangeBackgroundImageWidget() {
 	this->setLayout(layout);
 }
 
-ChangeBackgroundImageWidget::~ChangeBackgroundImageWidget(){
+ChangeBackgroundImageWidget::~ChangeBackgroundImageWidget() {
 	delete title;
 	delete imageView;
 	delete changeButton;
@@ -255,7 +257,7 @@ void ChangeBackgroundImageWidget::chooseImage() {
 		//更新设置文件
 		changeBackgroundImagePath();
 		//发送背景图片更改信号，供主窗口刷新
-		emit backgroundChanged();
+		emit backgroundImgChanged();
 	}
 	return;
 }
@@ -268,8 +270,7 @@ void ChangeBackgroundImageWidget::removeImage() {
 	//更新设置文件
 	changeBackgroundImagePath();
 	//通知主窗口刷新
-	emit backgroundChanged();
-	return;
+	emit backgroundImgChanged();
 }
 
 //SettingWidget
@@ -279,8 +280,11 @@ SettingWidget::SettingWidget() {
 	scrollArea = new TransparentScrollArea;
 	layout = new QVBoxLayout;
 
-	//给cookie编辑框安装事件过滤器，使滚轮事件不透射到setting窗口
-	this->scrollArea->viewport()-> installEventFilter(this->subWidget->changePixivCookieWidget->textEdit);
+	connect(this->subWidget, &SubSettingWidget::changeTransparencySliderValueChange,
+		this, &SettingWidget::changeTransparencySliderValueChange);
+
+	connect(this->subWidget, &SubSettingWidget::backgroundImgChanged,
+		this, &SettingWidget::backgroundImgChanged);
 
 	//设置滚动窗口
 	scrollArea->setWidget(subWidget);//指定窗口
@@ -289,13 +293,7 @@ SettingWidget::SettingWidget() {
 
 	//布局管理
 	layout->addWidget(scrollArea);
-	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, (_margin_width - _scrollerBar_width) / 2, 0);
 
 	this->setLayout(layout);
-}
-
-SettingWidget::~SettingWidget() {
-	delete subWidget;
-	delete scrollArea;
-	delete layout;
 }

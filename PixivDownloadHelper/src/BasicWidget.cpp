@@ -49,19 +49,18 @@ TransparentScrollArea::TransparentScrollArea() {
 
 	setContentsMargins(0, 0, 0, 0);
 
-	//滚动条样式
-	this->verticalScrollBar()->setStyleSheet(
+	std::string styleSheet = (
 		"QScrollBar:vertical{"
 		"background-color:transparent;"
-		"width:10px;"
+		"width:" + std::to_string(_scrollerBar_width) + "px;"
 		"}"
 		"QScrollBar:handle:vertical{"
 		"background:rgba(220,220,220,255);"
-		"border-radius:5px;"
+		"border-radius:" + std::to_string(_scrollerBar_width / 2) + "px;"
 		"}"
 		"QScrollBar:handle:vertical:hover{"
 		"background:rgba(200,200,200,255);"
-		"border-radius:5px;"
+		"border-radius:" + std::to_string(_scrollerBar_width / 2) + "px;"
 		"}"
 		"QScrollBar:add-page:vertical{"
 		"background-color:transparent;"
@@ -79,13 +78,21 @@ TransparentScrollArea::TransparentScrollArea() {
 		"border:none;"
 		"color:none;"
 		"}"
-	);
+		);
+	//滚动条样式
+	this->verticalScrollBar()->setStyleSheet(QString::fromStdString(styleSheet));
 }
 
 void TransparentScrollArea::wheelEvent(QWheelEvent* wheelEvent) {
-	scrollAnimation->stop();
-	scrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->angleDelta().y());
-	scrollAnimation->start();
+	if (wheelEvent->source() == Qt::MouseEventNotSynthesized) {
+		scrollAnimation->stop();
+		scrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->angleDelta().y());
+		scrollAnimation->start();
+		wheelEvent->accept();
+	}
+	else {
+		QScrollArea::wheelEvent(wheelEvent);
+	}
 }
 
 void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
@@ -95,13 +102,13 @@ void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
 		changeValue = _pixivDownloadItemWithoutPre_height;
 	}
 	else if (ev->key() == Qt::Key_Down) {
-		changeValue = -_pixivDownloadItemWithoutPre_height;
+		changeValue = -static_cast<int>(_pixivDownloadItemWithoutPre_height);
 	}
 	else if (ev->key() == Qt::Key_PageUp) {
 		changeValue = _pixivDownloadItemWithPre_height + 5;
 	}
 	else if (ev->key() == Qt::Key_PageDown) {
-		changeValue = -_pixivDownloadItemWithPre_height - 5;
+		changeValue = -static_cast<int>(_pixivDownloadItemWithPre_height - 5);
 	}
 	else {}
 
@@ -112,10 +119,10 @@ void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
 //StackedWidget
 StackedWidget::StackedWidget() {
 	//初始化切换动画
-	posAnimation = std::make_unique<QPropertyAnimation>();
-	opacityAnimation = std::make_unique<QPropertyAnimation>();
+	posAnimation = new QPropertyAnimation();
+	opacityAnimation = new QPropertyAnimation();
+	opacityEffect = new QGraphicsOpacityEffect();
 	switchAnimeGroup = std::make_unique<QParallelAnimationGroup>();
-	opacityEffect = std::make_unique<QGraphicsOpacityEffect>();
 	//初始化索引
 	index = 0;
 
@@ -133,13 +140,15 @@ StackedWidget::StackedWidget() {
 
 void StackedWidget::switchWidget(int _index) {
 	if (_index == index) { return; }
+	//保存索引
+	this->index = _index;
 	//绑定透明度遮罩
-	this->currentWidget()->setGraphicsEffect(opacityEffect.get());
+	this->currentWidget()->setGraphicsEffect(opacityEffect);
 	//绑定动画
 	posAnimation->setTargetObject(this->currentWidget());
 	posAnimation->setPropertyName("pos");
 
-	opacityAnimation->setTargetObject(opacityEffect.get());
+	opacityAnimation->setTargetObject(opacityEffect);
 	opacityAnimation->setPropertyName("opacity");
 
 	//根据索引计算动画结束位置
@@ -154,13 +163,10 @@ void StackedWidget::switchWidget(int _index) {
 	opacityAnimation->setStartValue(1.0);
 	opacityAnimation->setEndValue(0.0);
 
-	switchAnimeGroup->addAnimation(posAnimation.release());
-	switchAnimeGroup->addAnimation(opacityAnimation.release());
+	switchAnimeGroup->addAnimation(posAnimation);
+	switchAnimeGroup->addAnimation(opacityAnimation);
 
 	switchAnimeGroup->start();
-
-	//保存索引
-	this->index = _index;
 }
 
 void StackedWidget::setWidget() {

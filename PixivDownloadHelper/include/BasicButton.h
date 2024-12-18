@@ -12,8 +12,12 @@
 #include <QtWidgets/qslider.h>
 #include <QtWidgets/qscrollbar.h>
 #include <QtWidgets/qlayout.h>
+#include <QtWidgets/qplaintextedit.h>
+#include <QtWidgets/qscroller.h>
 #include <QtCore/qpropertyanimation.h>
 #include <QtGui/qevent.h>
+#include <QtGui/qscreen.h>
+#include <QtGui/qwindow.h>
 
 #include "GuiConstant.h"
 
@@ -27,7 +31,8 @@ class AnimationButton ://动画按钮
 public:
 	explicit AnimationButton(const QString& text = nullptr,
 		const QString& icon = nullptr,
-		const QSize& size = { 0,0 });
+		const QSize& size = { 0,0 },
+		const size_t borderRadius = 9);
 	~AnimationButton() = default;
 
 	AnimationButton(const AnimationButton&) = delete;
@@ -37,9 +42,9 @@ public:
 
 private:
 	QColor buttonColor;//按钮颜色
-	std::unique_ptr<QLabel> iconLabel;//图标标签
-	std::unique_ptr<QLabel> textLabel;//文字标签
-	std::unique_ptr<QHBoxLayout> layout;//水平布局
+	QLabel* iconLabel;//图标标签
+	QLabel* textLabel;//文字标签
+	QHBoxLayout* layout;//水平布局
 	std::unique_ptr<QPropertyAnimation> hoverAnimation;//鼠标进入动画
 
 	inline QColor color() { return this->buttonColor; }//获取按钮颜色
@@ -47,7 +52,8 @@ private:
 		this->buttonColor = color;
 		repaint();
 	}
-
+	size_t borderRadius;
+protected:
 	virtual void paintEvent(QPaintEvent* event) override;//重写绘制事件
 	virtual void enterEvent(QEvent* event) override;//重写鼠标进入事件
 	virtual void leaveEvent(QEvent* event) override;//重写鼠标离开事件
@@ -62,7 +68,8 @@ class MenuButton ://主菜单按钮，互斥
 public:
 	explicit MenuButton(const QString& label = nullptr,
 		const QString& icon = nullptr,
-		const QSize& size = _menuButton_size);
+		const QSize& size = _menuButton_size,
+		const size_t borderRadius = 6);
 	~MenuButton() = default;
 
 	MenuButton(const MenuButton&) = delete;
@@ -106,18 +113,16 @@ public:
 
 /* 文本编辑框 */
 class TransparentTextEdit ://透明多行文本框
-	public QTextEdit
+	public QPlainTextEdit
 {
 public:
 	explicit TransparentTextEdit();
-	~TransparentTextEdit();
+	~TransparentTextEdit() = default;
 private:
-	QPropertyAnimation* scrollAnimation;
+	std::unique_ptr<QPropertyAnimation> verticalScrollAnimation;
+	std::unique_ptr<QPropertyAnimation> horizontalScrollAnimation;
 protected:
-	virtual void enterEvent(QEvent* event) override;//enter事件触发setfocus
-	virtual void leaveEvent(QEvent* event) override;//leave事件触发clearfocus
 	virtual void wheelEvent(QWheelEvent* wheelEvent) override;	//滚轮实现平滑动画
-	virtual bool eventFilter(QObject* obj, QEvent* ev) override;//过滤滚轮事件，不透射到其他窗口
 };
 
 /* 自定义标签 */

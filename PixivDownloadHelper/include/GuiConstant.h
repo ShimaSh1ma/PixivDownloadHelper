@@ -15,32 +15,32 @@ extern std::string _downloadPath;//下载根目录
 extern std::string _pixivCookie;//pixivcookie字符串
 extern size_t _windowTransparency;//背景图片透明度
 
-extern constexpr const char* _config_download_save_path = ".\\config\\downloadPath.cfg";//下载根目录设置文件路径
-extern constexpr const char* _config_pixivcookie_save_path = ".\\config\\pixivCookie.cfg";//pixivcookie存放文件路径
-extern constexpr const char* _config_background_picture_path = ".\\config\\backgroundPicture.cfg";//背景文件config保存路径
-extern constexpr const char* _config_window_tranparency_path = ".\\config\\windowTransparency.cfg";//背景透明度config保存路径
-extern constexpr const char* _downloadDataFile = ".\\config\\downloadData.cfg";//保存用户未完成的下载项目信息
+constexpr const char* _config_download_save_path = "./config/downloadPath.cfg";//下载根目录设置文件路径
+constexpr const char* _config_pixivcookie_save_path = "./config/pixivCookie.cfg";//pixivcookie存放文件路径
+constexpr const char* _config_background_picture_path = "./config/backgroundPicture.cfg";//背景文件config保存路径
+constexpr const char* _config_window_tranparency_path = "./config/windowTransparency.cfg";//背景透明度config保存路径
+constexpr const char* _downloadDataFile = "./config/downloadData.cfg";//保存用户未完成的下载项目信息
 
 //未获取到缩略图时的默认缩略图路径
-extern constexpr const char* _default_preview_path = ".\\resource\\image\\defaultPreview";//默认预览图路径
+constexpr const char* _default_preview_path = "./resource/image/defaultPreview";//默认预览图路径
 
 //程序图标路径
-extern constexpr const char* _icon_main_path = ".\\resource\\icon\\main.ico";//程序图标路径
-extern constexpr const char* _icon_fold_path = ".\\resource\\icon\\ico_fold.png";//折叠图标路径
-extern constexpr const char* _icon_unfold_path = ".\\resource\\icon\\ico_unfold.png";//展开图标路径
-extern constexpr const char* _icon_pixiv_path = ".\\resource\\icon\\ico_pixiv.png";//展开图标路径
-extern constexpr const char* _icon_setting_path = ".\\resource\\icon\\ico_setting.png";//设置图标路径
-extern constexpr const char* _icon_extend_path = ".\\resource\\icon\\ico_extend.png";//扩展图标路径
+constexpr const char* _icon_main_path = "./resource/icon/main.ico";//程序图标路径
+constexpr const char* _icon_fold_path = "./resource/icon/ico_fold.png";//折叠图标路径
+constexpr const char* _icon_unfold_path = "./resource/icon/ico_unfold.png";//展开图标路径
+constexpr const char* _icon_pixiv_path = "./resource/icon/ico_pixiv.png";//展开图标路径
+constexpr const char* _icon_setting_path = "./resource/icon/ico_setting.png";//设置图标路径
+constexpr const char* _icon_extend_path = "./resource/icon/ico_extend.png";//扩展图标路径
 
 //正则匹配规则表达式
-extern constexpr const char* _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";					//pixiv单个作品中的图片  url匹配规则
-extern constexpr const char* _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[\\d]{8,9}";                  //pixiv单个作品  url匹配规则
-extern constexpr const char* _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([\\d]{1,8})(?:/artworks)?";                  //pixiv一个用户所有作品  url匹配规则
-extern constexpr const char* _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([\\d]{1,8})/(?:artworks|illustrations)/(.+)?";               //pixiv一个用户筛选后作品  url匹配规则
-extern constexpr const char* _regex_telegram_url = "https://telegra.ph/[\\S]+";                       //telegram匹配规则
+constexpr const char* _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";					//pixiv单个作品中的图片  url匹配规则
+constexpr const char* _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[/d]{8,9}";                  //pixiv单个作品  url匹配规则
+constexpr const char* _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([/d]{1,8})(?:/artworks)?";                  //pixiv一个用户所有作品  url匹配规则
+constexpr const char* _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([/d]{1,8})/(?:artworks|illustrations)/(.+)?";               //pixiv一个用户筛选后作品  url匹配规则
+constexpr const char* _regex_telegram_url = "https://telegra.ph/[/S]+";                       //telegram匹配规则
 //——————————————————————————————————————
 
-extern constexpr const char* _EMPTY_STRING = "";
+constexpr const char* _EMPTY_STRING = "";
 
 //下载状态枚举量
 enum class downloadState {
@@ -51,7 +51,10 @@ enum class downloadState {
 };
 
 //统一边框宽度
-constexpr size_t _margin_width{ 10 };
+constexpr size_t _margin_width{ 14 };
+
+//滑动条宽度
+constexpr size_t _scrollerBar_width{ 10 };
 
 //pixiv窗口ui尺寸
 constexpr QSize _pixivUrlLineEdit_size{ 160,30 };//url输入文本框最小大小

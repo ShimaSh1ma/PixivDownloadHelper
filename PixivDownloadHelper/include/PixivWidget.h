@@ -31,9 +31,9 @@ public:
 signals:
     void TextS(std::string);                            //携带文本框内容的信号
 private:
-    std::unique_ptr<QHBoxLayout> layout;                //水平布局
-    std::unique_ptr<PixivUrlEdit> textEdit;             //文本框
-    std::unique_ptr<AnimationButton> downloadButton;    //下载按钮
+    QHBoxLayout* layout;                //水平布局
+    PixivUrlEdit* textEdit;             //文本框
+    AnimationButton* downloadButton;    //下载按钮
 };
 
 class PixivDownloadItemTitleWidget final :/*pixiv下载项目标题窗口， 由若干label组成*/
@@ -43,8 +43,8 @@ public:
     explicit PixivDownloadItemTitleWidget(const std::string& str);
     ~PixivDownloadItemTitleWidget() = default;
 private:
-    std::unique_ptr<TextLabel> urlLabel;//显示url的标签
-    std::unique_ptr<QHBoxLayout> layout;//水平布局
+    TextLabel* urlLabel;//显示url的标签
+    QHBoxLayout* layout;//水平布局
 };
 
 class PixivDownloadItemPreviewWidget final ://pixiv下载项目缩略图窗口
@@ -62,8 +62,8 @@ public:
 public slots:
     void loadPreviewImage(const std::string& imagePath);//加载缩略图
 private:
-    std::unique_ptr<QLabel> previewImage;//缩略图
-    std::unique_ptr<QHBoxLayout> layout;//水平布局
+    QLabel* previewImage;//缩略图
+    QHBoxLayout* layout;//水平布局
 
     std::string previewImagePath{ _default_preview_path };//缩略图路径
 };
@@ -81,12 +81,12 @@ public:
     PixivDownloadItemStateWidget(PixivDownloadItemStateWidget&&) = delete;
     PixivDownloadItemStateWidget& operator=(PixivDownloadItemStateWidget&&) = delete;
 private:
-    std::unique_ptr<TextLabel> downloadStateLabel;//显示下载状态的标签
-    std::unique_ptr<TextLabel> totalCountLabel;//显示总图片数的标签
-    std::unique_ptr<TextLabel> separatorLabel;//显示分隔符
-    std::unique_ptr<TextLabel> successCountLabel;//显示下载成功图片数的标签
+    TextLabel* downloadStateLabel;//显示下载状态的标签
+    TextLabel* totalCountLabel;//显示总图片数的标签
+    TextLabel* separatorLabel;//显示分隔符
+    TextLabel* successCountLabel;//显示下载成功图片数的标签
 
-    std::unique_ptr<QHBoxLayout> layout;//水平布局
+    QHBoxLayout* layout;//水平布局
 
     int imageCount{ 0 };//总图片数
     int successCount{ 0 };//下载成功数
@@ -123,10 +123,10 @@ signals:
     void downloadCompleteSignal();//下载完成时发射此信号
     void downloadProgressSignal(int total, int success);//下载过程中报告下载进度函数
 private:
-    std::unique_ptr<PixivDownloadItemTitleWidget> titleWidget;//标题窗口
-    std::unique_ptr<PixivDownloadItemPreviewWidget> previewWidget;//缩略图窗口
-    std::unique_ptr<PixivDownloadItemStateWidget> stateWidget;//下载状态窗口
-    std::unique_ptr<QVBoxLayout> layout;//垂直布局
+    PixivDownloadItemTitleWidget* titleWidget;//标题窗口
+    PixivDownloadItemPreviewWidget* previewWidget;//缩略图窗口
+    PixivDownloadItemStateWidget* stateWidget;//下载状态窗口
+    QVBoxLayout* layout;//垂直布局
 
     void pixivDownload();//pixiv下载函数
     void telegramDownload();//telegram下载函数
@@ -148,11 +148,11 @@ public:
     PixivDownloadTopWidget(PixivDownloadTopWidget&&) = delete;
     PixivDownloadTopWidget& operator=(PixivDownloadTopWidget&&) = delete;
 private:
-    std::unique_ptr<AnimationButton> foldButton;     //折叠按钮，按下隐藏下载缩略图
-    std::unique_ptr<AnimationButton> unfoldButton;   //展开按钮，按下显示下载缩略图
-    std::unique_ptr<TextLabel> countLabel;         //显示下载项目总数
+    AnimationButton* foldButton;     //折叠按钮，按下隐藏下载缩略图
+    AnimationButton* unfoldButton;   //展开按钮，按下显示下载缩略图
+    TextLabel* countLabel;         //显示下载项目总数
 
-    std::unique_ptr<QHBoxLayout> layout;//水平布局
+    QHBoxLayout* layout;//水平布局
 
     friend class PixivDownloadWidget;
 };
@@ -200,7 +200,7 @@ signals:
 private:
     void loadDownloadData();//读取上次未下载完成数据
 
-    std::unique_ptr<QGridLayout> Glayout;//网格布局
+    QGridLayout* Glayout;//网格布局
 
     std::list<PixivDownloadItem*> itemList;//储存所有下载项目的向量组
     std::list<PixivDownloadItem*>::const_iterator downloadingItem;//指向正在下载项目的迭代器
@@ -226,13 +226,13 @@ signals:
     void sizeChangedSignal();
 private:
     //pixiv下载上方窗口
-    std::unique_ptr<PixivDownloadTopWidget> topWidget;
+    PixivDownloadTopWidget* topWidget;
     //pixiv下载项目总览窗口
-    std::unique_ptr<PixivDownloadItemWidget> itemWidget;
+    PixivDownloadItemWidget* itemWidget;
     //作为容器提供滚动条
-    std::unique_ptr<TransparentScrollArea> scrollArea;
+    TransparentScrollArea* scrollArea;
     //加入布局自适应窗口大小
-    std::unique_ptr<QVBoxLayout> layout;
+    QVBoxLayout* layout;
 
     int wWidth{ 0 };//记录窗口宽度做缓冲
     void virtual resizeEvent(QResizeEvent* ev);
@@ -254,10 +254,10 @@ public:
     PixivWidget& operator=(PixivWidget&&) = delete;
 private:
     //垂直布局
-    std::unique_ptr<QVBoxLayout> layout;
+    QVBoxLayout* layout;
     //包含的窗口
-    std::unique_ptr<PixivUrlInputWidget> inputWidget;
-    std::unique_ptr<PixivDownloadWidget> downloadWidget;
+    PixivUrlInputWidget* inputWidget;
+    PixivDownloadWidget* downloadWidget;
 
     friend class PixivDownloadHelper;
 };

@@ -4,7 +4,7 @@ MenuWidget::MenuWidget() {
 	//初始化组件
 	pixivButton = new MenuButton("Pixiv", _icon_pixiv_path);
 	settingButton = new MenuButton("Settings", _icon_setting_path);
-	extendButton = new AnimationButton(nullptr, _icon_extend_path, _extendButton_size);
+	extendButton = new AnimationButton(nullptr, _icon_extend_path, _extendButton_size, 4);
 	layout = new QVBoxLayout();
 	sizeAnimation = std::make_unique<QPropertyAnimation>(this, "fixedWidth");
 
@@ -33,7 +33,6 @@ MenuWidget::MenuWidget() {
 
 	//布局设置
 	layout->addWidget(extendButton);
-
 	layout->addWidget(pixivButton);
 	layout->addWidget(settingButton);
 	layout->addStretch(1);
