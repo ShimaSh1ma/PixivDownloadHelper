@@ -25,5 +25,3 @@ build/
 #*.filters
 
 #*.user
-
-.vscode/c_cpp_properties.json
