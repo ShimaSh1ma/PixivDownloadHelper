@@ -34,10 +34,10 @@ constexpr const char* _icon_extend_path = ":/icon/extend";//扩展图标路径
 
 //正则匹配规则表达式
 constexpr const char* _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";					//pixiv单个作品中的图片  url匹配规则
-constexpr const char* _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[/d]{8,9}";                  //pixiv单个作品  url匹配规则
-constexpr const char* _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([/d]{1,8})(?:/artworks)?";                  //pixiv一个用户所有作品  url匹配规则
-constexpr const char* _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([/d]{1,8})/(?:artworks|illustrations)/(.+)?";               //pixiv一个用户筛选后作品  url匹配规则
-constexpr const char* _regex_telegram_url = "https://telegra.ph/[/S]+";                       //telegram匹配规则
+constexpr const char* _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks/[\\d]{8,9}";                  //pixiv单个作品  url匹配规则
+constexpr const char* _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([\\d]{1,8})(?:/artworks)?";                  //pixiv一个用户所有作品  url匹配规则
+constexpr const char* _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([\\d]{1,8})/(?:artworks|illustrations)/(.+)?";               //pixiv一个用户筛选后作品  url匹配规则
+constexpr const char* _regex_telegram_url = "https://telegra.ph/[\\S]+";                       //telegram匹配规则
 
 constexpr const char* _EMPTY_STRING = "";
 

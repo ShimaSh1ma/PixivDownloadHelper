@@ -5,6 +5,7 @@
 #include <QtCore/qdebug.h>
 
 #include "SocketModule/include/MSocket.h"
+#include "SocketModule/include/basicFunction.h"
 
 #include "GuiConstant.h"
 

@@ -2,6 +2,7 @@
 
 void init() {
 	ClientSocketPool::WSAInit();
+	mkdir("./config");
 	initDownloadPath();
 	initPixivCookie();
 	initBackgroundImagePath();
