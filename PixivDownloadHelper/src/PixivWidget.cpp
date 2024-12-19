@@ -1,6 +1,7 @@
 ﻿#include "PixivWidget.h"
 //PixivUrlInputWidget
 PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {
+	setMinimumSize(_pixivUrlWidget_size);
 	setMaximumHeight(_pixivUrlWidget_size.height());
 
 	//初始化布局
