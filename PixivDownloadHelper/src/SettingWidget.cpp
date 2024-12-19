@@ -167,7 +167,6 @@ void ChangePixivCookieWidget::mousePressEvent(QMouseEvent* mouseE) {
 			return;
 		}
 	}
-	return;
 }
 
 //ChangeTransparencyWidget
@@ -259,7 +258,6 @@ void ChangeBackgroundImageWidget::chooseImage() {
 		//发送背景图片更改信号，供主窗口刷新
 		emit backgroundImgChanged();
 	}
-	return;
 }
 
 void ChangeBackgroundImageWidget::removeImage() {

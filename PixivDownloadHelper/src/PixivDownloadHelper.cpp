@@ -41,7 +41,7 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
         this, &PixivDownloadHelper::changeBackgroundImage);
     //切换窗口时重新计算下载项目窗口动态布局
     connect(stackedWidget, &QStackedWidget::currentChanged,
-        pixivWidget->downloadWidget->itemWidget, &PixivDownloadItemWidget::caculateColumn);
+        pixivWidget, &PixivWidget::onChangedRepaint);
 
     //鼠标进入右侧界面则折叠菜单界面
     connect(stackedWidget, &StackedWidget::enterSignal,

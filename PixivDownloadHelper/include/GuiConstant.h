@@ -22,15 +22,15 @@ constexpr const char* _config_window_tranparency_path = "./config/windowTranspar
 constexpr const char* _downloadDataFile = "./config/downloadData.cfg";//保存用户未完成的下载项目信息
 
 //未获取到缩略图时的默认缩略图路径
-constexpr const char* _default_preview_path = "./resource/image/defaultPreview";//默认预览图路径
+constexpr const char* _default_preview_path = ":/image/defaultPreview";//默认预览图路径
 
 //程序图标路径
-constexpr const char* _icon_main_path = "./resource/icon/main.ico";//程序图标路径
-constexpr const char* _icon_fold_path = "./resource/icon/ico_fold.png";//折叠图标路径
-constexpr const char* _icon_unfold_path = "./resource/icon/ico_unfold.png";//展开图标路径
-constexpr const char* _icon_pixiv_path = "./resource/icon/ico_pixiv.png";//展开图标路径
-constexpr const char* _icon_setting_path = "./resource/icon/ico_setting.png";//设置图标路径
-constexpr const char* _icon_extend_path = "./resource/icon/ico_extend.png";//扩展图标路径
+constexpr const char* _icon_main_path = ":/icon/mainIcon";//程序图标路径
+constexpr const char* _icon_fold_path = ":/icon/fold";//折叠图标路径
+constexpr const char* _icon_unfold_path = ":/icon/unfold";//展开图标路径
+constexpr const char* _icon_pixiv_path = ":/icon/pixiv";//展开图标路径
+constexpr const char* _icon_setting_path = ":/icon/setting";//设置图标路径
+constexpr const char* _icon_extend_path = ":/icon/extend";//扩展图标路径
 
 //正则匹配规则表达式
 constexpr const char* _regex_pixiv_illust_url = "https://i.pximg.net/img-original[^\"]+";					//pixiv单个作品中的图片  url匹配规则
@@ -38,7 +38,6 @@ constexpr const char* _regex_pixiv_artwork_url = "https://www.pixiv.net/artworks
 constexpr const char* _regex_pixiv_userAll_url = "https://www.pixiv.net/users/([/d]{1,8})(?:/artworks)?";                  //pixiv一个用户所有作品  url匹配规则
 constexpr const char* _regex_pixiv_userTagged_url = "https://www.pixiv.net/users/([/d]{1,8})/(?:artworks|illustrations)/(.+)?";               //pixiv一个用户筛选后作品  url匹配规则
 constexpr const char* _regex_telegram_url = "https://telegra.ph/[/S]+";                       //telegram匹配规则
-//——————————————————————————————————————
 
 constexpr const char* _EMPTY_STRING = "";
 

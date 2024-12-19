@@ -15,7 +15,7 @@
     切换下载路径子窗口，具有一个显示路径的文本框，
     和一个切换路径按钮，切换路径按钮打开文件资源管理器选择路径
 */
-class ChangeDownloadPathWidget :
+class ChangeDownloadPathWidget final :
     public TranslucentWidget
 {
     Q_OBJECT
@@ -35,7 +35,7 @@ private:
     QGridLayout* layout;
 };
 
-class ChangePixivCookieWidget ://更改PixivCookie的窗口
+class ChangePixivCookieWidget final ://更改PixivCookie的窗口
     public TranslucentWidget
 {
     Q_OBJECT
@@ -63,7 +63,7 @@ protected:
     virtual void mousePressEvent(QMouseEvent* mouseE) override;//重写鼠标点击事件，实现窗口显示或隐藏
 };
 
-class ChangeTransparencyWidget ://更改背景图片透明度的窗口
+class ChangeTransparencyWidget final ://更改背景图片透明度的窗口
     public TranslucentWidget
 {
     Q_OBJECT
@@ -83,7 +83,7 @@ private:
     QGridLayout* layout;
 };
 
-class ChangeBackgroundImageWidget ://更改背景图片的窗口
+class ChangeBackgroundImageWidget final ://更改背景图片的窗口
     public TranslucentWidget
 {
     Q_OBJECT
@@ -107,7 +107,7 @@ private:
     QGridLayout* layout;
 };
 
-class SubSettingWidget ://用户设置窗口
+class SubSettingWidget final ://用户设置窗口
     public TransparentWidget
 {
     Q_OBJECT
@@ -134,7 +134,7 @@ private:
     QVBoxLayout* layout;
 };
 
-class SettingWidget ://用户设置窗口（添加滚动）
+class SettingWidget final ://用户设置窗口（添加滚动）
     public TransparentWidget
 {
     Q_OBJECT

@@ -19,7 +19,7 @@ PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {
 
 	connect(downloadButton, &QPushButton::clicked,
 		this, [this]() {
-			emit TextS(this->textEdit->text().toStdString());
+			emit inputUrlSignal(this->textEdit->text().toStdString());
 		});//按下下载按钮，文本框发送携带文本内容的Text信号
 
 	//控件加入布局
@@ -424,6 +424,11 @@ PixivDownloadTopWidget::PixivDownloadTopWidget() {
 	foldButton->setFixedSize(_pixivDownloadTopWidgetButton_size);
 	unfoldButton->setFixedSize(_pixivDownloadTopWidgetButton_size);
 
+	connect(this->foldButton, &QPushButton::clicked,
+		this, &PixivDownloadTopWidget::foldButtonClicked);
+	connect(this->unfoldButton, &QPushButton::clicked,
+		this, &PixivDownloadTopWidget::unfoldButtonClicked);
+
 	//总数标签初始显示
 	countLabel->setText("0");
 
@@ -824,9 +829,9 @@ PixivDownloadWidget::PixivDownloadWidget() {
 		this->itemWidget, &PixivDownloadItemWidget::caculateColumn);
 
 	//信号与槽实现 top窗口按钮 控制 下载项目 展开或折叠
-	connect(this->topWidget->foldButton, &AnimationButton::clicked,
+	connect(this->topWidget, &PixivDownloadTopWidget::foldButtonClicked,
 		this->itemWidget, &PixivDownloadItemWidget::foldDownloadItems);
-	connect(this->topWidget->unfoldButton, &AnimationButton::clicked,
+	connect(this->topWidget, &PixivDownloadTopWidget::unfoldButtonClicked,
 		this->itemWidget, &PixivDownloadItemWidget::unfoldDownloadItems);
 
 	//设置滚动窗口
@@ -841,6 +846,14 @@ PixivDownloadWidget::PixivDownloadWidget() {
 	layout->setSpacing(0);
 	layout->setContentsMargins(0, 0, 0, 0);
 	this->setLayout(layout);
+}
+
+void PixivDownloadWidget::checkUrl(const std::string& url) {
+	this->itemWidget->checkUrl(url);
+}
+
+void PixivDownloadWidget::onChangedRepaint() {
+	this->itemWidget->caculateColumn();
 }
 
 void PixivDownloadWidget::resizeEvent(QResizeEvent* ev) {
@@ -862,7 +875,7 @@ PixivWidget::PixivWidget() {
 	downloadWidget = new PixivDownloadWidget();
 
 	//信号与槽：收到url后,检查url类型
-	connect(inputWidget, &PixivUrlInputWidget::TextS, downloadWidget->itemWidget, &PixivDownloadItemWidget::checkUrl);
+	connect(inputWidget, &PixivUrlInputWidget::inputUrlSignal, downloadWidget, &PixivDownloadWidget::checkUrl);
 
 	//窗口加入布局，修改布局样式
 	layout->addWidget(inputWidget);
@@ -871,4 +884,8 @@ PixivWidget::PixivWidget() {
 
 	//设置布局
 	setLayout(layout);
+}
+
+void PixivWidget::onChangedRepaint() {
+	this->downloadWidget->onChangedRepaint();
 }

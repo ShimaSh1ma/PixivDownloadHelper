@@ -28,7 +28,10 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 # 添加包含的头文件目录
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h")
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+#添加资源文件
+qt5_add_resources(RESOURCES resource/resource.qrc)
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE

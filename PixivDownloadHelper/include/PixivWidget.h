@@ -29,7 +29,7 @@ public:
     PixivUrlInputWidget(PixivUrlInputWidget&&) = delete;
     PixivUrlInputWidget& operator =(PixivUrlInputWidget&&) = delete;
 signals:
-    void TextS(std::string);                            //携带文本框内容的信号
+    void inputUrlSignal(std::string);                            //携带文本框内容的信号
 private:
     QHBoxLayout* layout;                //水平布局
     PixivUrlEdit* textEdit;             //文本框
@@ -68,7 +68,7 @@ private:
     std::string previewImagePath{ _default_preview_path };//缩略图路径
 };
 
-class PixivDownloadItemStateWidget ://pixiv下载项目下载状态窗口
+class PixivDownloadItemStateWidget final ://pixiv下载项目下载状态窗口
     public TransparentWidget
 {
     Q_OBJECT
@@ -98,7 +98,7 @@ public slots:
     void setProgress(const int& total, const int& success);//设置下载进度
 };
 
-class PixivDownloadItem ://pixiv下载项目
+class PixivDownloadItem final ://pixiv下载项目
     public PressWidget
 {
     Q_OBJECT
@@ -136,9 +136,10 @@ private:
     virtual void mouseDoubleClickEvent(QMouseEvent* mouseE) override;//重写鼠标双击事件，实现打开下载路径
 };
 
-class PixivDownloadTopWidget :  /*Pixiv下载窗口上方功能窗口，提供控制展开或折叠下载项目缩略图功能*/
+class PixivDownloadTopWidget final :  /*Pixiv下载窗口上方功能窗口，提供控制展开或折叠下载项目缩略图功能*/
     public TransparentWidget
 {
+    Q_OBJECT
 public:
     explicit PixivDownloadTopWidget();
     ~PixivDownloadTopWidget() = default;
@@ -147,17 +148,18 @@ public:
     PixivDownloadTopWidget& operator=(const PixivDownloadTopWidget&) = delete;
     PixivDownloadTopWidget(PixivDownloadTopWidget&&) = delete;
     PixivDownloadTopWidget& operator=(PixivDownloadTopWidget&&) = delete;
+signals:
+    void foldButtonClicked();
+    void unfoldButtonClicked();
 private:
     AnimationButton* foldButton;     //折叠按钮，按下隐藏下载缩略图
     AnimationButton* unfoldButton;   //展开按钮，按下显示下载缩略图
     TextLabel* countLabel;         //显示下载项目总数
 
     QHBoxLayout* layout;//水平布局
-
-    friend class PixivDownloadWidget;
 };
 
-class PixivDownloadItemWidget ://pixiv下载项目总览窗口
+class PixivDownloadItemWidget final ://pixiv下载项目总览窗口
     public TransparentWidget
 {
     Q_OBJECT
@@ -215,13 +217,17 @@ private:
     std::unordered_set<std::string> hashTable;//哈希表判断重复
 };
 
-class PixivDownloadWidget ://用scrollarea提供滚动条显示PixivDownloadItemWidget
+class PixivDownloadWidget final ://用scrollarea提供滚动条显示PixivDownloadItemWidget
     public TransparentWidget
 {
     Q_OBJECT
 public:
     explicit PixivDownloadWidget();
     ~PixivDownloadWidget() = default;
+
+    void checkUrl(const std::string& url);
+    //窗口重绘
+    void onChangedRepaint();
 signals:
     void sizeChangedSignal();
 private:
@@ -236,12 +242,9 @@ private:
 
     int wWidth{ 0 };//记录窗口宽度做缓冲
     void virtual resizeEvent(QResizeEvent* ev);
-
-    friend class PixivWidget;
-    friend class PixivDownloadHelper;
 };
 
-class PixivWidget ://pixiv下载界面
+class PixivWidget final ://pixiv下载界面
     public TransparentWidget
 {
 public:
@@ -252,12 +255,13 @@ public:
     PixivWidget& operator=(const PixivWidget&) = delete;
     PixivWidget(PixivWidget&&) = delete;
     PixivWidget& operator=(PixivWidget&&) = delete;
+
+    //切换窗口时重绘
+    void onChangedRepaint();
 private:
     //垂直布局
     QVBoxLayout* layout;
     //包含的窗口
     PixivUrlInputWidget* inputWidget;
     PixivDownloadWidget* downloadWidget;
-
-    friend class PixivDownloadHelper;
 };

@@ -28,7 +28,7 @@ public:
     TransparentWidget& operator = (const TransparentWidget&) = delete;
     TransparentWidget(TransparentWidget&&) = delete;
     TransparentWidget& operator=(const TransparentWidget&&) = delete;
-private:
+protected:
     virtual void paintEvent(QPaintEvent* paintE) override;//重写绘制事件，实现窗口透明
 };
 
@@ -43,7 +43,7 @@ public:
     TranslucentWidget& operator = (const TranslucentWidget&) = delete;
     TranslucentWidget(TranslucentWidget&&) = delete;
     TranslucentWidget& operator=(const TranslucentWidget&&) = delete;
-private:
+protected:
     virtual void paintEvent(QPaintEvent* paintE) override;//重写绘制事件，实现窗口半透明及圆角
 };
 
@@ -116,7 +116,7 @@ private:
     }
 
     std::unique_ptr<QPropertyAnimation> hoverAnimation;//鼠标悬浮动画
-
+protected:
     virtual void paintEvent(QPaintEvent* paintE) override;//重写绘制事件实现悬浮动画
     virtual void enterEvent(QEvent* event) override;//重写鼠标进入事件
     virtual void leaveEvent(QEvent* event) override;//重写鼠标离开事件
