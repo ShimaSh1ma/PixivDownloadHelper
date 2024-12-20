@@ -8,6 +8,8 @@ PixivDownloadHelper/x64/
 
 PixivDownloadHelper/build
 
+PixivDownloadHelper/config
+
 build/
 
 *.hint
