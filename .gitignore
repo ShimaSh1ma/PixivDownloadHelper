@@ -6,11 +6,15 @@ PixivDownloadHelper/.vs/
 
 PixivDownloadHelper/x64/
 
-PixivDownloadHelper/build
+PixivDownloadHelper/build/
 
-PixivDownloadHelper/config
+PixivDownloadHelper/config/
+
+PixivDownloadHelper/PixivDownloadHelper.*
 
 build/
+
+*.dll
 
 *.hint
 
