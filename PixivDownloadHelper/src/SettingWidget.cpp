@@ -26,14 +26,6 @@ SubSettingWidget::SubSettingWidget() {
 	setLayout(layout);
 }
 
-SubSettingWidget::~SubSettingWidget() {
-	delete layout;
-	delete changeDirWidget;
-	delete changePixivCookieWidget;
-	delete changeTransparencyWidget;
-	delete changeBackImageWidget;
-}
-
 //ChangeDownloadPathWidget
 ChangeDownloadPathWidget::ChangeDownloadPathWidget() {
 	//组件初始化
@@ -62,13 +54,6 @@ ChangeDownloadPathWidget::ChangeDownloadPathWidget() {
 	layout->addWidget(changeButton, 1, 1);
 
 	this->setLayout(layout);
-}
-
-ChangeDownloadPathWidget::~ChangeDownloadPathWidget() {
-	delete title;
-	delete layout;
-	delete pathEdit;
-	delete changeButton;
 }
 
 void ChangeDownloadPathWidget::chooseDownloadPath() {
@@ -119,14 +104,6 @@ ChangePixivCookieWidget::ChangePixivCookieWidget() {
 	this->saveButton->setVisible(false);
 
 	this->setLayout(layout);
-}
-
-ChangePixivCookieWidget::~ChangePixivCookieWidget() {
-	delete textEdit;
-	delete changeButton;
-	delete saveButton;
-	delete title;
-	delete layout;
 }
 
 void ChangePixivCookieWidget::saveCookie() {
@@ -232,14 +209,6 @@ ChangeBackgroundImageWidget::ChangeBackgroundImageWidget() {
 	layout->addWidget(removeButton, 4, 1);
 
 	this->setLayout(layout);
-}
-
-ChangeBackgroundImageWidget::~ChangeBackgroundImageWidget() {
-	delete title;
-	delete imageView;
-	delete changeButton;
-	delete removeButton;
-	delete layout;
 }
 
 void ChangeBackgroundImageWidget::chooseImage() {

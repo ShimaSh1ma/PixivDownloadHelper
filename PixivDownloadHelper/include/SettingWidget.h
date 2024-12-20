@@ -21,7 +21,12 @@ class ChangeDownloadPathWidget final :
     Q_OBJECT
 public:
     explicit ChangeDownloadPathWidget();
-    ~ChangeDownloadPathWidget();
+    ~ChangeDownloadPathWidget() = default;
+
+    ChangeDownloadPathWidget(const ChangeDownloadPathWidget&) = delete;
+    ChangeDownloadPathWidget& operator=(const ChangeDownloadPathWidget&) = delete;
+    ChangeDownloadPathWidget(ChangeDownloadPathWidget&&) = delete;
+    ChangeDownloadPathWidget& operator=(ChangeDownloadPathWidget&&) = delete;
 public slots:
     void chooseDownloadPath();//打开文件资源管理器选择下载路径，并将更改后的路径写入downloadPath.cfg文件
 private:
@@ -41,7 +46,12 @@ class ChangePixivCookieWidget final ://更改PixivCookie的窗口
     Q_OBJECT
 public:
     explicit ChangePixivCookieWidget();
-    ~ChangePixivCookieWidget();
+    ~ChangePixivCookieWidget() = default;
+
+    ChangePixivCookieWidget(const ChangePixivCookieWidget&) = delete;
+    ChangePixivCookieWidget& operator=(const ChangePixivCookieWidget&) = delete;
+    ChangePixivCookieWidget(ChangePixivCookieWidget&&) = delete;
+    ChangePixivCookieWidget& operator=(ChangePixivCookieWidget&&) = delete;
 public slots:
     void saveCookie();//更改_pixivCookie,并设置pixiv cookie文本框为只读
     void turnEditable();//设置pixiv cookie文本框可编辑
@@ -70,6 +80,11 @@ class ChangeTransparencyWidget final ://更改背景图片透明度的窗口
 public:
     explicit ChangeTransparencyWidget();
     ~ChangeTransparencyWidget() = default;
+
+    ChangeTransparencyWidget(const ChangeTransparencyWidget&) = delete;
+    ChangeTransparencyWidget& operator=(const ChangeTransparencyWidget&) = delete;
+    ChangeTransparencyWidget(ChangeTransparencyWidget&&) = delete;
+    ChangeTransparencyWidget& operator=(ChangeTransparencyWidget&&) = delete;
 public slots:
     void saveTranparency();//保存透明度设置
 signals:
@@ -89,7 +104,12 @@ class ChangeBackgroundImageWidget final ://更改背景图片的窗口
     Q_OBJECT
 public:
     explicit ChangeBackgroundImageWidget();
-    ~ChangeBackgroundImageWidget();
+    ~ChangeBackgroundImageWidget() = default;
+
+    ChangeBackgroundImageWidget(const ChangeBackgroundImageWidget&) = delete;
+    ChangeBackgroundImageWidget& operator=(const ChangeBackgroundImageWidget&) = delete;
+    ChangeBackgroundImageWidget(ChangeBackgroundImageWidget&&) = delete;
+    ChangeBackgroundImageWidget& operator=(ChangeBackgroundImageWidget&&) = delete;
 public slots:
     void chooseImage();//打开资源管理器并选择背景图片，更新背景图片设置文件backgroundPicture.cfg
     void removeImage();//移除背景图片
@@ -113,7 +133,12 @@ class SubSettingWidget final ://用户设置窗口
     Q_OBJECT
 public:
     explicit SubSettingWidget();//构造函数
-    ~SubSettingWidget();//析构函数
+    ~SubSettingWidget() = default;//析构函数
+
+    SubSettingWidget& operator=(const SubSettingWidget&) = delete;
+    SubSettingWidget(const SubSettingWidget&) = delete;
+    SubSettingWidget(SubSettingWidget&&) = delete;
+    SubSettingWidget& operator=(SubSettingWidget&&) = delete;
 signals:
     void changeTransparencySliderValueChange(int value);
     void backgroundImgChanged();
@@ -141,6 +166,11 @@ class SettingWidget final ://用户设置窗口（添加滚动）
 public:
     explicit SettingWidget();
     ~SettingWidget() = default;
+
+    SettingWidget& operator=(const SettingWidget&) = delete;
+    SettingWidget(const SettingWidget&) = delete;
+    SettingWidget(SettingWidget&&) = delete;
+    SettingWidget& operator=(SettingWidget&&) = delete;
 signals:
     void changeTransparencySliderValueChange(int value);
     void backgroundImgChanged();
