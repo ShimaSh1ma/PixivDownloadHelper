@@ -1,4 +1,5 @@
 #pragma once
+
 constexpr const char* _M_WSASTART_ERR = "WSAStartup Error";
 constexpr const char* _M_DNS_ERR = "DNS Error";
 constexpr const char* _M_SOCKET_CREATE_ERR = "Socket Create Error";

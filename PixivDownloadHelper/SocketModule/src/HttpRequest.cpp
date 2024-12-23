@@ -1,4 +1,5 @@
-﻿#include "DataProcess.h"
+﻿#include "HttpRequest.h"
+#include "UrlParser.h"
 
 HttpRequest::HttpRequest(const UrlParser& url) : urlSource(url.source), urlHost(url.host) {}
 

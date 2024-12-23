@@ -11,16 +11,14 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+# 添加子模块
+add_subdirectory(SocketModule)
+
 # 寻找 Qt 库
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
-# 寻找 OpenSSL 库
-find_package(OpenSSL REQUIRED)
-
 # 设置头文件包含目录
 include_directories(include)
-# 添加子模块
-add_subdirectory(SocketModule)
 
 # 自动查找src目录下所有的.cpp文件
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
@@ -38,8 +36,6 @@ target_link_libraries(${PROJECT_NAME}
         Qt5::Core
         Qt5::Widgets
         Qt5::Gui
-        OpenSSL::SSL
-        OpenSSL::Crypto
         SocketModule
 )
 

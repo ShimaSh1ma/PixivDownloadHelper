@@ -1,4 +1,10 @@
 ﻿#include "PixivWidget.h"
+
+#include <SocketModule/HttpRequest.h>
+#include <SocketModule/UrlParser.h>
+#include "fstream"
+#include "GuiConstant.h"
+
 //PixivUrlInputWidget
 PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {
 	setMinimumSize(_pixivUrlWidget_size);

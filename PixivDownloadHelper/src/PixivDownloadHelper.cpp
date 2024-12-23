@@ -1,5 +1,7 @@
 ﻿#include "PixivDownloadHelper.h"
 
+#include <SocketModule/ClientSocket.h>
+
 PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
     : QWidget(parent), opacity(1.0)
 {

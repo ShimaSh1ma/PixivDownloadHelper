@@ -5,16 +5,13 @@
 2、处理接收到的json文件中的转义字符
 3、程序用的到各种类型转换、文件创建、文件删除等函数
 */
-#ifdef _WIN32
-#include <io.h>
-#include <direct.h>
-#endif
 
-#include "GuiConstant.h"
-#include "DataProcess.h"
+#include <string>
 
-#include <fstream>
-#include <thread>
+class UrlParser;
+
+//创建文件夹
+void mkdir(const std::string& dir);
 
 //简单处理json，删去json中的转义字符“\”
 void jsonParse(std::string& json);

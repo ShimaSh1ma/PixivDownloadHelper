@@ -1,4 +1,7 @@
-﻿#include "DataProcess.h"
+﻿#include "HttpResponseParser.h"
+
+#include <regex>
+
 std::string HttpResponseParser::findKeyOfHeader(const std::string& searchHeader) {
 	auto iter = responseMap.find(searchHeader);
 	return iter == responseMap.end() ? "" : iter->second;

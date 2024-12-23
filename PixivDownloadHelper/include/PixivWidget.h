@@ -14,7 +14,7 @@
 #include "publicFunction.h"
 #include "BasicWidget.h"
 #include "BasicButton.h"
-#include "basicFunction.h"
+#include "publicFunction.h"
 
 class PixivUrlInputWidget final ://输入url的窗口
     public TranslucentWidget     //含有一个文本框和下载按钮
