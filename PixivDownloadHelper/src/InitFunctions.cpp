@@ -5,8 +5,8 @@
 #include <QtCore/qdebug.h>
 
 #include <SocketModule/ClientSocket.h>
-#include "publicFunction.h"
 
+#include "publicFunction.h"
 #include "GuiConstant.h"
 
 void init() {

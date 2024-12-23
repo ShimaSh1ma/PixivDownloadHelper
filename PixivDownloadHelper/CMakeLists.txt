@@ -5,17 +5,8 @@ project(pixivDownloader)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
 # 添加子模块
 add_subdirectory(SocketModule)
-
-# 寻找 Qt 库
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
 # 设置头文件包含目录
 include_directories(include)
@@ -25,6 +16,14 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 # 添加包含的头文件目录
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h")
+
+# 寻找 Qt 库
+find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
 #添加资源文件
 qt5_add_resources(RESOURCES resource/resource.qrc)
