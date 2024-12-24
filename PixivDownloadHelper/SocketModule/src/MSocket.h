@@ -28,6 +28,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <fcntl.h>
 
 using SOCKET = int;
 constexpr const int INVALID_SOCKET = -1;
@@ -45,7 +46,7 @@ constexpr const int SOCKET_ERROR = -1;
 
 class MSocket final {
 public:
-	MSocket(const char* host, const char* port);
+	MSocket(const char* _host, const char* _port);
 	~MSocket();
 
 	MSocket(const MSocket&) = delete;
@@ -53,7 +54,7 @@ public:
 	MSocket(MSocket&&) = delete;
 	MSocket& operator=(MSocket&&) = delete;
 
-	void setHostAndPort(const char* host, const char* port) noexcept;
+	void setHostAndPort(const char* _host, const char* _port) noexcept;
 	void socketClose();
 private:
 	//socket对象
@@ -83,5 +84,5 @@ private:
 	std::string errorLog;
 
 	//ClientSocket静态类控制socket
-	friend class ClientSocketPool;
+	friend class ClientSocket;
 };

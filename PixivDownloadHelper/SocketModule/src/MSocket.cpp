@@ -1,17 +1,17 @@
 ﻿#include "MSocket.h"
 
 //MSocket
-MSocket::MSocket(const char* host, const char* port) {
-	setHostAndPort(host, port);
+MSocket::MSocket(const char* _host, const char* _port) {
+	setHostAndPort(_host, _port);
 }
 
 MSocket::~MSocket() {
-	this->socketClose();
+	socketClose();
 }
 
-void MSocket::setHostAndPort(const char* host, const char* port) noexcept {
-	this->host = host;
-	this->port = port;
+void MSocket::setHostAndPort(const char* _host, const char* _port) noexcept {
+	host = _host;
+	port = _port;
 }
 
 void MSocket::socketClose() {

@@ -10,7 +10,7 @@
 #include "GuiConstant.h"
 
 void init() {
-	ClientSocketPool::WSAInit();
+	ClientSocket::WSAInit();
 	mkdir("./config");
 	initDownloadPath();
 	initPixivCookie();

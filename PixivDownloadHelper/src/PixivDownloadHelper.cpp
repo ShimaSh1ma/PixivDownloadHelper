@@ -115,5 +115,5 @@ void PixivDownloadHelper::resizeEvent(QResizeEvent* event) {
 
 void PixivDownloadHelper::closeEvent(QCloseEvent* event) {
     //注销WSA
-    ClientSocketPool::WSAClean();
+    ClientSocket::WSAClean();
 }
