@@ -120,7 +120,7 @@ void ClientSocket::sslInit() {
     OpenSSL_add_all_algorithms();
 }
 
-size_t ClientSocket::sslConnectToServer(const std::string& _host, const std::string& _port) {
+size_t ClientSocket::connectToServer(const std::string& _host, const std::string& _port) {
     size_t index = creatSocket(_host, _port);
 
     MSocket* _temp = findSocket(index);
@@ -258,6 +258,6 @@ std::string ClientSocket::socketReceive(size_t index)
     return "";
 }
 
-void ClientSocket::sslDisconnectToServer(size_t index) {
+void ClientSocket::disconnectToServer(size_t index) {
     deleteSocket(index);
 }

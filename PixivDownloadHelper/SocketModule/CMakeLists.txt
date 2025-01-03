@@ -33,11 +33,3 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 set_target_properties(${PROJECT_NAME} PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
-
-#安装库及头文件
-
-# install(TARGETS ${PROJECT_NAME}
-#     ARCHIVE DESTINATION lib
-# )
-
-# install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})

@@ -8,9 +8,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 添加子模块
 add_subdirectory(SocketModule)
 
-# 设置头文件包含目录
-include_directories(include)
-
 # 自动查找src目录下所有的.cpp文件
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
@@ -22,13 +19,21 @@ find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 #添加资源文件
 qt5_add_resources(RESOURCES resource/resource.qrc)
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
+if(APPLE)
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${RESOURCES})
+else()
+    add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
+endif()
+
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE

@@ -47,7 +47,7 @@ public:
     static void sslInit();
 
     //创建并连接到远程服务器
-    static size_t sslConnectToServer(const std::string& _host, const std::string& _port);
+    static size_t connectToServer(const std::string& _host, const std::string& _port);
 
     //向服务器发送信息
     static void socketSend(size_t index, const std::string& sendbuf);
@@ -56,5 +56,5 @@ public:
     static std::string socketReceive(size_t index);
 
     //断开连接并关闭套接字
-    static void sslDisconnectToServer(size_t index);
+    static void disconnectToServer(size_t index);
 };
