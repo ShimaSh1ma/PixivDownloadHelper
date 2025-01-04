@@ -5,6 +5,9 @@ project(pixivDownloader)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 开启-O3编译优化
+add_compile_options(-O3)
+
 # 添加子模块
 add_subdirectory(SocketModule)
 
@@ -25,7 +28,11 @@ set(CMAKE_AUTOUIC ON)
 qt5_add_resources(RESOURCES resource/resource.qrc)
 
 if(APPLE)
-    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${RESOURCES})
+    set(MACOSX_BUNDLE_ICON_FILE main.icns)
+    set(APP_ICON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/resource/icon/${MACOSX_BUNDLE_ICON_FILE})
+    set_source_files_properties(${APP_ICON_PATH} PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources")
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${RESOURCES} ${APP_ICON_PATH})
 else()
     add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
 endif()
