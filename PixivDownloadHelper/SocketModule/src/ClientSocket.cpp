@@ -1,3 +1,7 @@
+#if defined(_WIN32)
+    #define NOMINMAX
+#endif
+
 #include "ClientSocket.h"
 
 #include "UrlParser.h"
@@ -7,13 +11,11 @@
 #include "MSocket.h"
 
 #include <random>
-
-#ifdef _WIN32
-WSADATA ClientSocket::wsaData = {};
-#endif
+#include <limits>
 
 void ClientSocket::WSAInit() {
 #if defined(_WIN32)
+    WSADATA wsaData;
     //初始化socket环境
     int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (result != 0) {

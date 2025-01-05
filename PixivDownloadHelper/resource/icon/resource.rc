@@ -1,0 +1,4 @@
+#include "windows.h"
+
+// 图标资源
+IDI_APP_ICON ICON "main.ico"

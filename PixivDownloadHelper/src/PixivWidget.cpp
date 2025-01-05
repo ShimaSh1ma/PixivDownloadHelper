@@ -5,6 +5,8 @@
 #include "fstream"
 #include "GuiConstant.h"
 
+#include <QtCore/qtextcodec.h>
+
 //PixivUrlInputWidget
 PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {
 	setMinimumSize(_pixivUrlWidget_size);
@@ -518,12 +520,7 @@ void PixivDownloadItemWidget::addDownloadItem(const std::string& url,
 #if defined(_WIN32)
 	//检查下载路径是否存在，及是否拥有写入权限
 	QTextCodec* code = QTextCodec::codecForName("GB2312");
-	if (_access(code->fromUnicode(downloadPath.c_str()), 2)) {
-		if (!_mkdir(code->fromUnicode(downloadPath.c_str()))) {
-			return;
-		}
-	}
-	mkdir(code->fromUnicode(downloadPath.c_str()));
+	mkdir(code->fromUnicode(downloadPath.c_str()).data());
 #endif
 	mkdir(downloadPath);
 

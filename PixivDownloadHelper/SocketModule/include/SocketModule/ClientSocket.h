@@ -31,11 +31,6 @@ private:
     //socket集合
     static std::unordered_map<size_t, std::unique_ptr<MSocket>> socketPool;
 
-#ifdef _WIN32
-    //WSADATA对象，用于向winsock注册本应用
-    static WSADATA wsaData;
-#endif
-
 public:
     //初始化WSA环境
     static void WSAInit();
