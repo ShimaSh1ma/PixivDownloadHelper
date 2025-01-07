@@ -1,5 +1,5 @@
 #if defined(_WIN32)
-    #define NOMINMAX
+#define NOMINMAX
 #endif
 
 #include "ClientSocket.h"
@@ -10,6 +10,7 @@
 #include "SocketConstant.h"
 #include "MSocket.h"
 
+#include <cstring>
 #include <random>
 #include <limits>
 
@@ -21,7 +22,7 @@ void ClientSocket::WSAInit() {
     if (result != 0) {
         exit(1);
         return;
-    }
+}
 #endif
 }
 
@@ -63,7 +64,7 @@ bool ClientSocket::setSocketNonblocked(MSocket& _socket) {
     unsigned long mode = 1;
     if (ioctlsocket(_socket.socket, FIONBIO, &mode) != 0) {
         return false;
-    }
+}
 #endif
 
 #if defined(__LINUX__)||defined(__APPLE__)

@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(MSVC)
     add_compile_options(/Ox)
 else()
-    add_compile_options(-03)
+    add_compile_options(-O3)
 endif()
 
 # 自动查找src目录下所有的.cpp文件
