@@ -194,17 +194,40 @@ size_t ClientSocket::connectToServer(const std::string& _host, const std::string
     return index;
 }
 
-void ClientSocket::socketSend(size_t index, const std::string& sendBuf)
+void ClientSocket::socketSend(size_t index, const std::string& msg)
 {
     MSocket* _temp = findSocket(index);
     if (_temp == nullptr) { return; }
     MSocket& _socket = *_temp;
 
-    //发送报文
-    _socket.result = SSL_write(_socket.sslSocket, sendBuf.c_str(), static_cast<int>(sendBuf.length()));
-    if (_socket.result == -1) {
-        _socket.errorLog = _M_SSL_WRITE_ERR + SSL_get_error(_socket.sslSocket, _socket.result);
-        _socket.socketClose();
+    size_t sentLength = 0;
+
+    while (sentLength < msg.length()) {
+        _socket.result = SSL_write(_socket.sslSocket, msg.c_str() + sentLength, static_cast<int>(msg.length() - sentLength));
+        if (_socket.result <= 0) {
+            _socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
+            if (_socket.result == SSL_ERROR_WANT_WRITE) {
+                fd_set set;
+                FD_ZERO(&set);
+                FD_SET(_socket.socket, &set);
+
+                int select_err = select(_socket.socket + 1, NULL, &set, NULL, nullptr);
+                if (select_err > 0) {
+                    continue;
+                }
+                else {
+                    break;
+                }
+            }
+            else {
+                _socket.errorLog = _M_SSL_WRITE_ERR + _socket.result;
+                _socket.socketClose();
+                break;
+            }
+        }
+        else {
+            sentLength += _socket.result;
+        }
     }
 }
 
