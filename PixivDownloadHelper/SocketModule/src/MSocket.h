@@ -55,8 +55,9 @@ public:
 	MSocket& operator=(MSocket&&) = delete;
 
 	void setHostAndPort(const char* _host, const char* _port) noexcept;
-	void socketClose();
 private:
+	void socketClose();
+
 	//socket对象
 	SOCKET socket = INVALID_SOCKET;
 
@@ -79,7 +80,7 @@ private:
 	SSL_CTX* ctx = nullptr;
 
 	//函数返回结果
-	int result;
+	size_t result;
 	//错误信息
 	std::string errorLog;
 

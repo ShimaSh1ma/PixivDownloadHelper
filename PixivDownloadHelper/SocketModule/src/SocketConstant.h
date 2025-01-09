@@ -19,4 +19,4 @@ constexpr const char* _REQUEST_SUCCESS = "Request Success";
 constexpr const char* _FILE_OPEN_ERR = "Error Open ";
 constexpr const char* _FILE_CREATE_ERR = "Error Create ";
 
-constexpr const size_t _BUFFER_SIZE = 1024 * 4;
+constexpr const size_t _BUFFER_SIZE = 1024 * 12;
