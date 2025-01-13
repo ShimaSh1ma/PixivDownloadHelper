@@ -5,9 +5,12 @@ project(pixivDownloader)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 开启-O3编译优化
+# 编译器选项
 if(MSVC)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    else()
     add_compile_options(/Ox)
+    endif()
 else()
     add_compile_options(-O3)
 endif()
