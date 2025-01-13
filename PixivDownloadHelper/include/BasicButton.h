@@ -31,7 +31,7 @@ class AnimationButton ://动画按钮
 public:
 	explicit AnimationButton(const QString& text = nullptr,
 		const QString& icon = nullptr,
-		const QSize& size = { 0,0 },
+		const QSize& size = QSize(0, 0),
 		const size_t borderRadius = 9);
 	~AnimationButton() = default;
 
@@ -80,7 +80,7 @@ public:
 	void setIndex(int id);//传入对应窗口索引
 	int getIndex();
 private:
-	int index{};//按钮对应窗口索引
+	int index = 0;//按钮对应窗口索引
 };
 
 /* 单行文本框样式 */

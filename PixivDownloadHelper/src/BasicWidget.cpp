@@ -97,7 +97,7 @@ void TransparentScrollArea::wheelEvent(QWheelEvent* wheelEvent) {
 
 void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
 	scrollAnimation->stop();
-	int changeValue{ 0 };
+	int changeValue = 0;
 	if (ev->key() == Qt::Key_Up) {
 		changeValue = _pixivDownloadItemWithoutPre_height;
 	}

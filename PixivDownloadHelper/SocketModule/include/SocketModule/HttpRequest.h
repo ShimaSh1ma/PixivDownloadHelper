@@ -1,43 +1,48 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 class UrlParser;
 
 class HttpRequest {	//http请求报文类
 public:
-    //资源路径
-    std::string urlSource;
-    //host头 主机名
-    std::string urlHost;
-
-    //请求方式，默认GET
-    std::string method = "GET";
-    //http版本,默认1.1
-    std::string httpVersion = "HTTP/1.1";
-
-    //Accept头
-    std::string accept = "*/*";
-    //Accept-Charset头
-    std::string acceptCharset = "utf-8";
-    //Accept-Language头
-    std::string acceptLanguage = "zh-CN,zh;q=0.9";
-    //Referer头
-    std::string referer;
-    //Cookie头
-    std::string cookie;
-    //User-agent头
-    std::string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
-    //Connection头
-    std::string connection = "close";
-
-    explicit HttpRequest(const UrlParser& url);
-    explicit HttpRequest() = default;
+    explicit HttpRequest();
     ~HttpRequest() = default;
 
-    //传入新的url组装报文
-    void remakeRequest(const UrlParser& url);
+    //设置连接目标主机及资源路径
+    void setUrl(const UrlParser& url);
+    void setUrl(const std::string& host, const std::string& source);
+
+    //设置http方法
+    void setHttpMethod(const std::string& method);
+    //设置http版本
+    void setHttpVersion(const std::string& version);
+
+    //添加或覆盖请求行
+    void addHttpHead(const std::pair<std::string, std::string>& newHead);
 
     //组装http请求报文
-    std::string request();
+    std::string httpRequest();
+private:
+    //http请求头
+    std::map<std::string, std::string> httpHead;
+
+    //http请求行
+    struct HttpLine {
+        //资源路径
+        std::string urlSource;
+        //host头 主机名
+        std::string urlHost;
+        //请求方式，默认GET
+        std::string method = "GET";
+        //http版本,默认1.1
+        std::string httpVersion = "HTTP/1.1";
+    } httpLine;
+
+    //组装请求行
+    std::string constructHttpLine();
+
+    //组装请求头
+    std::string constructHttpHead();
 };

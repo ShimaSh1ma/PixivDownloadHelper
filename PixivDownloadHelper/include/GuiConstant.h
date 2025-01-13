@@ -50,10 +50,10 @@ enum class downloadState {
 };
 
 //统一边框宽度
-constexpr size_t _margin_width{ 14 };
+constexpr size_t _margin_width = 14;
 
 //滑动条宽度
-constexpr size_t _scrollerBar_width{ 10 };
+constexpr size_t _scrollerBar_width = 10;
 
 //pixiv窗口ui尺寸
 constexpr QSize _pixivUrlLineEdit_size{ 160,30 };//url输入文本框最小大小
@@ -95,4 +95,4 @@ constexpr QColor _buttonNormal_color{ 230,230,230,150 };//按钮平常颜色
 constexpr QColor _buttonHover_color{ 165,208,255,150 };//按钮悬停颜色
 constexpr QColor _buttonPressed_color{ 165,208,255,180 };//按钮按下颜色
 
-constexpr size_t _windowTransparency_division{ 255 };//背景透明度分度值
+constexpr size_t _windowTransparency_division = 255;//背景透明度分度值

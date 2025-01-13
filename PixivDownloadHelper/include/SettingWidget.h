@@ -68,7 +68,7 @@ private:
     //网格布局
     QGridLayout* layout;
 
-    bool showOrNot{ false };//窗口显示或隐藏状态位
+    bool showOrNot = false;//窗口显示或隐藏状态位
 protected:
     virtual void mousePressEvent(QMouseEvent* mouseE) override;//重写鼠标点击事件，实现窗口显示或隐藏
 };

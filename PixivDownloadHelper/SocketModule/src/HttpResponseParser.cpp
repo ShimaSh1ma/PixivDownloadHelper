@@ -2,7 +2,7 @@
 
 #include <regex>
 
-std::string HttpResponseParser::findKeyOfHeader(const std::string& searchHeader) {
+std::string HttpResponseParser::getHttpHead(const std::string& searchHeader) {
 	auto iter = responseMap.find(searchHeader);
 	return iter == responseMap.end() ? "" : iter->second;
 }
@@ -22,6 +22,10 @@ void HttpResponseParser::operator()(const std::string& response) {
 		}
 	}
 	else {
-		statusCode = "";
+		statusCode = "-1";
 	}
+}
+
+std::string HttpResponseParser::getStatusCode() {
+	return this->statusCode;
 }

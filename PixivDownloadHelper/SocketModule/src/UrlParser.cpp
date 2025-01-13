@@ -24,13 +24,13 @@ void UrlParser::parseUrl(const std::string& url_input) {
 			this->fileExtension = r2[2].str();
 		}
 		else {
-			this->fileName = {};
-			this->fileExtension = {};
+			this->fileName = "";
+			this->fileExtension = "";
 		}
 	}
 	else {
-		this->protocol = {};
-		this->host = {};
-		this->source = {};
+		this->protocol = "";
+		this->host = "";
+		this->source = "";
 	}
 }

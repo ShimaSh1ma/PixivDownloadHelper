@@ -55,7 +55,7 @@ std::string weiboUrl(const UrlParser& URL)
 	std::string _Source = URL.source;
 	std::string _Protocol = URL.protocol;
 	std::string _Extension = URL.fileExtension;
-	std::string _Id = {};
+	std::string _Id;
 	std::regex gethost_dir_regex("^https?://[^/:]+/[^/]+([^.]+)(.+)");
 	std::smatch r;
 
@@ -89,8 +89,8 @@ void deleteDownloadData(const std::string& data)
 		std::string out;
 		std::ifstream i(_downloadDataFile, std::ios::in);
 		if (i.is_open()) {
-			std::string temp{};
-			std::string check{};
+			std::string temp;
+			std::string check;
 			while (std::getline(i, temp)) {
 				check += temp + "\n";
 				std::getline(i, temp);

@@ -261,7 +261,7 @@ std::string ClientSocket::socketReceive(socketIndex index)
     std::string headData = receivedData.substr(0, dividePos);
     std::unique_ptr<HttpResponseParser> parser(new HttpResponseParser);
     (*parser)(headData);
-    size_t contentLength = std::stoull(parser->findKeyOfHeader("Content-Length"));
+    size_t contentLength = std::stoull(parser->getHttpHead("Content-Length"));
 
     receivedLength = receivedData.length() - headData.length();
     while (receivedLength < contentLength) {

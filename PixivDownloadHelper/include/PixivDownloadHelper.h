@@ -37,14 +37,14 @@ private:
     double opacity;//背景透明度
 
     //图片大小记录，用作缓冲
-    int imageWidth{ 0 };
-    int imageHeight{ 0 };
+    int imageWidth = 0;
+    int imageHeight = 0;
     //窗口大小记录，用作缓冲
-    int wWidth{ 0 };
-    int wHeight{ 0 };
+    int wWidth = 0;
+    int wHeight = 0;
     //图片位置记录，用作缓冲
-    int xpos{ 0 };
-    int ypos{ 0 };
+    int xpos = 0;
+    int ypos = 0;
 
     void stretchImage();//拉伸背景图片大小，适应窗口变化
 protected:

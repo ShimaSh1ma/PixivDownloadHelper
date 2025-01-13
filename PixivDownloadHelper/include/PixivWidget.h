@@ -65,7 +65,7 @@ private:
     QLabel* previewImage;//缩略图
     QHBoxLayout* layout;//水平布局
 
-    std::string previewImagePath{ _default_preview_path };//缩略图路径
+    std::string previewImagePath = _default_preview_path;//缩略图路径
 };
 
 class PixivDownloadItemStateWidget final ://pixiv下载项目下载状态窗口
@@ -88,10 +88,10 @@ private:
 
     QHBoxLayout* layout;//水平布局
 
-    int imageCount{ 0 };//总图片数
-    int successCount{ 0 };//下载成功数
+    int imageCount;//总图片数
+    int successCount;//下载成功数
 
-    downloadState state = { downloadState::WAITING };//默认为等待状态
+    downloadState state = downloadState::WAITING;//默认为等待状态
     QString downloadStateString();//根据状态枚举量返回下载状态字符串
 public slots:
     void setState(const downloadState& _state);   //设置下载状态
@@ -131,8 +131,8 @@ private:
     void pixivDownload();//pixiv下载函数
     void telegramDownload();//telegram下载函数
 
-    std::string downloadUrl{};//下载URL
-    const std::string downloadPath{};//下载路径
+    std::string downloadUrl;//下载URL
+    const std::string downloadPath;//下载路径
     virtual void mouseDoubleClickEvent(QMouseEvent* mouseE) override;//重写鼠标双击事件，实现打开下载路径
 };
 
@@ -207,12 +207,12 @@ private:
     std::list<PixivDownloadItem*> itemList;//储存所有下载项目的向量组
     std::list<PixivDownloadItem*>::const_iterator downloadingItem;//指向正在下载项目的迭代器
 
-    bool foldOrUnfold{ true };//下载项目是否展开状态位，在槽函数中改变
+    bool foldOrUnfold = true;//下载项目是否展开状态位，在槽函数中改变
 
-    bool downloadingOrNot{ false };//表示下载是否在进行中的状态位
+    bool downloadingOrNot = false;//表示下载是否在进行中的状态位
 
-    int row{ 1 };//布局行数
-    int column{ 1 };//布局列数
+    int row = 1;//布局行数
+    int column = 1;//布局列数
 
     std::unordered_set<std::string> hashTable;//哈希表判断重复
 };
@@ -240,7 +240,7 @@ private:
     //加入布局自适应窗口大小
     QVBoxLayout* layout;
 
-    int wWidth{ 0 };//记录窗口宽度做缓冲
+    int wWidth = 0;//记录窗口宽度做缓冲
     void virtual resizeEvent(QResizeEvent* ev);
 };
 
