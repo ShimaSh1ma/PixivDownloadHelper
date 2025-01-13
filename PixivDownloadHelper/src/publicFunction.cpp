@@ -49,6 +49,21 @@ void jsonParse(std::string& json)
 	json.erase(std::remove(json.begin(), json.end(), '\\'), json.end());
 }
 
+std::vector<std::string> parserHtml(const std::string& html, const std::string& regex) {
+	std::vector<std::string> retVec;
+
+	std::regex rgx(regex);
+
+	auto begin = std::sregex_iterator(html.begin(), html.end(), rgx);
+	auto end = std::sregex_iterator();
+
+	for (auto i = begin; i != end; ++i) {
+		retVec.emplace_back(i->str());
+	}
+
+	return retVec;
+}
+
 std::string weiboUrl(const UrlParser& URL)
 {
 	std::string _Host = URL.host;

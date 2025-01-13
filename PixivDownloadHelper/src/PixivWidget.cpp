@@ -252,91 +252,106 @@ void PixivDownloadItem::checkUrlType() {
 }
 
 void PixivDownloadItem::pixivDownload() {
-	// //将下载状态置为下载中
-	// this->stateWidget->setState(downloadState::DOWNLOADING);
-	// std::string url = downloadUrl;
-	// std::string path = downloadPath;
+	//将下载状态置为下载中
+	this->stateWidget->setState(downloadState::DOWNLOADING);
+	std::string url = downloadUrl;
+	std::string path = downloadPath;
 
-	// //lambd表达式作为子线程运行
-	// auto f = [=]() {
-	// 	std::string refer = url;		//原url作为refer
-	// 	std::string ajaxurl;			//pixiv ajax接口url生成
-	// 	ajaxurl = pixivAjaxurl(url);
-	// 	if (ajaxurl == "") {
-	// 		return;
-	// 	}
+	//lambd表达式作为子线程运行
+	auto f = [=]() {
+		std::string refer = url;		//原url作为refer
+		std::string ajaxurl;			//pixiv ajax接口url生成
+		ajaxurl = pixivAjaxurl(url);
+		if (ajaxurl == "") {
+			return;
+		}
 
-	// 	auto urlP = std::make_unique<UrlParser>();
-	// 	urlP->parseUrl(ajaxurl);
+		auto urlP = std::make_unique<UrlParser>();
+		urlP->parseUrl(ajaxurl);
 
-	// 	//组装请求json文件报文
-	// 	auto jsonHttpRequest = std::make_unique<HttpRequest>(*urlP);
-	// 	jsonHttpRequest->referer = refer;
-	// 	jsonHttpRequest->accept = "*/*";
-	// 	jsonHttpRequest->acceptCharset = "";
-	// 	jsonHttpRequest->cookie = _pixivCookie;
-	// 	//请求json文件
-	// 	std::string json;
-	// 	//http请求失败
-	// 	while (json == _EMPTY_STRING || json.size() == 3) {
-	// 		int SFD = ClientSocket::connectToServer(urlP->host, "8080");
-	// 		//更改状态为http请求失败
-	// 		this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
-	// 		//重试直到请求成功
-	// 		jsonHttpRequest->cookie = _pixivCookie;
-	// 		json = M->requestHtml(*urlP, jsonHttpRequest->request());
-	// 	}
-	// 	//更改状态为下载中
-	// 	this->stateWidget->setState(downloadState::DOWNLOADING);
-	// 	//去除json文件中的转义字符
-	// 	jsonParse(json);
-	// 	//提取图片url
-	// 	std::vector<std::string> Vurl;//存放url的向量数组
-	// 	int total = M->parseHtmlForUrl(json, Vurl, _regex_pixiv_illust_url);//总图片数
-	// 	int success{ 0 };//下载成功个数
-	// 	emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
+		//组装请求json文件报文
+		auto jsonHttpRequest = std::make_unique<HttpRequest>(*urlP);
+		jsonHttpRequest->addHttpHead(
+			{
+				{"referer",refer},
+				{"acceptCharset",""},
+				{"cookie",_pixivCookie}
+			}
+		);
+		//请求json文件
+		std::string json;
+		//http请求失败
+		while (json == _EMPTY_STRING || json.size() == 3) {
+			static int SFD = -1;
+			if (SFD == -1) {
+				SFD = ClientSocket::connectToServer(urlP->host, "8080");
+				//更改状态为http请求失败
+				this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
+				//重试直到请求成功
+				jsonHttpRequest->addHttpHead({ {"cookie",_pixivCookie} });
+				if (ClientSocket::socketSend(SFD, jsonHttpRequest->httpRequest())) {
+					json = ClientSocket::socketReceive(SFD);
+				}
+			}
+		}
+		//更改状态为下载中
+		this->stateWidget->setState(downloadState::DOWNLOADING);
+		//去除json文件中的转义字符
+		jsonParse(json);
+		//提取图片url,存放url进向量数组
+		std::vector<std::string> Vurl = parserHtml(json, _regex_pixiv_illust_url);
+		int total = Vurl.size();
+		int success = 0;//下载成功个数
+		emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
 
-	// 	std::vector<std::string>::iterator it = Vurl.begin();	//存放url的vector迭代器
-	// 	//url解析类
-	// 	UrlParser imageUrl;
+		std::vector<std::string>::iterator it = Vurl.begin();
 
-	// 	//创建http请求报文类
-	// 	HttpRequest imageHttpRequest;
-	// 	imageHttpRequest.referer = refer;
-	// 	imageHttpRequest.accept = "image/*";
-	// 	imageHttpRequest.cookie = _pixivCookie;
+		UrlParser imageUrl;
 
-	// 	//图片文件路径
-	// 	std::string filePath;
+		//创建http请求报文类
+		HttpRequest imageHttpRequest;
+		imageHttpRequest.addHttpHead({ {"referer",refer},{"accept","image/*"},{"cookie",_pixivCookie} });
 
-	// 	while (it != Vurl.end()) {
-	// 		//解析图片url
-	// 		imageUrl.parseUrl(*it);
-	// 		//组装对应url请求报文
-	// 		imageHttpRequest.remakeRequest(imageUrl);
-	// 		//文件路径utf-8转GB2312，确保正确打开中文路径文件
-	// 		QTextCodec* code = QTextCodec::codecForName("GB2312");
-	// 		filePath = code->fromUnicode((path + "/" + imageUrl.fileName).c_str());
-	// 		if (mDownload.fileDownload_nonreuse(imageUrl, filePath, imageHttpRequest.request())) {
-	// 			++success;
-	// 			it++;					//迭代器递增，下载下一张图片
-	// 			if (success == 1) {		//获取第一张图片作为下载项目的预览缩略图
-	// 				emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
-	// 			}
-	// 			emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
-	// 		}
-	// 		filePath = {};	//文件名重置
-	// 	}
+		//图片文件路径
+		std::string filePath;
 
-	// 	//将下载状态置为下载完成
-	// 	this->stateWidget->setState(downloadState::SUCCESS);
-	// 	emit downloadCompleteSignal();//发射下载完成信号
-	// 	return;
-	// 	};
+		while (it != Vurl.end()) {
+			//解析图片url
+			imageUrl.parseUrl(*it);
+			//组装对应url请求报文
+			imageHttpRequest.setUrl(imageUrl);
+#if defined(_WIN32)
+			//文件路径utf-8转GB2312，确保正确打开中文路径文件
+			QTextCodec* code = QTextCodec::codecForName("GB2312");
+			filePath = code->fromUnicode((path + "/" + imageUrl.fileName).c_str());
+#elif defined(__APPLE__)
+			filePath = path + "/" + imageUrl.fileName;
+#endif
+			if (mDownload.fileDownload_nonreuse(imageUrl, filePath, imageHttpRequest.httpRequest())) {
+				++success;
+				++it;
+				if (success == 1) {
+					//获取第一张图片作为下载项目的预览缩略图
+#if defined(_WIN32)
+					emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
+#elif defined(__APPLE__)
+					emit previewImageSignal(filePath);
+#endif
+				}
+				emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
+			}
+			filePath = {};	//文件名重置
+		}
 
-	// std::thread t(f);
-	// t.detach();
-	// return;
+		//将下载状态置为下载完成
+		this->stateWidget->setState(downloadState::SUCCESS);
+		emit downloadCompleteSignal();//发射下载完成信号
+		return;
+		};
+
+	std::thread t(f);
+	t.detach();
+	return;
 }
 
 void PixivDownloadItem::telegramDownload() {

@@ -20,7 +20,7 @@ public:
     void setHttpVersion(const std::string& version);
 
     //添加或覆盖请求行
-    void addHttpHead(const std::pair<std::string, std::string>& newHead);
+    void addHttpHead(const std::initializer_list<std::pair<std::string, std::string>>& lst);
 
     //组装http请求报文
     std::string httpRequest();

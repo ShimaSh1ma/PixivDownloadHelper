@@ -1,6 +1,8 @@
 ﻿#include "HttpRequest.h"
 #include "UrlParser.h"
+
 #include <vector>
+#include <initializer_list>
 
 HttpRequest::HttpRequest() : httpHead{
 		{"accept","*/*"},
@@ -23,7 +25,9 @@ std::string HttpRequest::constructHttpLine() {
 std::string HttpRequest::constructHttpHead() {
 	std::string retStr;
 	for (auto it : this->httpHead) {
-		retStr += it.first + ": " + it.second + "\r\n";
+		if (it.second != "") {
+			retStr += it.first + ": " + it.second + "\r\n";
+		}
 	}
 	return retStr;
 }
@@ -46,8 +50,10 @@ void HttpRequest::setHttpVersion(const std::string& version) {
 	this->httpLine.httpVersion = version;
 }
 
-void HttpRequest::addHttpHead(const std::pair<std::string, std::string>& newHead) {
-	this->httpHead.insert(newHead);
+void HttpRequest::addHttpHead(const std::initializer_list<std::pair<std::string, std::string>>& lst) {
+	for (auto pair : lst) {
+		this->httpHead.insert(pair);
+	}
 }
 
 std::string HttpRequest::httpRequest() {

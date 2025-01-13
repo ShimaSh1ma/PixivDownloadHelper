@@ -7,6 +7,7 @@
 */
 
 #include <string>
+#include <vector>
 
 class UrlParser;
 
@@ -15,6 +16,9 @@ void mkdir(const std::string& dir);
 
 //简单处理json，删去json中的转义字符“\”
 void jsonParse(std::string& json);
+
+//从html中解析出图片url
+std::vector<std::string> parserHtml(const std::string& html, const std::string& regex);
 
 //将源url转化成pixiv.net的ajax接口url
 std::string pixivAjaxurl(const std::string& url);
