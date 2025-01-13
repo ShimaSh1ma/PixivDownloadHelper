@@ -21,7 +21,7 @@ private:
     static MSocket* findSocket(socketIndex index);
 
     //销毁socket
-    static void deleteSocket(socketIndex index);
+    static void deleteSocket(socketIndex& index);
 
     //设置socket非阻塞
     static bool setSocketNonblocked(MSocket& _socket);
@@ -46,11 +46,11 @@ public:
     static socketIndex connectToServer(const std::string& _host, const std::string& _port);
 
     //向服务器发送信息
-    static bool socketSend(socketIndex index, const std::string& sendbuf);
+    static bool socketSend(socketIndex& index, const std::string& sendbuf);
 
     //从服务器接收报文
-    static std::string socketReceive(socketIndex index);
+    static std::string socketReceive(socketIndex& index);
 
     //断开连接并关闭套接字
-    static void disconnectToServer(socketIndex index);
+    static void disconnectToServer(socketIndex& index);
 };

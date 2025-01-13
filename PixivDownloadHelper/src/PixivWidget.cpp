@@ -93,7 +93,7 @@ void PixivDownloadItemPreviewWidget::loadPreviewImage(const std::string& imagePa
 		previewImage->setPixmap(pix->scaled(previewImage->size(),
 			Qt::KeepAspectRatio, Qt::SmoothTransformation));//缩放缩略图适应窗口大小
 		delete pix;
-		};
+	};
 
 	std::thread thd(f);
 	thd.detach();
@@ -270,7 +270,8 @@ void PixivDownloadItem::pixivDownload() {
 		urlP->parseUrl(ajaxurl);
 
 		//组装请求json文件报文
-		auto jsonHttpRequest = std::make_unique<HttpRequest>(*urlP);
+		auto jsonHttpRequest = std::make_unique<HttpRequest>();
+		jsonHttpRequest->setUrl(*urlP);
 		jsonHttpRequest->addHttpHead(
 			{
 				{"referer",refer},
@@ -314,40 +315,59 @@ void PixivDownloadItem::pixivDownload() {
 
 		//图片文件路径
 		std::string filePath;
+		socketIndex socketIdx = -1;
 
 		while (it != Vurl.end()) {
 			//解析图片url
 			imageUrl.parseUrl(*it);
-			//组装对应url请求报文
-			imageHttpRequest.setUrl(imageUrl);
-#if defined(_WIN32)
-			//文件路径utf-8转GB2312，确保正确打开中文路径文件
-			QTextCodec* code = QTextCodec::codecForName("GB2312");
-			filePath = code->fromUnicode((path + "/" + imageUrl.fileName).c_str());
-#elif defined(__APPLE__)
-			filePath = path + "/" + imageUrl.fileName;
-#endif
-			if (mDownload.fileDownload_nonreuse(imageUrl, filePath, imageHttpRequest.httpRequest())) {
-				++success;
-				++it;
-				if (success == 1) {
-					//获取第一张图片作为下载项目的预览缩略图
-#if defined(_WIN32)
-					emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
-#elif defined(__APPLE__)
-					emit previewImageSignal(filePath);
-#endif
-				}
-				emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
+			//连接服务器
+			while (socketIdx == -1) {
+				socketIdx = ClientSocket::connectToServer(imageUrl.host, "8080");
 			}
-			filePath = {};	//文件名重置
+			while (it != Vurl.end()) {
+				//解析图片url
+				imageUrl.parseUrl(*it);
+				//组装对应url请求报文
+				imageHttpRequest.setUrl(imageUrl);
+#if defined(_WIN32)
+				//文件路径utf-8转GB2312，确保正确打开中文路径文件
+				QTextCodec* code = QTextCodec::codecForName("GB2312");
+				filePath = code->fromUnicode((path + "/" + imageUrl.fileName).c_str());
+#elif defined(__APPLE__)
+				filePath = path + "/" + imageUrl.fileName;
+#endif
+				if (ClientSocket::socketSend(socketIdx, imageHttpRequest.httpRequest())) {
+					std::string data = ClientSocket::socketReceive(socketIdx);
+					if (data == "" || socketIdx == -1) {
+						continue;
+					}
+					else {
+						std::string imageData = data.substr(data.find("\r\n\r\n") + 4);
+						saveFile(filePath, imageData);
+						++success;
+						++it;
+						if (success == 1) {
+							//获取第一张图片作为下载项目的预览缩略图
+#if defined(_WIN32)
+							emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
+#elif defined(__APPLE__)
+							emit previewImageSignal(filePath);
+#endif
+						}
+						emit downloadProgressSignal(total, success);//发送信号使下载窗口更新显示
+					}
+				}
+				filePath = {};	//文件名重置
+			}
 		}
+
+		ClientSocket::disconnectToServer(socketIdx);
 
 		//将下载状态置为下载完成
 		this->stateWidget->setState(downloadState::SUCCESS);
 		emit downloadCompleteSignal();//发射下载完成信号
 		return;
-		};
+	};
 
 	std::thread t(f);
 	t.detach();
@@ -597,7 +617,7 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 		urlP->parseUrl(ajaxUrl);
 		auto hr = std::make_unique<HttpRequest>();
 		hr->setUrl(*urlP);
-		hr->addHttpHead({ "cookie",_pixivCookie });
+		hr->addHttpHead({ {"cookie",_pixivCookie} });
 		std::string* json = new std::string;
 		// 请求json
 		while (*json == _EMPTY_STRING) {
@@ -629,7 +649,7 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 		delete url;
 		delete json;
 		return;
-		};
+	};
 
 	std::thread t(lamda);
 	t.detach();
@@ -651,7 +671,7 @@ void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, co
 			auto urlP = std::make_unique<UrlParser>();
 			auto hr = std::make_unique<HttpRequest>();
 			hr->setUrl(*urlP);
-			hr->addHttpHead({ "cookie",_pixivCookie });
+			hr->addHttpHead({ {"cookie",_pixivCookie} });
 			std::string* json = new std::string;
 			//请求json
 			while (*json == _EMPTY_STRING) {
@@ -690,7 +710,7 @@ void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, co
 		} while (page < pageCount);
 
 		return;
-		};
+	};
 
 	std::thread t(lambda);
 	t.detach();
@@ -826,7 +846,7 @@ void PixivDownloadItemWidget::loadDownloadData() {
 		emit adjustLayoutSignal();//刷新布局
 		//emit itemAddedSignal();//发送信号提示有新项目加入
 		return;
-		};
+	};
 
 	std::thread th(f);
 	th.detach();
