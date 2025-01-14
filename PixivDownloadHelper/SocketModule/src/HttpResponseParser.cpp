@@ -8,7 +8,7 @@ std::string HttpResponseParser::getHttpHead(const std::string& searchHeader) {
 }
 
 void HttpResponseParser::operator()(const std::string& response) {
-	std::regex rule1("HTTP/\\d(?:\\.\\d)? (\\d{3}) \\w+\\r\\n");
+	std::regex rule1("HTTP/\\d(?:\\.\\d)? (\\d{3}) [A-Za-z ]+\\r\\n");
 	std::smatch re;
 
 	if (std::regex_search(response, re, rule1)) {

@@ -80,7 +80,7 @@ private:
 	SSL_CTX* ctx = nullptr;
 
 	//函数返回结果
-	size_t result;
+	int result;
 	//错误信息
 	std::string errorLog;
 

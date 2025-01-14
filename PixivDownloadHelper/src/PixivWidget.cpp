@@ -275,8 +275,8 @@ void PixivDownloadItem::pixivDownload() {
 		jsonHttpRequest->addHttpHead(
 			{
 				{"referer",refer},
-				{"acceptCharset",""},
-				{"cookie",_pixivCookie}
+				{"Accept-Charset",""},
+				{"Cookie",_pixivCookie}
 			}
 		);
 		//请求json文件
@@ -285,15 +285,20 @@ void PixivDownloadItem::pixivDownload() {
 		while (json == _EMPTY_STRING || json.size() == 3) {
 			static int SFD = -1;
 			if (SFD == -1) {
-				SFD = ClientSocket::connectToServer(urlP->host, "8080");
-				//更改状态为http请求失败
-				this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
-				//重试直到请求成功
-				jsonHttpRequest->addHttpHead({ {"cookie",_pixivCookie} });
-				if (ClientSocket::socketSend(SFD, jsonHttpRequest->httpRequest())) {
-					json = ClientSocket::socketReceive(SFD);
+				SFD = ClientSocket::connectToServer(urlP->host, "443");
+				static bool flag = true;
+				if (flag) {
+					//更改状态为http请求失败
+					this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
+					flag = false;
+				}
+				if (SFD != -1) {
+					if (ClientSocket::socketSend(SFD, jsonHttpRequest->httpRequest())) {
+						json = ClientSocket::socketReceive(SFD);
+					}
 				}
 			}
+			ClientSocket::disconnectToServer(SFD);
 		}
 		//更改状态为下载中
 		this->stateWidget->setState(downloadState::DOWNLOADING);
@@ -322,7 +327,7 @@ void PixivDownloadItem::pixivDownload() {
 			imageUrl.parseUrl(*it);
 			//连接服务器
 			while (socketIdx == -1) {
-				socketIdx = ClientSocket::connectToServer(imageUrl.host, "8080");
+				socketIdx = ClientSocket::connectToServer(imageUrl.host, "443");
 			}
 			while (it != Vurl.end()) {
 				//解析图片url
@@ -332,18 +337,18 @@ void PixivDownloadItem::pixivDownload() {
 #if defined(_WIN32)
 				//文件路径utf-8转GB2312，确保正确打开中文路径文件
 				QTextCodec* code = QTextCodec::codecForName("GB2312");
-				filePath = code->fromUnicode((path + "/" + imageUrl.fileName).c_str());
+				filePath = code->fromUnicode((path + "/" + imageUrl.fileName + imageUrl.fileExtension).c_str());
 #elif defined(__APPLE__)
 				filePath = path + "/" + imageUrl.fileName;
 #endif
+				if (socketIdx == -1) { break; }
 				if (ClientSocket::socketSend(socketIdx, imageHttpRequest.httpRequest())) {
 					std::string data = ClientSocket::socketReceive(socketIdx);
 					if (data == "" || socketIdx == -1) {
 						continue;
 					}
 					else {
-						std::string imageData = data.substr(data.find("\r\n\r\n") + 4);
-						saveFile(filePath, imageData);
+						saveFile(filePath, data);
 						++success;
 						++it;
 						if (success == 1) {

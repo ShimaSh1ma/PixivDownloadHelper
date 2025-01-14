@@ -5,13 +5,14 @@
 #include <initializer_list>
 
 HttpRequest::HttpRequest() : httpHead{
-		{"accept","*/*"},
-		{"acceptCharset","utf-8"},
-		{"acceptLanguage","zh-CN,zh;q=0.9"},
-		{"referer",""},
-		{"cookie",""},
-		{"userAgent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"},
-		{"connection","keep-alive"}
+		{"Host",""},
+		{"Accept","*/*"},
+		{"Accept-Charset","utf-8"},
+		{"Accept-Language","zh-CN,zh;q=0.9"},
+		{"Referer",""},
+		{"Cookie",""},
+		{"User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"},
+		{"Connection","keep-alive"}
 } {
 }
 
@@ -35,6 +36,7 @@ std::string HttpRequest::constructHttpHead() {
 void HttpRequest::setUrl(const std::string& host, const std::string& source) {
 	this->httpLine.urlHost = host;
 	this->httpLine.urlSource = source;
+	this->addHttpHead({ {"Host",host} });
 }
 
 void HttpRequest::setUrl(const UrlParser& url)
@@ -52,10 +54,12 @@ void HttpRequest::setHttpVersion(const std::string& version) {
 
 void HttpRequest::addHttpHead(const std::initializer_list<std::pair<std::string, std::string>>& lst) {
 	for (auto pair : lst) {
-		this->httpHead.insert(pair);
+		this->httpHead[pair.first] = pair.second;
 	}
 }
 
 std::string HttpRequest::httpRequest() {
-	return this->constructHttpLine() + this->constructHttpHead() + "\r\n";
+	return this->constructHttpLine() +
+		this->constructHttpHead() +
+		"\r\n";
 }
