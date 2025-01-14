@@ -34,5 +34,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # 指定产物静态库输出路径
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME}"
 )

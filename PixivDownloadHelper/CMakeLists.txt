@@ -41,8 +41,9 @@ qt5_add_resources(RESOURCES resource/resource.qrc)
 if(APPLE)
     set(MACOSX_BUNDLE_ICON_FILE main.icns)
     set(APP_ICON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/resource/icon/${MACOSX_BUNDLE_ICON_FILE})
-    set_source_files_properties(${APP_ICON_PATH} PROPERTIES
-        MACOSX_PACKAGE_LOCATION "Resources")
+    set_source_files_properties(${APP_ICON_PATH} 
+        PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources")
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${RESOURCES} ${APP_ICON_PATH})
 elseif(MSVC)
     # 设置 .rc 文件路径
@@ -56,7 +57,7 @@ endif()
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(${PROJECT_NAME} 

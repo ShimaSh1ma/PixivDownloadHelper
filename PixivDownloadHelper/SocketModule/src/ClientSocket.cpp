@@ -167,7 +167,11 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 	//连接到远程服务器
 	_socket.result = connect(_socket.socket, _socket.ipResult->ai_addr, static_cast<int>(_socket.ipResult->ai_addrlen));
 	std::string a = std::to_string(WSAGetLastError());
-	if (!waitForConnection(_socket, 5) || _socket.result == SOCKET_ERROR) {
+#if defined(_WIN32)
+	if (_socket.result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+#elif defined(__APPLE__)
+	if (_socket.result == SOCKET_ERROR && errno == EINPROGRESS) {
+#endif
 		_socket.errorLog = _M_SOCKET_CONNECT_ERR + std::to_string(WSAGetLastError());
 		freeaddrinfo(_socket.ipResult);
 		deleteSocket(index);
@@ -175,6 +179,12 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 	}
 
 	freeaddrinfo(_socket.ipResult);
+
+	if (!waitForConnection(_socket, 5)) {
+		_socket.errorLog = _M_SOCKET_CONNECT_ERR + std::to_string(WSAGetLastError());
+		deleteSocket(index);
+		return index;
+	}
 
 	//建立ssl连接
 	_socket.sslSocket = SSL_new(_socket.ctx);
@@ -198,7 +208,7 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 	return index;
 }
 
-bool ClientSocket::socketSend(socketIndex& index, const std::string& msg)
+bool ClientSocket::socketSend(socketIndex & index, const std::string & msg)
 {
 	MSocket* _temp = findSocket(index);
 	if (_temp == nullptr) {
@@ -239,7 +249,7 @@ bool ClientSocket::socketSend(socketIndex& index, const std::string& msg)
 	return true;
 }
 
-std::string ClientSocket::socketReceive(socketIndex& index)
+std::string ClientSocket::socketReceive(socketIndex & index)
 {
 	MSocket* _temp = findSocket(index);
 	if (_temp == nullptr) {
@@ -293,6 +303,6 @@ std::string ClientSocket::socketReceive(socketIndex& index)
 	return receivedData.substr(dividePos);
 }
 
-void ClientSocket::disconnectToServer(socketIndex& index) {
+void ClientSocket::disconnectToServer(socketIndex & index) {
 	deleteSocket(index);
 }
