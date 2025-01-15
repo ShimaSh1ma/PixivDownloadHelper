@@ -3,6 +3,7 @@
 #include <SocketModule/HttpRequest.h>
 #include <SocketModule/UrlParser.h>
 #include <SocketModule/ClientSocket.h>
+#include <SocketModule/HttpResponseParser.h>
 #include "fstream"
 #include "GuiConstant.h"
 
@@ -93,7 +94,7 @@ void PixivDownloadItemPreviewWidget::loadPreviewImage(const std::string& imagePa
 		previewImage->setPixmap(pix->scaled(previewImage->size(),
 			Qt::KeepAspectRatio, Qt::SmoothTransformation));//缩放缩略图适应窗口大小
 		delete pix;
-	};
+		};
 
 	std::thread thd(f);
 	thd.detach();
@@ -281,8 +282,9 @@ void PixivDownloadItem::pixivDownload() {
 		);
 		//请求json文件
 		std::string json;
+		std::string respCode;
 		//http请求失败
-		while (json == _EMPTY_STRING || json.size() == 3) {
+		while (respCode != "200") {
 			static int SFD = -1;
 			if (SFD == -1) {
 				SFD = ClientSocket::connectToServer(urlP->host, "443");
@@ -294,7 +296,11 @@ void PixivDownloadItem::pixivDownload() {
 				}
 				if (SFD != -1) {
 					if (ClientSocket::socketSend(SFD, jsonHttpRequest->httpRequest())) {
-						json = ClientSocket::socketReceive(SFD);
+						std::unique_ptr<HttpResponseParser> resp = ClientSocket::socketReceive(SFD);
+						respCode = resp->getStatusCode();
+						if (respCode == "200") {
+							json = resp->getPayload();
+						}
 					}
 				}
 			}
@@ -343,7 +349,7 @@ void PixivDownloadItem::pixivDownload() {
 #endif
 				if (socketIdx == -1) { break; }
 				if (ClientSocket::socketSend(socketIdx, imageHttpRequest.httpRequest())) {
-					std::string data = ClientSocket::socketReceive(socketIdx);
+					std::string data = ClientSocket::socketReceive(socketIdx)->getPayload();
 					if (data == "" || socketIdx == -1) {
 						continue;
 					}
@@ -372,7 +378,7 @@ void PixivDownloadItem::pixivDownload() {
 		this->stateWidget->setState(downloadState::SUCCESS);
 		emit downloadCompleteSignal();//发射下载完成信号
 		return;
-	};
+		};
 
 	std::thread t(f);
 	t.detach();
@@ -654,7 +660,7 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
 		delete url;
 		delete json;
 		return;
-	};
+		};
 
 	std::thread t(lamda);
 	t.detach();
@@ -715,7 +721,7 @@ void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, co
 		} while (page < pageCount);
 
 		return;
-	};
+		};
 
 	std::thread t(lambda);
 	t.detach();
@@ -851,7 +857,7 @@ void PixivDownloadItemWidget::loadDownloadData() {
 		emit adjustLayoutSignal();//刷新布局
 		//emit itemAddedSignal();//发送信号提示有新项目加入
 		return;
-	};
+		};
 
 	std::thread th(f);
 	th.detach();

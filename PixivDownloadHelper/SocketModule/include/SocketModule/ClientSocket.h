@@ -6,7 +6,16 @@
 #include <unordered_map>
 
 class MSocket;
+
 using socketIndex = int;
+
+enum class selectType {
+    READ,
+    WRITE,
+    READ_AND_WRITE
+};
+
+constexpr const size_t timeWaitSeconds = 5;
 
 //客户端套接字
 class ClientSocket {
@@ -29,6 +38,9 @@ private:
     //判断socket连接状态
     static bool waitForConnection(MSocket& _socket, int timeout_sec);
 
+    //使用select检查套接字是否可用
+    static bool selectSocket(SOCKET socket, selectType type = selectType::READ_AND_WRITE, int timeoutSecond = timeWaitSeconds);
+
     //socket集合
     static std::unordered_map<socketIndex, std::unique_ptr<MSocket>> socketPool;
 
@@ -49,7 +61,7 @@ public:
     static bool socketSend(socketIndex& index, const std::string& sendbuf);
 
     //从服务器接收报文
-    static std::string socketReceive(socketIndex& index);
+    static std::unique_ptr<HttpResponseParser> socketReceive(socketIndex& index);
 
     //断开连接并关闭套接字
     static void disconnectToServer(socketIndex& index);
