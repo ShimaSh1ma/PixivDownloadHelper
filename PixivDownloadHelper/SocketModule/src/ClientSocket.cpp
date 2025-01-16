@@ -15,7 +15,9 @@
 #include <limits>
 #include <random>
 
-#include <iostream>
+#include <shared_mutex>
+
+static std::shared_mutex writeMutex;
 
 void ClientSocket::WSAInit() {
 #if defined(_WIN32)
@@ -42,15 +44,19 @@ socketIndex ClientSocket::creatSocket(const std::string& _host, const std::strin
 	std::uniform_int_distribution<socketIndex> distribution(0, std::numeric_limits<socketIndex>::max());
 
 	socketIndex index;
+	bool isIndexUnique = false;
+	std::unique_lock<std::shared_mutex> uniquelockMutex(writeMutex);
 	do {
 		index = distribution(mt);
-	} while (socketPool.find(index) != socketPool.end());
+		isIndexUnique = socketPool.find(index) == socketPool.end();
+	} while (!isIndexUnique);
 	// 添加到统一管理池
 	socketPool.insert({ index, std::make_unique<MSocket>(_host.c_str(), _port.c_str()) });
 	return index;
 }
 
 MSocket* ClientSocket::findSocket(socketIndex index) {
+	std::shared_lock<std::shared_mutex> sharedlockMutex(writeMutex);
 	auto it = socketPool.find(index);
 	if (it == socketPool.end()) {
 		return nullptr;
