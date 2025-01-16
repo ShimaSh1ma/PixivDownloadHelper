@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <QtCore/qdebug.h>
 /* 定义基本的组件样式类 */
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qlineedit.h>

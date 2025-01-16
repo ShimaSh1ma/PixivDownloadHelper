@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <QtCore/qdebug.h>
-
 #include <QtWidgets/qwidget.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qpalette.h>

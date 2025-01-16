@@ -2,8 +2,6 @@
 
 #include <fstream>
 
-#include <QtCore/qdebug.h>
-
 #include <SocketModule/ClientSocket.h>
 
 #include "publicFunction.h"
