@@ -34,11 +34,9 @@ AnimationButton::AnimationButton(const QString& text,
 
 	//设置图标
 	if (icon != _EMPTY_STRING) {
-		QPixmap pix(icon);
-		//控制图标大小
-		pix = pix.scaled(std::min(this->height(), this->width() * 3 / 4),
-			std::min(this->height(), this->width() * 3 / 4),
-			Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		QIcon ico(icon);
+		QPixmap pix = ico.pixmap(QSize(std::min(this->height(), this->width() * 3 / 4),
+			std::min(this->height(), this->width() * 3 / 4)));
 		this->iconLabel->setPixmap(pix);
 	}
 
