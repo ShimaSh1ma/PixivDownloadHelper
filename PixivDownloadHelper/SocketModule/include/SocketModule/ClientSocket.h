@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 class MSocket;
+class HttpResponseParser;
 
 using socketIndex = int;
 
@@ -39,7 +40,7 @@ private:
     static bool waitForConnection(MSocket& _socket, int timeout_sec);
 
     //使用select检查套接字是否可用
-    static bool selectSocket(SOCKET socket, selectType type = selectType::READ_AND_WRITE, int timeoutSecond = timeWaitSeconds);
+    static bool selectSocket(const MSocket& _socket, selectType type = selectType::READ_AND_WRITE, int timeoutSecond = timeWaitSeconds);
 
     //socket集合
     static std::unordered_map<socketIndex, std::unique_ptr<MSocket>> socketPool;

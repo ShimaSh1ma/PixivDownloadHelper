@@ -93,7 +93,7 @@ bool ClientSocket::waitForConnection(MSocket& _socket, int timeout_sec) {
 	timeout.tv_sec = timeout_sec;
 	timeout.tv_usec = 0;
 
-	if (!ClientSocket::selectSocket(_socket.socket, selectType::WRITE)) {
+	if (!ClientSocket::selectSocket(_socket, selectType::WRITE)) {
 		return false;
 	}
 
@@ -110,29 +110,29 @@ bool ClientSocket::waitForConnection(MSocket& _socket, int timeout_sec) {
 	return true;
 }
 
-bool ClientSocket::selectSocket(SOCKET socket, selectType type, int timeoutSecond) {
+bool ClientSocket::selectSocket(const MSocket& _socket, selectType type, int timeoutSecond) {
 	fd_set fds;
 	FD_ZERO(&fds);
-	FD_SET(socket, &fds);
+	FD_SET(_socket.socket, &fds);
 
 	struct timeval timeout;
 	timeout.tv_sec = timeoutSecond;
 
 	int result = -1;
 	if (type == selectType::READ) {
-		result = select(socket + 1, &fds, NULL, NULL, &timeout);
+		result = select(_socket.socket + 1, &fds, NULL, NULL, &timeout);
 	}
 	else if (type == selectType::WRITE) {
-		result = select(socket + 1, NULL, &fds, NULL, &timeout);
+		result = select(_socket.socket + 1, NULL, &fds, NULL, &timeout);
 	}
 	else if (type == selectType::READ_AND_WRITE) {
-		result = select(socket + 1, &fds, &fds, NULL, &timeout);
+		result = select(_socket.socket + 1, &fds, &fds, NULL, &timeout);
 	}
 
 	if (result <= 0) {
 		return false;
 	}
-	if (!FD_ISSET(socket, &fds)) {
+	if (!FD_ISSET(_socket.socket, &fds)) {
 		return false;
 	}
 	return true;
@@ -238,12 +238,12 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 
 		if (_socket.result == SSL_ERROR_WANT_READ || _socket.result == SSL_ERROR_WANT_WRITE) {
 			if (_socket.result == SSL_ERROR_WANT_READ) {
-				if (ClientSocket::selectSocket(_socket.socket, selectType::READ)) {
+				if (ClientSocket::selectSocket(_socket, selectType::READ)) {
 					continue;
 				}
 			}
 			else if (_socket.result == SSL_ERROR_WANT_WRITE) {
-				if (ClientSocket::selectSocket(_socket.socket, selectType::WRITE)) {
+				if (ClientSocket::selectSocket(_socket, selectType::WRITE)) {
 					continue;
 				}
 			}
@@ -273,7 +273,7 @@ bool ClientSocket::socketSend(socketIndex & index, const std::string & msg) {
 		if (_socket.result <= 0) {
 			_socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
 			if (_socket.result == SSL_ERROR_WANT_WRITE) {
-				if (ClientSocket::selectSocket(_socket.socket, selectType::WRITE)) {
+				if (ClientSocket::selectSocket(_socket, selectType::WRITE)) {
 					continue;
 				}
 			}
@@ -307,7 +307,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex & in
 		if (_socket.result <= 0) {
 			_socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
 			if (_socket.result == SSL_ERROR_WANT_READ) {
-				if (ClientSocket::selectSocket(_socket.socket, selectType::READ)) {
+				if (ClientSocket::selectSocket(_socket, selectType::READ)) {
 					continue;
 				}
 			}
@@ -336,7 +336,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex & in
 			if (_socket.result <= 0) {
 				_socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
 				if (_socket.result == SSL_ERROR_WANT_READ) {
-					if (ClientSocket::selectSocket(_socket.socket, selectType::READ)) {
+					if (ClientSocket::selectSocket(_socket, selectType::READ)) {
 						continue;
 					}
 				}
@@ -358,7 +358,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex & in
 			if (_socket.result <= 0) {
 				_socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
 				if (_socket.result == SSL_ERROR_WANT_READ) {
-					if (ClientSocket::selectSocket(_socket.socket, selectType::READ)) {
+					if (ClientSocket::selectSocket(_socket, selectType::READ)) {
 						continue;
 					}
 				}
