@@ -226,6 +226,7 @@ void TransparentTextEdit::wheelEvent(QWheelEvent* wheelEvent) {
 	}
 	else {
 		QPlainTextEdit::wheelEvent(wheelEvent);
+		wheelEvent->accept();
 	}
 }
 
