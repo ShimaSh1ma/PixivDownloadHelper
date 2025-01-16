@@ -2,14 +2,27 @@
 
 /* 定义图形界面布局常量
    如：窗口大小、窗口位置、窗口颜色、背景图片路径
-   、按钮大小、按钮位置等*/
+   、按钮大小、按钮位置等
+*/
 
 #include <QtGui/qcolor.h>
 #include <QtCore/qsize.h>
 
 #include <string>
 
-   //用户设置（config）信息
+inline std::string getSheetColor(const QColor& color) {
+   return std::string("rgba(") +
+      std::to_string(color.red()) +
+      std::string(",") +
+      std::to_string(color.green()) +
+      std::string(",") +
+      std::to_string(color.blue()) +
+      std::string(",") +
+      std::to_string(color.alpha()) +
+      std::string(")");
+}
+
+//用户设置（config）信息
 extern std::string _backgroundPicturePath;//背景图片路径
 extern std::string _downloadPath;//下载根目录
 extern std::string _pixivCookie;//pixivcookie字符串
@@ -94,5 +107,9 @@ constexpr QColor _transparentWidget_color{ 255,255,255,0 };//透明窗口颜色
 constexpr QColor _buttonNormal_color{ 230,230,230,150 };//按钮平常颜色
 constexpr QColor _buttonHover_color{ 165,208,255,150 };//按钮悬停颜色
 constexpr QColor _buttonPressed_color{ 165,208,255,180 };//按钮按下颜色
+
+//滚动条颜色
+constexpr QColor _scrollBar_color{ 220,220,220,255 };
+constexpr QColor _scrollBarHover_color{ 200,200,200,255 };
 
 constexpr size_t _windowTransparency_division = 255;//背景透明度分度值

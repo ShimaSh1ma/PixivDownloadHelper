@@ -180,18 +180,18 @@ TransparentTextEdit::TransparentTextEdit() {
 		"background-color:rgba(255,255,255,0);"
 	);
 
-	this->verticalScrollBar()->setStyleSheet(
+	std::string styleSheet = (
 		"QScrollBar:vertical{"
 		"background-color:transparent;"
-		"width:10px;"
+		"width:" + std::to_string(_scrollerBar_width) + "px;"
 		"}"
 		"QScrollBar:handle:vertical{"
-		"background:rgba(220,220,220,255);"
-		"border-radius:5px;"
+		"background:" + getSheetColor(_scrollBar_color) + ";"
+		"border-radius:" + std::to_string(_scrollerBar_width / 2) + "px;"
 		"}"
 		"QScrollBar:handle:vertical:hover{"
-		"background:rgba(200,200,200,255);"
-		"border-radius:5px;"
+		"background:" + getSheetColor(_scrollBarHover_color) + ";"
+		"border-radius:" + std::to_string(_scrollerBar_width / 2) + "px;"
 		"}"
 		"QScrollBar:add-page:vertical{"
 		"background-color:transparent;"
@@ -209,7 +209,9 @@ TransparentTextEdit::TransparentTextEdit() {
 		"border:none;"
 		"color:none;"
 		"}"
-	);
+		);
+
+	this->verticalScrollBar()->setStyleSheet(QString::fromStdString(styleSheet));
 
 	setFont(QFont("Microsoft YaHei", 8, 50));//设置字体：微软雅黑
 	// setAlignment(Qt::AlignLeft);//靠左显示
