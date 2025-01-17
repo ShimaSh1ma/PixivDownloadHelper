@@ -28,7 +28,7 @@ private:
     static socketIndex creatSocket(const std::string& _host, const std::string& _port);
 
     //索引查找socket
-    static MSocket* findSocket(socketIndex index);
+    static MSocket* findSocket(socketIndex& index);
 
     //销毁socket
     static void deleteSocket(socketIndex& index);

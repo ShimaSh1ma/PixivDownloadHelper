@@ -55,10 +55,11 @@ socketIndex ClientSocket::creatSocket(const std::string& _host, const std::strin
 	return index;
 }
 
-MSocket* ClientSocket::findSocket(socketIndex index) {
+MSocket* ClientSocket::findSocket(socketIndex& index) {
 	std::shared_lock<std::shared_mutex> sharedlockMutex(writeMutex);
 	auto it = socketPool.find(index);
 	if (it == socketPool.end()) {
+		index = -1;
 		return nullptr;
 	}
 	return it->second.get();
@@ -159,7 +160,6 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 
 	MSocket* _temp = findSocket(index);
 	if (_temp == nullptr) {
-		index = -1;
 		return index;
 	}
 	MSocket& _socket = *_temp;
@@ -266,7 +266,6 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 bool ClientSocket::socketSend(socketIndex & index, const std::string & msg) {
 	MSocket* _temp = findSocket(index);
 	if (_temp == nullptr) {
-		index = -1;
 		return false;
 	}
 	MSocket& _socket = *_temp;
@@ -297,7 +296,6 @@ bool ClientSocket::socketSend(socketIndex & index, const std::string & msg) {
 std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex & index) {
 	MSocket* _temp = findSocket(index);
 	if (_temp == nullptr) {
-		index = -1;
 		return nullptr;
 	}
 	MSocket& _socket = *_temp;
