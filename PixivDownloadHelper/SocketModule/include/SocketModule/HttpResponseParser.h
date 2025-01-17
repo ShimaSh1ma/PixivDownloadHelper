@@ -15,7 +15,7 @@ class HttpResponseParser { // http响应报文解析类
     // 使用chunked接收数据，处理chunked块传输数据,将处理后数据保存入payload变量，返回最后一个chunk块大小
     size_t dealChunkData(std::string& bodyData);
     // 使用contentlength接收数据，返回剩余要读取的长度
-    size_t dealContentLength(const std::string& bodyData);
+    size_t dealContentLength(std::string& bodyData);
     // 通过 响应行头 获取 值
     std::string getHttpHead(const std::string& header);
     // 获取http状态码
@@ -26,6 +26,8 @@ class HttpResponseParser { // http响应报文解析类
   private:
     // 用于存储解析后得到所有 响应行头 与 其对应的值
     std::map<std::string, std::string> responseMap;
+    // contentlength
+    size_t contentLength = 0;
     // http响应状态码
     std::string statusCode = "-1";
     // 响应载荷

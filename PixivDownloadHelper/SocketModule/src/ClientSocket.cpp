@@ -125,6 +125,7 @@ bool ClientSocket::selectSocket(const MSocket& _socket, selectType type, int tim
 
     struct timeval timeout;
     timeout.tv_sec = timeoutSecond;
+    timeout.tv_usec = 0;
 
     int result = -1;
     if (type == selectType::READ) {
@@ -333,8 +334,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
     // 使用Transfer-Encoding: chunked判断接受
     bool chunked = (parser->getHttpHead("Transfer-Encoding") == "chunked");
     if (chunked) {
-        std::string dealingBodyData = bodyData;
-        size_t chunkSize = parser->dealChunkData(dealingBodyData);
+        size_t chunkSize = parser->dealChunkData(bodyData);
         while (true) {
             _socket.result = SSL_read(_socket.sslSocket, recvBuffer.data(), _BUFFER_SIZE);
             if (_socket.result <= 0) {
@@ -371,7 +371,8 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
                 deleteSocket(index);
                 return nullptr;
             }
-            restLength = parser->dealContentLength(receivedData);
+            bodyData.append(recvBuffer.data(), _socket.result);
+            restLength = parser->dealContentLength(bodyData);
         }
     }
     return parser;
@@ -379,7 +380,4 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
 
 void ClientSocket::disconnectToServer(socketIndex& index) {
     deleteSocket(index);
-}
-
-void v() {
 }

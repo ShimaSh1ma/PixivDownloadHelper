@@ -279,6 +279,9 @@ void PixivDownloadItem::pixivDownload() {
                 if (SFD != -1) {
                     if (ClientSocket::socketSend(SFD, jsonHttpRequest->httpRequest())) {
                         std::unique_ptr<HttpResponseParser> resp = ClientSocket::socketReceive(SFD);
+                        if (resp == nullptr) {
+                            continue;
+                        }
                         respCode = resp->getStatusCode();
                         if (respCode == "200") {
                             json = resp->getPayload();
@@ -327,16 +330,20 @@ void PixivDownloadItem::pixivDownload() {
                     break;
                 }
                 if (ClientSocket::socketSend(socketIdx, imageHttpRequest.httpRequest())) {
-                    std::string data = ClientSocket::socketReceive(socketIdx)->getPayload();
+                    std::unique_ptr<HttpResponseParser> tempP = ClientSocket::socketReceive(socketIdx);
+                    if (tempP == nullptr) {
+                        break;
+                    }
+                    std::string data = tempP->getPayload();
                     if (data == "" || socketIdx == -1) {
-                        continue;
+                        break;
                     } else {
                         saveFile(filePath, data);
                         ++success;
                         ++it;
                         if (success == 1) {
                             // 获取第一张图片作为下载项目的预览缩略图
-                            emit previewImageSignal(processChineseCodec(filePath));
+                            emit previewImageSignal(filePath);
                         }
                         emit downloadProgressSignal(total, success); // 发送信号使下载窗口更新显示
                     }

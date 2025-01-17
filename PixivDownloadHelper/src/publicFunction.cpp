@@ -126,7 +126,7 @@ void deleteDownloadData(const std::string& data) {
 
 void saveFile(const std::string& dir, const std::string& data) {
     std::string processedDir = processChineseCodec(dir);
-    std::ofstream out(dir, std::ios::binary);
+    std::ofstream out(processedDir, std::ios::binary);
     if (out.is_open()) {
         out << data;
         out.close();
@@ -138,7 +138,7 @@ std::string processChineseCodec(const std::string& str) {
 #if defined(_WIN32)
     // 文件路径utf-8转GB2312，确保正确处理中文路径
     QTextCodec* code = QTextCodec::codecForName("GB2312");
-    retStr = code->fromUnicode(retStr.c_str()).toStdString();
+    retStr = code->fromUnicode(str.c_str()).toStdString();
 #elif defined(__APPLE__)
     retStr = str;
 #endif

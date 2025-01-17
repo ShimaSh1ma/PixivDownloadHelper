@@ -8,19 +8,21 @@ size_t HttpResponseParser::dealChunkData(std::string& bodyData) {
     do {
         // 找CRLF位置
         pos = bodyData.find("\r\n");
-        // 获取块大小
-        lastChunkSize = std::stoi(bodyData.substr(0, pos), nullptr, 16);
-        // 判断块大小是否为零
-        if (lastChunkSize == 0) {
-            lastChunkSize = 0;
+        if (pos == std::string::npos) {
             break;
         }
-        // 将块大小信息机CRLF从data中去除
-        bodyData = bodyData.substr(pos + 2);
+        // 获取块大小
+        lastChunkSize = std::stoi(bodyData.substr(0, pos), nullptr, 16);;
+        // 判断块大小是否为零
+        if (lastChunkSize == 0) {
+            break;
+        }
         // 判断剩余的块大小是否包含一整块
         if (lastChunkSize > bodyData.size()) {
             break;
         }
+        // 将块大小信息机CRLF从data中去除
+        bodyData = bodyData.substr(pos + 2);
         // 保存块信息
         this->payload.append(bodyData.substr(0, lastChunkSize));
         // 检查是否还有下一个块
@@ -28,17 +30,16 @@ size_t HttpResponseParser::dealChunkData(std::string& bodyData) {
         if (pos != std::string::npos) {
             bodyData = bodyData.substr(pos + 2);
         } else {
-            bodyData = "";
+            bodyData.clear();
         }
     } while (pos != std::string::npos);
     return lastChunkSize;
 }
 
-size_t HttpResponseParser::dealContentLength(const std::string& bodyData) {
-    size_t contentLength = contentLength = std::stoull(this->getHttpHead("Content-Length"));
+size_t HttpResponseParser::dealContentLength(std::string& bodyData) {
     this->payload.append(bodyData);
-    size_t receivedLength = payload.length();
-    if (receivedLength < contentLength) {
+    bodyData.clear();
+    if (size_t receivedLength = payload.length(); receivedLength < contentLength) {
         return contentLength - receivedLength;
     }
     return 0;
@@ -65,6 +66,9 @@ void HttpResponseParser::operator()(const std::string& response) {
     } else {
         statusCode = "-1";
     }
+
+    std::string strContentLength = this->getHttpHead("Content-Length");
+    contentLength = strContentLength == "" ? 0 : std::stoull(strContentLength);
 }
 
 std::string HttpResponseParser::getStatusCode() {
