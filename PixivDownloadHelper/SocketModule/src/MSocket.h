@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include <string>
-
-#include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/ssl.h>
+
+#include <string>
 
 // windows头文件
 #if defined(_WIN32)
@@ -11,24 +11,23 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-#pragma comment(lib,"libssl.lib")
-#pragma comment(lib,"libcrypto.lib")
-#pragma comment(lib,"Ws2_32.lib")
+#pragma comment(lib, "libssl.lib")
+#pragma comment(lib, "libcrypto.lib")
+#pragma comment(lib, "Ws2_32.lib")
 
 #endif
 
 // mac/linux头文件
-#if defined(__linux__ )|| defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 
-#include <errno.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <netdb.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 using SOCKET = int;
 constexpr const int INVALID_SOCKET = -1;
@@ -45,45 +44,46 @@ constexpr const int SOCKET_ERROR = -1;
 #endif
 
 class MSocket final {
-public:
-	MSocket(const char* _host, const char* _port);
-	~MSocket();
+  public:
+    MSocket(const char* _host, const char* _port);
+    ~MSocket();
 
-	MSocket(const MSocket&) = delete;
-	MSocket& operator=(const MSocket&) = delete;
-	MSocket(MSocket&&) = delete;
-	MSocket& operator=(MSocket&&) = delete;
+    MSocket(const MSocket&) = delete;
+    MSocket& operator=(const MSocket&) = delete;
+    MSocket(MSocket&&) = delete;
+    MSocket& operator=(MSocket&&) = delete;
 
-	void setHostAndPort(const char* _host, const char* _port) noexcept;
-private:
-	void socketClose();
+    void setHostAndPort(const char* _host, const char* _port) noexcept;
 
-	//socket对象
-	SOCKET socket = INVALID_SOCKET;
+  private:
+    void socketClose();
 
-	//sslsocket对象
-	SSL* sslSocket = nullptr;
+    // socket对象
+    SOCKET socket = INVALID_SOCKET;
 
-	//目标主机名
-	std::string host;
-	//目标端口号
-	std::string port;
+    // sslsocket对象
+    SSL* sslSocket = nullptr;
 
-	//存储ip地址类型及协议相关信息
-	struct addrinfo ipAddr;
-	//存放DNS请求后的ip地址信息
-	struct addrinfo* ipResult = nullptr;
+    // 目标主机名
+    std::string host;
+    // 目标端口号
+    std::string port;
 
-	//选择SSL版本
-	const SSL_METHOD* meth = SSLv23_client_method();
-	//声明SSL上下文
-	SSL_CTX* ctx = nullptr;
+    // 存储ip地址类型及协议相关信息
+    struct addrinfo ipAddr;
+    // 存放DNS请求后的ip地址信息
+    struct addrinfo* ipResult = nullptr;
 
-	//函数返回结果
-	int result;
-	//错误信息
-	std::string errorLog;
+    // 选择SSL版本
+    const SSL_METHOD* meth = SSLv23_client_method();
+    // 声明SSL上下文
+    SSL_CTX* ctx = nullptr;
 
-	//ClientSocket静态类控制socket
-	friend class ClientSocket;
+    // 函数返回结果
+    int result;
+    // 错误信息
+    std::string errorLog;
+
+    // ClientSocket静态类控制socket
+    friend class ClientSocket;
 };

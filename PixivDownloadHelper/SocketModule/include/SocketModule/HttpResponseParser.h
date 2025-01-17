@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
 #include <map>
+#include <string>
 
 class ClientSocket;
 
-class HttpResponseParser {		//http响应报文解析类
-public:
+class HttpResponseParser { // http响应报文解析类
+  public:
     explicit HttpResponseParser() = default;
     ~HttpResponseParser() = default;
 
@@ -22,7 +22,8 @@ public:
     std::string getStatusCode();
     // 获取载荷
     std::string getPayload();
-private:
+
+  private:
     // 用于存储解析后得到所有 响应行头 与 其对应的值
     std::map<std::string, std::string> responseMap;
     // http响应状态码
