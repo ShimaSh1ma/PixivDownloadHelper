@@ -12,7 +12,7 @@ AnimationButton::AnimationButton(const QString& text,
 	hoverAnimation = std::make_unique<QPropertyAnimation>(this, "color");
 
 	//设置颜色
-	buttonColor = _buttonNormal_color;
+	buttonColor = BUTTON_COLOR_NORMAL;
 
 #if defined(__APPLE__)
 	setAttribute(Qt::WA_LayoutUsesWidgetRect);
@@ -33,7 +33,7 @@ AnimationButton::AnimationButton(const QString& text,
 	this->textLabel->setFont(QFont("Microsoft YaHei", 9, 50));//设置字体：微软雅黑
 
 	//设置图标
-	if (icon != _EMPTY_STRING) {
+	if (icon != EMPTY_STRING) {
 		QIcon ico(icon);
 		QPixmap pix = ico.pixmap(QSize(std::min(this->height(), this->width() * 3 / 4),
 			std::min(this->height(), this->width() * 3 / 4)));
@@ -42,7 +42,7 @@ AnimationButton::AnimationButton(const QString& text,
 
 	//布局管理
 	layout->setAlignment(Qt::AlignCenter);
-	if (icon != _EMPTY_STRING && text != _EMPTY_STRING) {
+	if (icon != EMPTY_STRING && text != EMPTY_STRING) {
 		//同时具有图标和文字标签
 		layout->addSpacing(this->width() / 20);
 		layout->addWidget(iconLabel);
@@ -50,11 +50,11 @@ AnimationButton::AnimationButton(const QString& text,
 		layout->addWidget(textLabel);
 		layout->setAlignment(Qt::AlignLeft);
 	}
-	else if (icon != _EMPTY_STRING) {
+	else if (icon != EMPTY_STRING) {
 		//只有图标
 		layout->addWidget(iconLabel);
 	}
-	else if (text != _EMPTY_STRING) {
+	else if (text != EMPTY_STRING) {
 		//只有文字标签
 		layout->addWidget(textLabel);
 	}
@@ -69,7 +69,7 @@ void AnimationButton::paintEvent(QPaintEvent* event) {
 	painter.setPen(Qt::NoPen);
 	painter.setBrush(buttonColor);//按钮颜色
 	if (isChecked()) {
-		painter.setBrush(_buttonPressed_color);
+		painter.setBrush(BUTTON_COLOR_PRESSED);
 	}
 
 	QRect rt = this->rect();
@@ -82,7 +82,7 @@ void AnimationButton::enterEvent(QEvent* event) {
 	setFocus();//设为焦点
 	hoverAnimation->stop();
 	hoverAnimation->setStartValue(this->color());
-	hoverAnimation->setEndValue(_buttonHover_color);
+	hoverAnimation->setEndValue(BUTTON_COLOR_HOVER);
 	hoverAnimation->start();
 }
 
@@ -91,21 +91,21 @@ void AnimationButton::leaveEvent(QEvent* event) {
 
 	hoverAnimation->stop();
 	hoverAnimation->setStartValue(this->color());
-	hoverAnimation->setEndValue(_buttonNormal_color);
+	hoverAnimation->setEndValue(BUTTON_COLOR_NORMAL);
 	hoverAnimation->start();
 }
 
 void AnimationButton::mousePressEvent(QMouseEvent* e) {
 	hoverAnimation->stop();
 	hoverAnimation->setStartValue(this->color());
-	hoverAnimation->setEndValue(_buttonPressed_color);
+	hoverAnimation->setEndValue(BUTTON_COLOR_PRESSED);
 	hoverAnimation->start();
 }
 
 void AnimationButton::mouseReleaseEvent(QMouseEvent* e) {
 	hoverAnimation->stop();
 	hoverAnimation->setStartValue(this->color());
-	hoverAnimation->setEndValue(_buttonHover_color);
+	hoverAnimation->setEndValue(BUTTON_COLOR_HOVER);
 	hoverAnimation->start();
 	emit click();
 }
@@ -117,7 +117,7 @@ MenuButton::MenuButton(const QString& label,
 	const size_t borderRadius) :
 	AnimationButton(label, icon, size, borderRadius) {
 	//设置大小
-	setFixedSize(_menuButton_size);
+	setFixedSize(MENU_BUTTON_SIZE);
 
 	setAutoExclusive(true);//设置互斥
 	setCheckable(true);
@@ -145,7 +145,7 @@ TranslucentLineEdit::TranslucentLineEdit() {
 //PixivUrlEdit
 PixivUrlEdit::PixivUrlEdit() {
 	//PixivUrlEdit文本框设置
-	setFixedHeight(_pixivUrlLineEdit_size.height());//设置高度
+	setFixedHeight(PIXIV_URL_EDITOR_SIZE.height());//设置高度
 	setPlaceholderText("https://www.pixiv.net/artworks/XXXXXXXXX");//背景提示
 
 	connect(QApplication::clipboard(), &QClipboard::dataChanged,
@@ -183,15 +183,15 @@ TransparentTextEdit::TransparentTextEdit() {
 	std::string styleSheet = (
 		"QScrollBar:vertical{"
 		"background-color:transparent;"
-		"width:" + std::to_string(_scrollerBar_width) + "px;"
+		"width:" + std::to_string(SCROLLER_BAR_WIDTH) + "px;"
 		"}"
 		"QScrollBar:handle:vertical{"
-		"background:" + getSheetColor(_scrollBar_color) + ";"
-		"border-radius:" + std::to_string(_scrollerBar_width / 2) + "px;"
+		"background:" + getSheetColor(SCROLLER_BAR_COLOR_NORMAL) + ";"
+		"border-radius:" + std::to_string(SCROLLER_BAR_WIDTH / 2) + "px;"
 		"}"
 		"QScrollBar:handle:vertical:hover{"
-		"background:" + getSheetColor(_scrollBarHover_color) + ";"
-		"border-radius:" + std::to_string(_scrollerBar_width / 2) + "px;"
+		"background:" + getSheetColor(SCROLLER_BAR_COLOR_HOVER) + ";"
+		"border-radius:" + std::to_string(SCROLLER_BAR_WIDTH / 2) + "px;"
 		"}"
 		"QScrollBar:add-page:vertical{"
 		"background-color:transparent;"
@@ -232,7 +232,7 @@ void TransparentTextEdit::wheelEvent(QWheelEvent* wheelEvent) {
 
 //TextLabel
 TextLabel::TextLabel() {
-	setMinimumSize(_settingTitleLabel_size);//设置最小大小
+	setMinimumSize(SETTING_TITLE_LABEL_SIZE);//设置最小大小
 	setFont(QFont("Microsoft YaHei", 10, 50));//设置字体：微软雅黑
 	setAlignment(Qt::AlignLeft);//靠左显示
 }

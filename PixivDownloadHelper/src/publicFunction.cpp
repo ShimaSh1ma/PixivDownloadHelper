@@ -87,7 +87,7 @@ std::string weiboUrl(const UrlParser& URL)
 void saveDownloadData(const std::string& data)
 {
 	auto f = [=]() {
-		std::ofstream o(_downloadDataFile, std::ios::app);
+		std::ofstream o(CONFIG_UNDONE_PATH, std::ios::app);
 		if (o.is_open()) {
 			o << data << "\n";
 			o.close();
@@ -102,7 +102,7 @@ void deleteDownloadData(const std::string& data)
 {
 	auto f = [=]() {
 		std::string out;
-		std::ifstream i(_downloadDataFile, std::ios::in);
+		std::ifstream i(CONFIG_UNDONE_PATH, std::ios::in);
 		if (i.is_open()) {
 			std::string temp;
 			std::string check;
@@ -118,7 +118,7 @@ void deleteDownloadData(const std::string& data)
 			i.close();
 		}
 
-		std::ofstream o(_downloadDataFile, std::ios::out);
+		std::ofstream o(CONFIG_UNDONE_PATH, std::ios::out);
 		if (o.is_open()) {
 			o << out;
 			o.close();

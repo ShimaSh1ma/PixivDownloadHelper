@@ -21,7 +21,7 @@ SubSettingWidget::SubSettingWidget() {
 	layout->addWidget(changeBackImageWidget);
 	layout->addStretch(1);
 
-	layout->setContentsMargins(0, 0, _margin_width - (_margin_width - _scrollerBar_width) / 2, 0);
+	layout->setContentsMargins(0, 0, MARGIN_WIDTH - (MARGIN_WIDTH - SCROLLER_BAR_WIDTH) / 2, 0);
 
 	setLayout(layout);
 }
@@ -35,14 +35,14 @@ ChangeDownloadPathWidget::ChangeDownloadPathWidget() {
 	pathEdit = new DirEdit;
 	changeButton = new AnimationButton(tr("Change Path"));
 	//设置按钮大小
-	changeButton->setFixedSize(_toolButton_size);
+	changeButton->setFixedSize(PIXIV_DOWNLOAD_BUTTON_SIZE);
 	//标题标签设置
 	title->setText(tr("Change Download Path"));
 	//显示下载路径的文本框设置
 	pathEdit->setReadOnly(true);//只读
 	pathEdit->setText(QString::fromStdString(_downloadPath));
-	pathEdit->setFixedHeight(_settingChangeDownloadPathLineEdit_size.height());
-	pathEdit->setMinimumWidth(_settingChangeDownloadPathLineEdit_size.width());
+	pathEdit->setFixedHeight(SETTING_PATH_EDITOR_SIZE.height());
+	pathEdit->setMinimumWidth(SETTING_PATH_EDITOR_SIZE.width());
 
 	//信号与槽连接
 	connect(this->changeButton, &AnimationButton::clicked, this,
@@ -78,12 +78,12 @@ ChangePixivCookieWidget::ChangePixivCookieWidget() {
 	saveButton = new AnimationButton(tr("Save"));
 	title = new TextLabel;
 	//设置按钮大小
-	changeButton->setFixedSize(_toolButton_size);
-	saveButton->setFixedSize(_toolButton_size);
+	changeButton->setFixedSize(PIXIV_DOWNLOAD_BUTTON_SIZE);
+	saveButton->setFixedSize(PIXIV_DOWNLOAD_BUTTON_SIZE);
 	//标题设置
 	title->setText(tr("Change Pixiv Cookie"));
 	//显示文本框设置
-	textEdit->setMinimumSize(_settingChangePixivCookieTextEdit_size);//设置最小大小
+	textEdit->setMinimumSize(SETTING_COOKIE_EDITOR_SIZE);//设置最小大小
 	textEdit->setPlainText(QString::fromStdString(_pixivCookie));//展示现在的cookie
 	textEdit->setReadOnly(true);//只读，在点击change按钮后可编辑,点击Save后恢复只读状态
 
@@ -155,7 +155,7 @@ ChangeTransparencyWidget::ChangeTransparencyWidget() {
 	//标题设置
 	title->setText(tr("Change Window Transparency"));
 	//滑动条设置
-	slider->setRange(0, _windowTransparency_division);//设置范围
+	slider->setRange(0, WINDOW_TRANSPARENCY_DIVISION);//设置范围
 	slider->setValue(_windowTransparency);//设置默认值
 	slider->setOrientation(Qt::Horizontal);//设为水平滚动条
 	//布局管理
@@ -187,12 +187,12 @@ ChangeBackgroundImageWidget::ChangeBackgroundImageWidget() {
 	removeButton = new AnimationButton(tr("Remove"));
 
 	//按钮大小设置
-	changeButton->setFixedSize(_toolButton_size);
-	removeButton->setFixedSize(_toolButton_size);
+	changeButton->setFixedSize(PIXIV_DOWNLOAD_BUTTON_SIZE);
+	removeButton->setFixedSize(PIXIV_DOWNLOAD_BUTTON_SIZE);
 	//标题标签设置
 	title->setText(tr("Change Background"));
 	//缩略图窗口设置
-	imageView->setFixedSize(_settingChangeBackgroundLabel_size);//设置缩略图窗口大小
+	imageView->setFixedSize(SETTING_BG_PREVIEW_SIZE);//设置缩略图窗口大小
 	QPixmap pix(_backgroundPicturePath.c_str());//加载图片
 	imageView->setPixmap(pix.scaled(imageView->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));//缩放适应大小
 
@@ -231,7 +231,7 @@ void ChangeBackgroundImageWidget::chooseImage() {
 
 void ChangeBackgroundImageWidget::removeImage() {
 	//背景路径置空
-	_backgroundPicturePath = _EMPTY_STRING;
+	_backgroundPicturePath = EMPTY_STRING;
 	//清楚缩略图显示
 	imageView->clear();
 	//更新设置文件
@@ -260,7 +260,7 @@ SettingWidget::SettingWidget() {
 
 	//布局管理
 	layout->addWidget(scrollArea);
-	layout->setContentsMargins(0, 0, (_margin_width - _scrollerBar_width) / 2, 0);
+	layout->setContentsMargins(0, 0, (MARGIN_WIDTH - SCROLLER_BAR_WIDTH) / 2, 0);
 
 	this->setLayout(layout);
 }

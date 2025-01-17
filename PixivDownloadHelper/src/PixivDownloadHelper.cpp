@@ -5,7 +5,7 @@
 PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
     : QWidget(parent), opacity(1.0)
 {
-    if (_backgroundPicturePath == _EMPTY_STRING) {
+    if (_backgroundPicturePath == EMPTY_STRING) {
         image.fill(Qt::transparent);
         pix.fill(Qt::transparent);
     }
@@ -23,7 +23,7 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
     wWidth = this->width();
     wHeight = this->height();
     //计算透明度
-    opacity = (double)_windowTransparency / _windowTransparency_division;
+    opacity = (double)_windowTransparency / WINDOW_TRANSPARENCY_DIVISION;
 
     //初始化组件
     layout = new QHBoxLayout();
@@ -56,7 +56,7 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
     //窗口加入布局
     layout->addWidget(menuWidget);
     layout->addWidget(stackedWidget);
-    layout->setContentsMargins(_margin_width, _margin_width, 0, _margin_width);
+    layout->setContentsMargins(MARGIN_WIDTH, MARGIN_WIDTH, 0, MARGIN_WIDTH);
 
     //设置布局
     setLayout(layout);
@@ -65,7 +65,7 @@ PixivDownloadHelper::PixivDownloadHelper(QWidget* parent)
 void PixivDownloadHelper::changeTransparency(int transparency) {
     _windowTransparency = transparency;
     //计算透明度
-    opacity = (double)_windowTransparency / _windowTransparency_division;
+    opacity = (double)_windowTransparency / WINDOW_TRANSPARENCY_DIVISION;
     this->repaint();
 }
 

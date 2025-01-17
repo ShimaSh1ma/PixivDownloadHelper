@@ -2,9 +2,9 @@
 
 MenuWidget::MenuWidget() {
 	//初始化组件
-	pixivButton = new MenuButton("Pixiv", _icon_pixiv_path);
-	settingButton = new MenuButton("Settings", _icon_setting_path);
-	extendButton = new AnimationButton(nullptr, _icon_extend_path, _extendButton_size, 4);
+	pixivButton = new MenuButton("Pixiv", ICON_PIXIV);
+	settingButton = new MenuButton("Settings", ICON_SETTING);
+	extendButton = new AnimationButton(nullptr, ICON_EXTENT, MENU_EXTENT_BUTTON_SIZE, 4);
 	layout = new QVBoxLayout();
 	sizeAnimation = std::make_unique<QPropertyAnimation>(this, "fixedWidth");
 
@@ -12,7 +12,7 @@ MenuWidget::MenuWidget() {
 	pixivButton->setChecked(true);
 	//设置展开按钮
 	extendButton->hide();
-	extendButton->setFixedSize(_extendButton_size);
+	extendButton->setFixedSize(MENU_EXTENT_BUTTON_SIZE);
 
 	//设置动画
 	sizeAnimation->setDuration(200);
@@ -27,7 +27,7 @@ MenuWidget::MenuWidget() {
 	bindButtonSignal(settingButton);
 
 	//设置最小宽度
-	this->setFixedWidth(_menuWidget_maxwidth
+	this->setFixedWidth(MENU_WIDGET_UNFOLD_WIDTH
 		+ layout->contentsMargins().left()
 		+ layout->contentsMargins().right());
 
@@ -61,7 +61,7 @@ void MenuWidget::widgetExtend() {
 
 	sizeAnimation->stop();
 	sizeAnimation->setStartValue(this->width());
-	sizeAnimation->setEndValue(static_cast<int64_t>(_menuWidget_maxwidth)
+	sizeAnimation->setEndValue(static_cast<int64_t>(MENU_WIDGET_UNFOLD_WIDTH)
 		+ layout->contentsMargins().left()
 		+ layout->contentsMargins().right());
 	sizeAnimation->start();
@@ -76,7 +76,7 @@ void MenuWidget::widgetFold() {
 
 	sizeAnimation->stop();
 	sizeAnimation->setStartValue(this->width());
-	sizeAnimation->setEndValue(_extendButton_size.width()
+	sizeAnimation->setEndValue(MENU_EXTENT_BUTTON_SIZE.width()
 		+ layout->contentsMargins().left()
 		+ layout->contentsMargins().right());
 	sizeAnimation->start();

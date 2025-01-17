@@ -67,7 +67,7 @@ class MenuButton ://主菜单按钮，互斥
 public:
 	explicit MenuButton(const QString& label = nullptr,
 		const QString& icon = nullptr,
-		const QSize& size = _menuButton_size,
+		const QSize& size = MENU_BUTTON_SIZE,
 		const size_t borderRadius = 6);
 	~MenuButton() = default;
 

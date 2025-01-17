@@ -65,7 +65,7 @@ private:
     QLabel* previewImage;//缩略图
     QHBoxLayout* layout;//水平布局
 
-    std::string previewImagePath = _default_preview_path;//缩略图路径
+    std::string previewImagePath = DEFAULT_PREVIEW_PATH;//缩略图路径
 };
 
 class PixivDownloadItemStateWidget final ://pixiv下载项目下载状态窗口

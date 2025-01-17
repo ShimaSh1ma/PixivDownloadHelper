@@ -9,7 +9,7 @@ void TransparentWidget::paintEvent(QPaintEvent* paintE) {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);//抗锯齿
 	painter.setPen(Qt::NoPen);
-	painter.setBrush(_transparentWidget_color);//背景颜色
+	painter.setBrush(WIDGET_TRANSPARENT_COLOR);//背景颜色
 
 	painter.drawRect(rect());
 }
@@ -24,7 +24,7 @@ void TranslucentWidget::paintEvent(QPaintEvent* paintE) {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);//抗锯齿
 	painter.setPen(Qt::NoPen);
-	painter.setBrush(_translucentWidget_color);//背景颜色
+	painter.setBrush(WIDGET_TRANSLUCENT_COLOR);//背景颜色
 
 	QRect rt = this->rect();
 	rt.setWidth(rt.width() - 1);
@@ -44,7 +44,7 @@ TransparentScrollArea::TransparentScrollArea() {
 
 	//窗口透明化
 	QPalette pal = this->viewport()->palette();
-	pal.setColor(QPalette::Window, _transparentWidget_color);
+	pal.setColor(QPalette::Window, WIDGET_TRANSPARENT_COLOR);
 	this->viewport()->setPalette(pal);
 
 	setContentsMargins(0, 0, 0, 0);
@@ -52,15 +52,15 @@ TransparentScrollArea::TransparentScrollArea() {
 	std::string styleSheet = (
 		"QScrollBar:vertical{"
 		"background-color:transparent;"
-		"width:" + std::to_string(_scrollerBar_width) + "px;"
+		"width:" + std::to_string(SCROLLER_BAR_WIDTH) + "px;"
 		"}"
 		"QScrollBar:handle:vertical{"
-		"background:" + getSheetColor(_scrollBar_color) + ";"
-		"border-radius:" + std::to_string(_scrollerBar_width / 2) + "px;"
+		"background:" + getSheetColor(SCROLLER_BAR_COLOR_NORMAL) + ";"
+		"border-radius:" + std::to_string(SCROLLER_BAR_WIDTH / 2) + "px;"
 		"}"
 		"QScrollBar:handle:vertical:hover{"
-		"background:" + getSheetColor(_scrollBarHover_color) + ";"
-		"border-radius:" + std::to_string(_scrollerBar_width / 2) + "px;"
+		"background:" + getSheetColor(SCROLLER_BAR_COLOR_HOVER) + ";"
+		"border-radius:" + std::to_string(SCROLLER_BAR_WIDTH / 2) + "px;"
 		"}"
 		"QScrollBar:add-page:vertical{"
 		"background-color:transparent;"
@@ -99,16 +99,16 @@ void TransparentScrollArea::keyPressEvent(QKeyEvent* ev) {
 	scrollAnimation->stop();
 	int changeValue = 0;
 	if (ev->key() == Qt::Key_Up) {
-		changeValue = _pixivDownloadItemWithoutPre_height;
+		changeValue = PIXIV_DOWNLOAD_ITEM_WITHOUT_PIC_HEIGHT;
 	}
 	else if (ev->key() == Qt::Key_Down) {
-		changeValue = -static_cast<int>(_pixivDownloadItemWithoutPre_height);
+		changeValue = -static_cast<int>(PIXIV_DOWNLOAD_ITEM_WITHOUT_PIC_HEIGHT);
 	}
 	else if (ev->key() == Qt::Key_PageUp) {
-		changeValue = _pixivDownloadItemWithPre_height + 5;
+		changeValue = PIXIV_DOWNLOAD_ITEM_WITH_PIC_HEIGHT + 5;
 	}
 	else if (ev->key() == Qt::Key_PageDown) {
-		changeValue = -static_cast<int>(_pixivDownloadItemWithPre_height - 5);
+		changeValue = -static_cast<int>(PIXIV_DOWNLOAD_ITEM_WITH_PIC_HEIGHT - 5);
 	}
 	else {}
 
@@ -182,7 +182,7 @@ PressWidget::PressWidget()
 	hoverAnimation = std::make_unique<QPropertyAnimation>(this, "color");
 
 	//设置初始颜色
-	backGroundColor = _translucentWidget_color;
+	backGroundColor = WIDGET_TRANSLUCENT_COLOR;
 
 	//设置动画
 	hoverAnimation->setDuration(200);
@@ -204,13 +204,13 @@ void PressWidget::paintEvent(QPaintEvent* paintE) {
 void PressWidget::enterEvent(QEvent* event) {
 	hoverAnimation->stop();
 	hoverAnimation->setStartValue(this->color());
-	hoverAnimation->setEndValue(_hoverWidget_color);
+	hoverAnimation->setEndValue(WIDGET_HOVER_COLOR);
 	hoverAnimation->start();
 }
 
 void PressWidget::leaveEvent(QEvent* event) {
 	hoverAnimation->stop();
 	hoverAnimation->setStartValue(this->color());
-	hoverAnimation->setEndValue(_translucentWidget_color);
+	hoverAnimation->setEndValue(WIDGET_TRANSLUCENT_COLOR);
 	hoverAnimation->start();
 }
