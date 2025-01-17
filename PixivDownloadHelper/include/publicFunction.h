@@ -11,26 +11,26 @@
 
 class UrlParser;
 
-//创建文件夹
+// 创建文件夹
 void mkdir(const std::string& dir);
 
-//简单处理json，删去json中的转义字符“\”
+// 简单处理json，删去json中的转义字符“\”
 void jsonParse(std::string& json);
 
-//从html中解析出图片url
+// 从html中解析出图片url
 std::vector<std::string> parserHtml(const std::string& html, const std::string& regex);
 
-//将源url转化成pixiv.net的ajax接口url
+// 将源url转化成pixiv.net的ajax接口url
 std::string pixivAjaxurl(const std::string& url);
 
-//从微博缩略图获取原图
+// 从微博缩略图获取原图
 std::string weiboUrl(const UrlParser& url);
 
-//保存添加的下载信息
+// 保存添加的下载信息
 void saveDownloadData(const std::string& data);
 
-//删除已完成的下载信息
+// 删除已完成的下载信息
 void deleteDownloadData(const std::string& data);
 
-//保存文件
+// 保存文件
 void saveFile(const std::string& dir, const std::string& data);
