@@ -29,6 +29,7 @@ void ClientSocket::WSAInit() {
 		return;
 	}
 #endif
+	ClientSocket::sslInit();
 }
 
 void ClientSocket::WSAClean() {
@@ -75,7 +76,7 @@ bool ClientSocket::setSocketNonblocked(MSocket& _socket) {
 	unsigned long mode = 1;
 	if (ioctlsocket(_socket.socket, FIONBIO, &mode) != 0) {
 		return false;
-	}
+}
 #endif
 
 #if defined(__LINUX__) || defined(__APPLE__)
@@ -155,7 +156,6 @@ void ClientSocket::sslInit() {
 }
 
 socketIndex ClientSocket::connectToServer(const std::string& _host, const std::string& _port) {
-	ClientSocket::sslInit();
 	socketIndex index = creatSocket(_host, _port);
 
 	MSocket* _temp = findSocket(index);
@@ -261,7 +261,7 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 		deleteSocket(index);
 		return index;
 	}
-}
+	}
 
 bool ClientSocket::socketSend(socketIndex & index, const std::string & msg) {
 	MSocket* _temp = findSocket(index);
