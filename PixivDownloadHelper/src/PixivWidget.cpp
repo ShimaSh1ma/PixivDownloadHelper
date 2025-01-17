@@ -7,8 +7,6 @@
 #include <SocketModule/HttpResponseParser.h>
 #include <SocketModule/UrlParser.h>
 
-#include <QtCore/qtextcodec.h>
-
 #include <memory>
 
 // PixivUrlInputWidget
@@ -324,13 +322,7 @@ void PixivDownloadItem::pixivDownload() {
                 imageUrl.parseUrl(*it);
                 // 组装对应url请求报文
                 imageHttpRequest.setUrl(imageUrl);
-#if defined(_WIN32)
-                // 文件路径utf-8转GB2312，确保正确打开中文路径文件
-                QTextCodec* code = QTextCodec::codecForName("GB2312");
-                filePath = code->fromUnicode((path + "/" + imageUrl.fileName + imageUrl.fileExtension).c_str());
-#elif defined(__APPLE__)
-                filePath = path + "/" + imageUrl.fileName;
-#endif
+                filePath = path + "/" + imageUrl.fileName + imageUrl.fileExtension;
                 if (socketIdx == -1) {
                     break;
                 }
@@ -344,11 +336,7 @@ void PixivDownloadItem::pixivDownload() {
                         ++it;
                         if (success == 1) {
                             // 获取第一张图片作为下载项目的预览缩略图
-#if defined(_WIN32)
-                            emit previewImageSignal(code->toUnicode(filePath.c_str()).toStdString());
-#elif defined(__APPLE__)
                             emit previewImageSignal(filePath);
-#endif
                         }
                         emit downloadProgressSignal(total, success); // 发送信号使下载窗口更新显示
                     }

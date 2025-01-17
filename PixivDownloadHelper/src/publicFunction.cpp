@@ -13,9 +13,13 @@
 #include "GuiConstant.h"
 #include <SocketModule/UrlParser.h>
 
+#include <QtCore/qtextcodec.h>
+
 #include <fstream>
 #include <regex>
 #include <thread>
+
+std::string processChineseCodec(const std::string& str);
 
 void mkdir(const std::string& dir) {
 #if defined(_WIN32)
@@ -123,9 +127,22 @@ void deleteDownloadData(const std::string& data) {
 }
 
 void saveFile(const std::string& dir, const std::string& data) {
+    std::string processedDir = processChineseCodec(dir);
     std::ofstream out(dir, std::ios::binary);
     if (out.is_open()) {
         out << data;
         out.close();
     }
+}
+
+inline std::string processChineseCodec(const std::string& str) {
+    std::string retStr;
+#if defined(_WIN32)
+    // 文件路径utf-8转GB2312，确保正确处理中文路径
+    QTextCodec* code = QTextCodec::codecForName("GB2312");
+    retStr = code->fromUnicode(retStr.c_str()).toStdString();
+#elif defined(__APPLE__)
+    retStr = str;
+#endif
+    return retStr;
 }
