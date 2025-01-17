@@ -19,8 +19,6 @@
 #include <regex>
 #include <thread>
 
-std::string processChineseCodec(const std::string& str);
-
 void mkdir(const std::string& dir) {
 #if defined(_WIN32)
     if (_access(dir.c_str(), 0) != 0) {
@@ -135,7 +133,7 @@ void saveFile(const std::string& dir, const std::string& data) {
     }
 }
 
-inline std::string processChineseCodec(const std::string& str) {
+std::string processChineseCodec(const std::string& str) {
     std::string retStr;
 #if defined(_WIN32)
     // 文件路径utf-8转GB2312，确保正确处理中文路径

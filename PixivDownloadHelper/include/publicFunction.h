@@ -34,3 +34,6 @@ void deleteDownloadData(const std::string& data);
 
 // 保存文件
 void saveFile(const std::string& dir, const std::string& data);
+
+// 处理跨平台中文编码问题
+std::string processChineseCodec(const std::string& str);

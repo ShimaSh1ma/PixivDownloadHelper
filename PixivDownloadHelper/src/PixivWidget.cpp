@@ -336,7 +336,7 @@ void PixivDownloadItem::pixivDownload() {
                         ++it;
                         if (success == 1) {
                             // 获取第一张图片作为下载项目的预览缩略图
-                            emit previewImageSignal(filePath);
+                            emit previewImageSignal(processChineseCodec(filePath));
                         }
                         emit downloadProgressSignal(total, success); // 发送信号使下载窗口更新显示
                     }
