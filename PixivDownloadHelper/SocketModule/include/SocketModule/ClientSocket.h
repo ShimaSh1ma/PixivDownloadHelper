@@ -10,13 +10,12 @@ class HttpResponseParser;
 
 using socketIndex = int;
 
-enum class selectType {
-    READ,
-    WRITE,
-    READ_AND_WRITE
-};
-
-constexpr const size_t timeWaitSeconds = 5;
+// 初始化WSA环境
+void WSAInit();
+// 注销WSA环境
+void WSAClean();
+// 初始化ssl环境
+void sslInit();
 
 // 客户端套接字
 class ClientSocket {
@@ -33,29 +32,10 @@ class ClientSocket {
     // 销毁socket
     static void deleteSocket(socketIndex& index);
 
-    // 设置socket非阻塞
-    static bool setSocketNonblocked(MSocket& _socket);
-
-    // 判断socket连接状态
-    static bool waitForConnection(MSocket& _socket, int timeout_sec);
-
-    // 使用select检查套接字是否可用
-    static bool selectSocket(const MSocket& _socket, selectType type = selectType::READ_AND_WRITE,
-                             int timeoutSecond = timeWaitSeconds);
-
     // socket集合
     static std::unordered_map<socketIndex, std::unique_ptr<MSocket>> socketPool;
 
   public:
-    // 初始化WSA环境
-    static void WSAInit();
-
-    // 注销WSA环境
-    static void WSAClean();
-
-    // 初始化ssl环境
-    static void sslInit();
-
     // 创建并连接到远程服务器
     static socketIndex connectToServer(const std::string& _host, const std::string& _port);
 

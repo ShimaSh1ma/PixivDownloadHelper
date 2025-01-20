@@ -8,7 +8,7 @@
 #include "publicFunction.h"
 
 void init() {
-    ClientSocket::WSAInit();
+    WSAInit();
     mkdir("./config");
     initDownloadPath();
     initPixivCookie();

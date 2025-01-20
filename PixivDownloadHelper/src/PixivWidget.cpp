@@ -825,7 +825,6 @@ void PixivDownloadItemWidget::loadDownloadData() {
         }
 
         emit adjustLayoutSignal(); // 刷新布局
-        // emit itemAddedSignal();//发送信号提示有新项目加入
         return;
     };
 

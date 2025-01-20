@@ -17,9 +17,29 @@
 
 #include <shared_mutex>
 
+// 调用select函数传入的判断类型
+enum class selectType {
+    READ,
+    WRITE,
+    READ_AND_WRITE
+};
+
+// 读写socket池并发控制锁
 static std::shared_mutex writeMutex;
 
-void ClientSocket::WSAInit() {
+constexpr const size_t timeWaitSeconds = 5;
+
+// socket池
+std::unordered_map<socketIndex, std::unique_ptr<MSocket>> ClientSocket::socketPool{};
+
+// 设置socket非阻塞
+bool setSocketNonblocked(const SOCKET socket);
+// 判断socket连接状态
+bool waitForConnection(const SOCKET socket, int timeout_sec);
+// 使用select检查套接字是否可用
+bool selectSocket(const SOCKET socket, selectType type = selectType::WRITE, int timeoutSecond = timeWaitSeconds);
+
+void WSAInit() {
 #if defined(_WIN32)
     WSADATA wsaData;
     // 初始化socket环境
@@ -29,13 +49,19 @@ void ClientSocket::WSAInit() {
         return;
     }
 #endif
-    ClientSocket::sslInit();
+    sslInit();
 }
 
-void ClientSocket::WSAClean() {
+void WSAClean() {
 #if defined(_WIN32)
     WSACleanup();
 #endif
+}
+
+void sslInit() {
+    SSL_library_init();
+    SSL_load_error_strings();
+    OpenSSL_add_all_algorithms();
 }
 
 socketIndex ClientSocket::creatSocket(const std::string& _host, const std::string& _port) {
@@ -69,89 +95,6 @@ MSocket* ClientSocket::findSocket(socketIndex& index) {
 void ClientSocket::deleteSocket(socketIndex& index) {
     socketPool.erase(index);
     index = -1;
-}
-
-bool ClientSocket::setSocketNonblocked(MSocket& _socket) {
-#if defined(_WIN32)
-    unsigned long mode = 1;
-    if (ioctlsocket(_socket.socket, FIONBIO, &mode) != 0) {
-        return false;
-    }
-#endif
-
-#if defined(__LINUX__) || defined(__APPLE__)
-    int flags = fcntl(_socket.socket, F_GETFL, 0);
-    if (flags < 0) {
-        return false;
-    }
-    flags |= O_NONBLOCK;
-    if (fcntl(_socket.socket, F_SETFL, flags) < 0) {
-        return false;
-    }
-#endif
-    return true;
-}
-
-bool ClientSocket::waitForConnection(MSocket& _socket, int timeout_sec) {
-    fd_set writefds;
-    FD_ZERO(&writefds);
-    FD_SET(_socket.socket, &writefds);
-
-    struct timeval timeout;
-    memset(&timeout, 0, sizeof(timeval));
-    timeout.tv_sec = timeout_sec;
-
-    if (!ClientSocket::selectSocket(_socket, selectType::WRITE)) {
-        return false;
-    }
-
-    int optval;
-    socklen_t optlen = sizeof(optval);
-    if (getsockopt(_socket.socket, SOL_SOCKET, SO_ERROR, (char*)&optval, &optlen) < 0) {
-        return false;
-    }
-
-    if (optval != 0) {
-        return false;
-    }
-
-    return true;
-}
-
-bool ClientSocket::selectSocket(const MSocket& _socket, selectType type, int timeoutSecond) {
-    fd_set fds;
-    FD_ZERO(&fds);
-    FD_SET(_socket.socket, &fds);
-
-    struct timeval timeout;
-    memset(&timeout, 0, sizeof(timeval));
-    timeout.tv_sec = timeoutSecond;
-
-    int result = -1;
-    if (type == selectType::READ) {
-        result = select(_socket.socket + 1, &fds, NULL, NULL, &timeout);
-    } else if (type == selectType::WRITE) {
-        result = select(_socket.socket + 1, NULL, &fds, NULL, &timeout);
-    } else if (type == selectType::READ_AND_WRITE) {
-        result = select(_socket.socket + 1, &fds, &fds, NULL, &timeout);
-    }
-
-    if (result <= 0) {
-        return false;
-    }
-    if (!FD_ISSET(_socket.socket, &fds)) {
-        return false;
-    }
-    return true;
-}
-
-std::unordered_map<socketIndex, std::unique_ptr<MSocket>> ClientSocket::socketPool{};
-
-void ClientSocket::sslInit() {
-    // 初始化
-    SSL_library_init();
-    SSL_load_error_strings();
-    OpenSSL_add_all_algorithms();
 }
 
 socketIndex ClientSocket::connectToServer(const std::string& _host, const std::string& _port) {
@@ -188,7 +131,7 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 
     _socket.socket = socket(_socket.ipResult->ai_family, _socket.ipResult->ai_socktype, _socket.ipResult->ai_protocol);
     // 调用套接字函数为socket对象添加参数
-    if (_socket.socket == INVALID_SOCKET || !setSocketNonblocked(_socket)) {
+    if (_socket.socket == INVALID_SOCKET || !setSocketNonblocked(_socket.socket)) {
         _socket.errorLog = _M_SOCKET_CREATE_ERR + std::to_string(WSAGetLastError()) + "\n";
         freeaddrinfo(_socket.ipResult);
         deleteSocket(index);
@@ -210,7 +153,7 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 
     freeaddrinfo(_socket.ipResult);
 
-    if (!waitForConnection(_socket, timeWaitSeconds)) {
+    if (!waitForConnection(_socket.socket, timeWaitSeconds)) {
         _socket.errorLog = _M_SOCKET_CONNECT_ERR + std::to_string(WSAGetLastError());
         deleteSocket(index);
         return index;
@@ -243,11 +186,11 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 
         if (_socket.result == SSL_ERROR_WANT_READ || _socket.result == SSL_ERROR_WANT_WRITE) {
             if (_socket.result == SSL_ERROR_WANT_READ) {
-                if (ClientSocket::selectSocket(_socket, selectType::READ)) {
+                if (selectSocket(_socket.socket, selectType::READ)) {
                     continue;
                 }
             } else if (_socket.result == SSL_ERROR_WANT_WRITE) {
-                if (ClientSocket::selectSocket(_socket, selectType::WRITE)) {
+                if (selectSocket(_socket.socket, selectType::WRITE)) {
                     continue;
                 }
             }
@@ -277,7 +220,7 @@ bool ClientSocket::socketSend(socketIndex& index, const std::string& msg) {
         if (_socket.result <= 0) {
             _socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
             if (_socket.result == SSL_ERROR_WANT_WRITE) {
-                if (ClientSocket::selectSocket(_socket, selectType::WRITE)) {
+                if (selectSocket(_socket.socket, selectType::WRITE)) {
                     continue;
                 }
             }
@@ -309,7 +252,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
         if (_socket.result <= 0) {
             _socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
             if (_socket.result == SSL_ERROR_WANT_READ) {
-                if (ClientSocket::selectSocket(_socket, selectType::READ)) {
+                if (selectSocket(_socket.socket, selectType::READ)) {
                     continue;
                 }
             }
@@ -340,7 +283,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
             if (_socket.result <= 0) {
                 _socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
                 if (_socket.result == SSL_ERROR_WANT_READ) {
-                    if (ClientSocket::selectSocket(_socket, selectType::READ)) {
+                    if (selectSocket(_socket.socket, selectType::READ)) {
                         continue;
                     }
                 }
@@ -363,7 +306,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
             if (_socket.result <= 0) {
                 _socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
                 if (_socket.result == SSL_ERROR_WANT_READ) {
-                    if (ClientSocket::selectSocket(_socket, selectType::READ)) {
+                    if (selectSocket(_socket.socket, selectType::READ)) {
                         continue;
                     }
                 }
@@ -380,4 +323,78 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
 
 void ClientSocket::disconnectToServer(socketIndex& index) {
     deleteSocket(index);
+}
+
+bool setSocketNonblocked(const SOCKET socket) {
+#if defined(_WIN32)
+    unsigned long mode = 1;
+    if (ioctlsocket(socket, FIONBIO, &mode) != 0) {
+        return false;
+    }
+#endif
+
+#if defined(__LINUX__) || defined(__APPLE__)
+    int flags = fcntl(socket, F_GETFL, 0);
+    if (flags < 0) {
+        return false;
+    }
+    flags |= O_NONBLOCK;
+    if (fcntl(socket, F_SETFL, flags) < 0) {
+        return false;
+    }
+#endif
+    return true;
+}
+
+bool waitForConnection(const SOCKET socket, int timeout_sec) {
+    fd_set writefds;
+    FD_ZERO(&writefds);
+    FD_SET(socket, &writefds);
+
+    struct timeval timeout;
+    memset(&timeout, 0, sizeof(timeval));
+    timeout.tv_sec = timeout_sec;
+
+    if (!selectSocket(socket, selectType::WRITE)) {
+        return false;
+    }
+
+    int optval;
+    socklen_t optlen = sizeof(optval);
+    if (getsockopt(socket, SOL_SOCKET, SO_ERROR, (char*)&optval, &optlen) < 0) {
+        return false;
+    }
+
+    if (optval != 0) {
+        return false;
+    }
+
+    return true;
+}
+
+bool selectSocket(const SOCKET socket, selectType type, int timeoutSecond) {
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(socket, &fds);
+
+    struct timeval timeout;
+    memset(&timeout, 0, sizeof(timeval));
+    timeout.tv_sec = timeoutSecond;
+
+    int result = -1;
+    if (type == selectType::READ) {
+        result = select(socket + 1, &fds, NULL, NULL, &timeout);
+    } else if (type == selectType::WRITE) {
+        result = select(socket + 1, NULL, &fds, NULL, &timeout);
+    } else if (type == selectType::READ_AND_WRITE) {
+        result = select(socket + 1, &fds, &fds, NULL, &timeout);
+    }
+
+    if (result <= 0) {
+        return false;
+    }
+    if (!FD_ISSET(socket, &fds)) {
+        return false;
+    }
+    return true;
 }
