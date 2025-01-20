@@ -98,8 +98,8 @@ bool ClientSocket::waitForConnection(MSocket& _socket, int timeout_sec) {
     FD_SET(_socket.socket, &writefds);
 
     struct timeval timeout;
+    memset(&timeout, 0, sizeof(timeval));
     timeout.tv_sec = timeout_sec;
-    timeout.tv_usec = 0;
 
     if (!ClientSocket::selectSocket(_socket, selectType::WRITE)) {
         return false;
@@ -124,8 +124,8 @@ bool ClientSocket::selectSocket(const MSocket& _socket, selectType type, int tim
     FD_SET(_socket.socket, &fds);
 
     struct timeval timeout;
+    memset(&timeout, 0, sizeof(timeval));
     timeout.tv_sec = timeoutSecond;
-    timeout.tv_usec = 0;
 
     int result = -1;
     if (type == selectType::READ) {

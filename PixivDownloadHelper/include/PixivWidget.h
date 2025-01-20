@@ -85,8 +85,8 @@ class PixivDownloadItemStateWidget final : public TransparentWidget {
 
     QHBoxLayout* layout; // 水平布局
 
-    int imageCount;   // 总图片数
-    int successCount; // 下载成功数
+    int imageCount = 0;   // 总图片数
+    int successCount = 0; // 下载成功数
 
     downloadState state = downloadState::WAITING; // 默认为等待状态
     QString downloadStateString();                // 根据状态枚举量返回下载状态字符串
@@ -167,11 +167,9 @@ class PixivDownloadItemWidget final : public TransparentWidget {
   public slots:
     void initLoadItem(const std::string& url,
                       const std::string& downloadPath); // 初始化时添加未完成项目
-    void addDownloadItem(const std::string& url,
-                         const std::string& downloadPath = _downloadPath); /*按下download按键，判断url是否有效，
-                                                        有效则添加下载项目, 并发出信号   （添加单个项目）    */
-    void checkUrl(const std::string& url);                                 // 判断url类型，发送不同信号
-    void getPixivAllIllustsUrl(const std::string& id);                     // 获取用户所有作品url
+    void addDownloadItem(const std::string& url, const std::string& downloadPath = _downloadPath);
+    void checkUrl(const std::string& url);             // 判断url类型，发送不同信号
+    void getPixivAllIllustsUrl(const std::string& id); // 获取用户所有作品url
     void getPixivTaggedIllustsUrl(const std::string& id,
                                   const std::string& tag); // 获取用户按标签筛选后作品url
 
@@ -216,6 +214,11 @@ class PixivDownloadWidget final : public TransparentWidget {
   public:
     explicit PixivDownloadWidget();
     ~PixivDownloadWidget() = default;
+
+    PixivDownloadWidget(const PixivDownloadWidget&) = delete;
+    PixivDownloadWidget& operator=(const PixivDownloadWidget&) = delete;
+    PixivDownloadWidget(PixivDownloadWidget&&) = delete;
+    PixivDownloadWidget& operator=(PixivDownloadWidget&&) = delete;
 
     void checkUrl(const std::string& url);
     // 窗口重绘
