@@ -5,8 +5,9 @@
 #include <QtWidgets/qopenglwidget.h>
 
 #include "MenuWidget.h"
-#include "PixivWidget.h"
+#include "PixivWidget/PixivWidget.h"
 #include "SettingWidget.h"
+
 /*  主界面窗口  */
 class PixivDownloadHelper : public QWidget {
     Q_OBJECT
