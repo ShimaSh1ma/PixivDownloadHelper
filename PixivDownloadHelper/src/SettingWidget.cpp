@@ -151,7 +151,7 @@ ChangeTransparencyWidget::ChangeTransparencyWidget() {
     title->setText(tr("Change Window Transparency"));
     // 滑动条设置
     slider->setRange(0, WINDOW_TRANSPARENCY_DIVISION); // 设置范围
-    slider->setValue(_windowTransparency);             // 设置默认值
+    slider->setValue(static_cast<int>(_windowTransparency));             // 设置默认值
     slider->setOrientation(Qt::Horizontal);            // 设为水平滚动条
     // 布局管理
     layout->addWidget(title, 0, 0);

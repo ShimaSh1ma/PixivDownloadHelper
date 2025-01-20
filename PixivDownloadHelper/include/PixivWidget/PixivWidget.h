@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "PixivFoldSwitchWidget.h"
 #include "PixivItemContainerWidget.h"

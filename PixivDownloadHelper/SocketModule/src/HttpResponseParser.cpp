@@ -12,7 +12,7 @@ size_t HttpResponseParser::dealChunkData(std::string& bodyData) {
             break;
         }
         // 获取块大小
-        lastChunkSize = std::stoi(bodyData.substr(0, pos), nullptr, 16);;
+        lastChunkSize = std::stoi(bodyData.substr(0, pos), nullptr, 16);
         // 判断块大小是否为零
         if (lastChunkSize == 0) {
             break;

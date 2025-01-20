@@ -1,8 +1,10 @@
-#include "PixivWidget/PixivItemContainerWidget.h"
+﻿#include "PixivWidget/PixivItemContainerWidget.h"
 
 #include <fstream>
 #include <regex>
 #include <thread>
+
+#include <QtCore/qtextcodec.h>
 
 #include <SocketModule/HttpRequest.h>
 #include <SocketModule/UrlParser.h>

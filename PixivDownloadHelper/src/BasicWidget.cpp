@@ -174,7 +174,7 @@ void StackedWidget::switchWidget(int _index) {
 }
 
 void StackedWidget::setWidget() {
-    this->setCurrentIndex(this->index);
+    this->setCurrentIndex(static_cast<int>(this->index));
 }
 
 void StackedWidget::enterEvent(QEvent* event) {

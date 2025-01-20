@@ -1,4 +1,4 @@
-#if defined(_WIN32)
+﻿#if defined(_WIN32)
 #define NOMINMAX
 #endif
 
@@ -193,7 +193,7 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
     SSL_set_tlsext_host_name(_socket.sslSocket, _socket.host.c_str()); // tls握手失败时尝试指定主机名
 
     // 绑定套接字
-    SSL_set_fd(_socket.sslSocket, _socket.socket);
+    SSL_set_fd(_socket.sslSocket, static_cast<int>(_socket.socket));
 
     // 建立SSL连接
     while (true) {
@@ -323,7 +323,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
     else {
         size_t restLength = std::numeric_limits<socketIndex>::max();
         while (restLength > 0) {
-            _socket.result = SSL_read(_socket.sslSocket, recvBuffer.data(), std::min(_BUFFER_SIZE, restLength));
+            _socket.result = SSL_read(_socket.sslSocket, recvBuffer.data(), static_cast<int>(std::min(_BUFFER_SIZE, restLength)));
             if (_socket.result <= 0) {
                 _socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
                 if (_socket.result == SSL_ERROR_WANT_READ) {
@@ -413,11 +413,11 @@ bool selectSocket(const SOCKET socket, selectType type, int timeoutSecond) {
 
     int result = -1;
     if (type == selectType::READ) {
-        result = select(socket + 1, &fds, NULL, NULL, &timeout);
+        result = select(static_cast<int>(socket + 1), &fds, NULL, NULL, &timeout);
     } else if (type == selectType::WRITE) {
-        result = select(socket + 1, NULL, &fds, NULL, &timeout);
+        result = select(static_cast<int>(socket + 1), NULL, &fds, NULL, &timeout);
     } else if (type == selectType::READ_AND_WRITE) {
-        result = select(socket + 1, &fds, &fds, NULL, &timeout);
+        result = select(static_cast<int>(socket + 1), &fds, &fds, NULL, &timeout);
     }
 
     if (result <= 0) {

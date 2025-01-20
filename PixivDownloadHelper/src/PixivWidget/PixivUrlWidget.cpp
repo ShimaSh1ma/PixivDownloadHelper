@@ -1,4 +1,4 @@
-#include "PixivWidget/PixivUrlWidget.h"
+﻿#include "PixivWidget/PixivUrlWidget.h"
 
 // PixivUrlInputWidget
 PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {

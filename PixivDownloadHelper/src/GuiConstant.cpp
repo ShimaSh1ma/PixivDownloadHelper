@@ -1,4 +1,4 @@
-#include "GuiConstant.h"
+﻿#include "GuiConstant.h"
 
 // 用户设置（config）信息
 std::string _backgroundPicturePath; // 背景图片路径

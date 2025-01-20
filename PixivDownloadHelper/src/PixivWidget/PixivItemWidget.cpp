@@ -1,4 +1,4 @@
-#include "PixivWidget/PixivItemWidget.h"
+﻿#include "PixivWidget/PixivItemWidget.h"
 
 #include <regex>
 #include <thread>
@@ -234,12 +234,12 @@ void PixivDownloadItem::pixivDownload() {
         // 请求json文件
         std::string json;
         std::string respCode;
+        int SFD = -1;
+        bool flag = true;
         // http请求失败
         while (respCode != "200") {
-            static int SFD = -1;
             if (SFD == -1) {
                 SFD = ClientSocket::connectToServer(urlP->host, "443");
-                static bool flag = true;
                 if (flag) {
                     // 更改状态为http请求失败
                     this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
@@ -266,7 +266,7 @@ void PixivDownloadItem::pixivDownload() {
         jsonParse(json);
         // 提取图片url,存放url进向量数组
         std::vector<std::string> Vurl = parserHtml(json, REGEX_PIXIV_ILLUST);
-        int total = Vurl.size();
+        int total = static_cast<int>(Vurl.size());
         int success = 0;                             // 下载成功个数
         emit downloadProgressSignal(total, success); // 发送信号使下载窗口更新显示
 

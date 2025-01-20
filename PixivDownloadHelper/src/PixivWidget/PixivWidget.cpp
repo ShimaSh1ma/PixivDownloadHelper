@@ -1,4 +1,4 @@
-#include "PixivWidget/PixivWidget.h"
+﻿#include "PixivWidget/PixivWidget.h"
 
 // PixivDownloadWidget
 PixivDownloadWidget::PixivDownloadWidget() {
