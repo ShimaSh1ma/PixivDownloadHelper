@@ -14,6 +14,10 @@ void MSocket::setHostAndPort(const char* _host, const char* _port) noexcept {
     port = _port;
 }
 
+const std::string MSocket::getHost() {
+    return this->host;
+}
+
 void MSocket::socketClose() {
     if (sslSocket) {
         SSL_shutdown(sslSocket);

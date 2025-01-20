@@ -37,7 +37,7 @@ bool setSocketNonblocked(const SOCKET socket);
 // 判断socket连接状态
 bool waitForConnection(const SOCKET socket, int timeout_sec);
 // 使用select检查套接字是否可用
-bool selectSocket(const SOCKET socket, selectType type = selectType::WRITE, int timeoutSecond = timeWaitSeconds);
+bool selectSocket(const SOCKET socket, selectType type, int timeoutSecond = timeWaitSeconds);
 
 void WSAInit() {
 #if defined(_WIN32)
@@ -72,7 +72,7 @@ socketIndex ClientSocket::creatSocket(const std::string& _host, const std::strin
 
     socketIndex index;
     bool isIndexUnique = false;
-    std::unique_lock<std::shared_mutex> uniquelockMutex(writeMutex);
+    std::unique_lock<std::shared_mutex> uniquelock(writeMutex);
     do {
         index = distribution(mt);
         isIndexUnique = socketPool.find(index) == socketPool.end();
@@ -83,7 +83,7 @@ socketIndex ClientSocket::creatSocket(const std::string& _host, const std::strin
 }
 
 MSocket* ClientSocket::findSocket(socketIndex& index) {
-    std::shared_lock<std::shared_mutex> sharedlockMutex(writeMutex);
+    std::shared_lock<std::shared_mutex> sharedlock(writeMutex);
     auto it = socketPool.find(index);
     if (it == socketPool.end()) {
         index = -1;
@@ -97,13 +97,33 @@ void ClientSocket::deleteSocket(socketIndex& index) {
     index = -1;
 }
 
-socketIndex ClientSocket::connectToServer(const std::string& _host, const std::string& _port) {
-    socketIndex index = creatSocket(_host, _port);
-
-    MSocket* _temp = findSocket(index);
-    if (_temp == nullptr) {
-        return index;
+socketIndex ClientSocket::reuseSocket(const std::string& _host) {
+    std::shared_lock<std::shared_mutex> sharedlock(writeMutex);
+    for (const auto& pair : socketPool) {
+        if (pair.second->getHost() != _host) {
+            continue;
+        }
+        bool expected = false;
+        if (pair.second->isBusy.compare_exchange_weak(expected, true)) {
+            return pair.first;
+        }
     }
+    return -1;
+}
+
+socketIndex ClientSocket::connectToServer(const std::string& _host, const std::string& _port) {
+    socketIndex index = ClientSocket::reuseSocket(_host);
+    if (index != -1 && selectSocket(findSocket(index)->socket, selectType::WRITE)) {
+        return index;
+    } else {
+        deleteSocket(index);
+    }
+
+    MSocket* _temp;
+    do {
+        index = creatSocket(_host, _port);
+        _temp = findSocket(index);
+    } while (_temp == nullptr);
     MSocket& _socket = *_temp;
 
     // 初始化socket信息结构体
@@ -140,11 +160,13 @@ socketIndex ClientSocket::connectToServer(const std::string& _host, const std::s
 
     // 连接到远程服务器
     _socket.result = connect(_socket.socket, _socket.ipResult->ai_addr, static_cast<int>(_socket.ipResult->ai_addrlen));
+    bool errorOccurred;
 #if defined(_WIN32)
-    if (_socket.result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
-#elif defined(__APPLE__)
-    if (_socket.result == SOCKET_ERROR && errno == EINPROGRESS) {
+    errorOccurred = _socket.result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK;
+#else
+    errorOccurred = _socket.result == SOCKET_ERROR && errno == EINPROGRESS;
 #endif
+    if (errorOccurred) {
         _socket.errorLog = _M_SOCKET_CONNECT_ERR + std::to_string(WSAGetLastError());
         freeaddrinfo(_socket.ipResult);
         deleteSocket(index);
@@ -213,7 +235,6 @@ bool ClientSocket::socketSend(socketIndex& index, const std::string& msg) {
     MSocket& _socket = *_temp;
 
     size_t sentLength = 0;
-
     while (sentLength < msg.length()) {
         _socket.result =
             SSL_write(_socket.sslSocket, msg.c_str() + sentLength, static_cast<int>(msg.length() - sentLength));
@@ -319,6 +340,15 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
         }
     }
     return parser;
+}
+
+void ClientSocket::releaseSocket(socketIndex& index) {
+    MSocket* _temp = findSocket(index);
+    if (_temp == nullptr) {
+        return;
+    }
+    MSocket& _socket = *_temp;
+    _socket.isBusy.store(false);
 }
 
 void ClientSocket::disconnectToServer(socketIndex& index) {

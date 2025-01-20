@@ -32,6 +32,9 @@ class ClientSocket {
     // 销毁socket
     static void deleteSocket(socketIndex& index);
 
+    // 重用socket tcp链接
+    static socketIndex reuseSocket(const std::string& _host);
+
     // socket集合
     static std::unordered_map<socketIndex, std::unique_ptr<MSocket>> socketPool;
 
@@ -44,6 +47,9 @@ class ClientSocket {
 
     // 从服务器接收报文
     static std::unique_ptr<HttpResponseParser> socketReceive(socketIndex& index);
+
+    // 释放对当前socket的控制，而不断开链接，复用socket
+    static void releaseSocket(socketIndex& index);
 
     // 断开连接并关闭套接字
     static void disconnectToServer(socketIndex& index);

@@ -289,7 +289,7 @@ void PixivDownloadItem::pixivDownload() {
                     }
                 }
             }
-            ClientSocket::disconnectToServer(SFD);
+            ClientSocket::releaseSocket(SFD);
         }
         // 更改状态为下载中
         this->stateWidget->setState(downloadState::DOWNLOADING);
@@ -352,7 +352,7 @@ void PixivDownloadItem::pixivDownload() {
             }
         }
 
-        ClientSocket::disconnectToServer(socketIdx);
+        ClientSocket::releaseSocket(socketIdx);
 
         // 将下载状态置为下载完成
         this->stateWidget->setState(downloadState::SUCCESS);

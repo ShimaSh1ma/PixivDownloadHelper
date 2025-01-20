@@ -3,6 +3,7 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+#include <atomic>
 #include <string>
 
 // windows头文件
@@ -54,8 +55,13 @@ class MSocket final {
     MSocket& operator=(MSocket&&) = delete;
 
     void setHostAndPort(const char* _host, const char* _port) noexcept;
+    const std::string getHost();
+
+    // 标志socket是否繁忙
+    std::atomic_bool isBusy = true;
 
   private:
+    // 关闭socket并清理资源
     void socketClose();
 
     // socket对象
