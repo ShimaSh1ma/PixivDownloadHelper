@@ -5,16 +5,16 @@
 #include "PixivUrlWidget.h"
 
 // 用scrollarea提供滚动条显示PixivDownloadItemWidget
-class PixivDownloadWidget final : public TransparentWidget {
+class PixivSubWidget final : public TransparentWidget {
     Q_OBJECT
   public:
-    explicit PixivDownloadWidget();
-    ~PixivDownloadWidget() = default;
+    explicit PixivSubWidget();
+    ~PixivSubWidget() = default;
 
-    PixivDownloadWidget(const PixivDownloadWidget&) = delete;
-    PixivDownloadWidget& operator=(const PixivDownloadWidget&) = delete;
-    PixivDownloadWidget(PixivDownloadWidget&&) = delete;
-    PixivDownloadWidget& operator=(PixivDownloadWidget&&) = delete;
+    PixivSubWidget(const PixivSubWidget&) = delete;
+    PixivSubWidget& operator=(const PixivSubWidget&) = delete;
+    PixivSubWidget(PixivSubWidget&&) = delete;
+    PixivSubWidget& operator=(PixivSubWidget&&) = delete;
 
     void checkUrl(const std::string& url);
     // 窗口重绘
@@ -24,9 +24,9 @@ class PixivDownloadWidget final : public TransparentWidget {
 
   private:
     // pixiv下载上方窗口
-    PixivDownloadTopWidget* topWidget;
+    PixivFoldSwitchWidget* topWidget;
     // pixiv下载项目总览窗口
-    PixivDownloadItemWidget* itemWidget;
+    PixivItemContainerWidget* itemWidget;
     // 作为容器提供滚动条
     TransparentScrollArea* scrollArea;
     // 加入布局自适应窗口大小
@@ -54,6 +54,6 @@ class PixivWidget final : public TransparentWidget {
     // 垂直布局
     QVBoxLayout* layout;
     // 包含的窗口
-    PixivUrlInputWidget* inputWidget;
-    PixivDownloadWidget* downloadWidget;
+    PixivUrlWidget* inputWidget;
+    PixivSubWidget* downloadWidget;
 };

@@ -4,10 +4,10 @@
 #include "BasicWidget.h"
 
 /*pixiv下载项目标题窗口， 由若干label组成*/
-class PixivDownloadItemTitleWidget final : public TransparentWidget {
+class PixivItemTitle final : public TransparentWidget {
   public:
-    explicit PixivDownloadItemTitleWidget(const std::string& str);
-    ~PixivDownloadItemTitleWidget() = default;
+    explicit PixivItemTitle(const std::string& str);
+    ~PixivItemTitle() = default;
 
   private:
     TextLabel* urlLabel; // 显示url的标签
@@ -15,16 +15,16 @@ class PixivDownloadItemTitleWidget final : public TransparentWidget {
 };
 
 // pixiv下载项目缩略图窗口
-class PixivDownloadItemPreviewWidget final : public TransparentWidget {
+class PixivItemPreview final : public TransparentWidget {
     Q_OBJECT
   public:
-    explicit PixivDownloadItemPreviewWidget();
-    ~PixivDownloadItemPreviewWidget() = default;
+    explicit PixivItemPreview();
+    ~PixivItemPreview() = default;
 
-    PixivDownloadItemPreviewWidget(const PixivDownloadItemPreviewWidget&) = delete;
-    PixivDownloadItemPreviewWidget& operator=(const PixivDownloadItemPreviewWidget&) = delete;
-    PixivDownloadItemPreviewWidget(PixivDownloadItemPreviewWidget&&) = delete;
-    PixivDownloadItemPreviewWidget& operator=(PixivDownloadItemPreviewWidget&&) = delete;
+    PixivItemPreview(const PixivItemPreview&) = delete;
+    PixivItemPreview& operator=(const PixivItemPreview&) = delete;
+    PixivItemPreview(PixivItemPreview&&) = delete;
+    PixivItemPreview& operator=(PixivItemPreview&&) = delete;
   public slots:
     void loadPreviewImage(const std::string& imagePath); // 加载缩略图
   private:
@@ -35,16 +35,16 @@ class PixivDownloadItemPreviewWidget final : public TransparentWidget {
 };
 
 // pixiv下载项目下载状态窗口
-class PixivDownloadItemStateWidget final : public TransparentWidget {
+class PixivItemState final : public TransparentWidget {
     Q_OBJECT
   public:
-    explicit PixivDownloadItemStateWidget();
-    ~PixivDownloadItemStateWidget() = default;
+    explicit PixivItemState();
+    ~PixivItemState() = default;
 
-    PixivDownloadItemStateWidget(const PixivDownloadItemStateWidget&) = delete;
-    PixivDownloadItemStateWidget& operator=(const PixivDownloadItemStateWidget&) = delete;
-    PixivDownloadItemStateWidget(PixivDownloadItemStateWidget&&) = delete;
-    PixivDownloadItemStateWidget& operator=(PixivDownloadItemStateWidget&&) = delete;
+    PixivItemState(const PixivItemState&) = delete;
+    PixivItemState& operator=(const PixivItemState&) = delete;
+    PixivItemState(PixivItemState&&) = delete;
+    PixivItemState& operator=(PixivItemState&&) = delete;
 
   private:
     TextLabel* downloadStateLabel; // 显示下载状态的标签
@@ -65,16 +65,16 @@ class PixivDownloadItemStateWidget final : public TransparentWidget {
 };
 
 // pixiv下载项目
-class PixivDownloadItem final : public PressWidget {
+class PixivItemWidget final : public PressWidget {
     Q_OBJECT
   public:
-    explicit PixivDownloadItem(const std::string& _url, const std::string& _path, const bool& foldOrUnfold = true);
-    ~PixivDownloadItem() = default;
+    explicit PixivItemWidget(const std::string& _url, const std::string& _path, const bool& foldOrUnfold = true);
+    ~PixivItemWidget() = default;
 
-    PixivDownloadItem(const PixivDownloadItem&) = delete;
-    PixivDownloadItem& operator=(const PixivDownloadItem&) = delete;
-    PixivDownloadItem(PixivDownloadItem&&) = delete;
-    PixivDownloadItem& operator=(PixivDownloadItem&&) = delete;
+    PixivItemWidget(const PixivItemWidget&) = delete;
+    PixivItemWidget& operator=(const PixivItemWidget&) = delete;
+    PixivItemWidget(PixivItemWidget&&) = delete;
+    PixivItemWidget& operator=(PixivItemWidget&&) = delete;
 
     std::string getUrl();
     std::string getPath();
@@ -86,10 +86,10 @@ class PixivDownloadItem final : public PressWidget {
     void downloadCompleteSignal();                       // 下载完成时发射此信号
     void downloadProgressSignal(int total, int success); // 下载过程中报告下载进度函数
   private:
-    PixivDownloadItemTitleWidget* titleWidget;     // 标题窗口
-    PixivDownloadItemPreviewWidget* previewWidget; // 缩略图窗口
-    PixivDownloadItemStateWidget* stateWidget;     // 下载状态窗口
-    QVBoxLayout* layout;                           // 垂直布局
+    PixivItemTitle* titleWidget;     // 标题窗口
+    PixivItemPreview* previewWidget; // 缩略图窗口
+    PixivItemState* stateWidget;     // 下载状态窗口
+    QVBoxLayout* layout;             // 垂直布局
 
     void pixivDownload();    // pixiv下载函数
     void telegramDownload(); // telegram下载函数

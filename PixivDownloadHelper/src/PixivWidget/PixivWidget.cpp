@@ -1,23 +1,23 @@
 ﻿#include "PixivWidget/PixivWidget.h"
 
-// PixivDownloadWidget
-PixivDownloadWidget::PixivDownloadWidget() {
+// PixivSubWidget
+PixivSubWidget::PixivSubWidget() {
     // 记录宽度
     this->wWidth = this->width();
     // 初始化组件
-    topWidget = new PixivDownloadTopWidget();
-    itemWidget = new PixivDownloadItemWidget();
+    topWidget = new PixivFoldSwitchWidget();
+    itemWidget = new PixivItemContainerWidget();
     scrollArea = new TransparentScrollArea();
     layout = new QVBoxLayout();
 
     // 信号槽实现窗口大小改变，重新计算pixiv下载窗口布局
-    connect(this, &PixivDownloadWidget::sizeChangedSignal, this->itemWidget, &PixivDownloadItemWidget::caculateColumn);
+    connect(this, &PixivSubWidget::sizeChangedSignal, this->itemWidget, &PixivItemContainerWidget::caculateColumn);
 
     // 信号与槽实现 top窗口按钮 控制 下载项目 展开或折叠
-    connect(this->topWidget, &PixivDownloadTopWidget::foldButtonClicked, this->itemWidget,
-            &PixivDownloadItemWidget::foldDownloadItems);
-    connect(this->topWidget, &PixivDownloadTopWidget::unfoldButtonClicked, this->itemWidget,
-            &PixivDownloadItemWidget::unfoldDownloadItems);
+    connect(this->topWidget, &PixivFoldSwitchWidget::foldButtonClicked, this->itemWidget,
+            &PixivItemContainerWidget::foldDownloadItems);
+    connect(this->topWidget, &PixivFoldSwitchWidget::unfoldButtonClicked, this->itemWidget,
+            &PixivItemContainerWidget::unfoldDownloadItems);
 
     // 设置滚动窗口
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -33,15 +33,15 @@ PixivDownloadWidget::PixivDownloadWidget() {
     this->setLayout(layout);
 }
 
-void PixivDownloadWidget::checkUrl(const std::string& url) {
+void PixivSubWidget::checkUrl(const std::string& url) {
     this->itemWidget->checkUrl(url);
 }
 
-void PixivDownloadWidget::onChangedRepaint() {
+void PixivSubWidget::onChangedRepaint() {
     this->itemWidget->caculateColumn();
 }
 
-void PixivDownloadWidget::resizeEvent(QResizeEvent* ev) {
+void PixivSubWidget::resizeEvent(QResizeEvent* ev) {
     this->itemWidget->setMaximumWidth(this->width());
     this->itemWidget->resize(sizeHint());
     if (abs(this->width() - wWidth) > 7) {
@@ -56,11 +56,11 @@ PixivWidget::PixivWidget() {
     layout = new QVBoxLayout();
 
     // 初始化窗口
-    inputWidget = new PixivUrlInputWidget();
-    downloadWidget = new PixivDownloadWidget();
+    inputWidget = new PixivUrlWidget();
+    downloadWidget = new PixivSubWidget();
 
     // 信号与槽：收到url后,检查url类型
-    connect(inputWidget, &PixivUrlInputWidget::inputUrlSignal, downloadWidget, &PixivDownloadWidget::checkUrl);
+    connect(inputWidget, &PixivUrlWidget::inputUrlSignal, downloadWidget, &PixivSubWidget::checkUrl);
 
     // 窗口加入布局，修改布局样式
     layout->addWidget(inputWidget);

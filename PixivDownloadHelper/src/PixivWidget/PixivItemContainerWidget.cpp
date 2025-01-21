@@ -11,15 +11,15 @@
 
 #include "publicFunction.h"
 
-// PixivDownloadItemWidget
-PixivDownloadItemWidget::PixivDownloadItemWidget() : TransparentWidget() {
+// PixivItemContainerWidget
+PixivItemContainerWidget::PixivItemContainerWidget() : TransparentWidget() {
 
     // 注册std::string作为信号槽参数
     qRegisterMetaType<std::string>("std::string");
     qRegisterMetaType<std::vector<std::string>>("std::vector<std::string>");
 
     // item窗口链表初始化
-    itemList = std::list<PixivDownloadItem*>();
+    itemList = std::list<PixivItemWidget*>();
     // 哈希表初始化
     hashTable = std::unordered_set<std::string>();
     Glayout = new QGridLayout();
@@ -31,26 +31,26 @@ PixivDownloadItemWidget::PixivDownloadItemWidget() : TransparentWidget() {
     this->setFocusPolicy(Qt::FocusPolicy::TabFocus);
 
     // 信号与槽连接
-    connect(this, &PixivDownloadItemWidget::itemAddedSignal, this,
-            &PixivDownloadItemWidget::checkDownloadingOrNot); /*有下载项目加入后，检测是否需要唤醒下载队列
+    connect(this, &PixivItemContainerWidget::itemAddedSignal, this,
+            &PixivItemContainerWidget::checkDownloadingOrNot); /*有下载项目加入后，检测是否需要唤醒下载队列
                                                               下载正在进行则不唤醒，没有正在下载项目则唤醒*/
-    connect(this, &PixivDownloadItemWidget::startDownloadSignal, this,
-            &PixivDownloadItemWidget::startDownload); // 收到开始下载信号，开始下载当前队首项目
+    connect(this, &PixivItemContainerWidget::startDownloadSignal, this,
+            &PixivItemContainerWidget::startDownload); // 收到开始下载信号，开始下载当前队首项目
 
-    connect(this, &PixivDownloadItemWidget::adjustLayoutSignal, this,
-            &PixivDownloadItemWidget::adjustLayout); // 收到布局行列改变信号，重新布局
+    connect(this, &PixivItemContainerWidget::adjustLayoutSignal, this,
+            &PixivItemContainerWidget::adjustLayout); // 收到布局行列改变信号，重新布局
 
-    connect(this, &PixivDownloadItemWidget::urlIsSingleWorkSignal, this,
-            &PixivDownloadItemWidget::addDownloadItem); // url是单个作品url，则创建一个下载窗口
+    connect(this, &PixivItemContainerWidget::urlIsSingleWorkSignal, this,
+            &PixivItemContainerWidget::addDownloadItem); // url是单个作品url，则创建一个下载窗口
 
-    connect(this, &PixivDownloadItemWidget::urlIsAllWorkSignal, this,
-            &PixivDownloadItemWidget::getPixivAllIllustsUrl); // url是用户所有作品url，则发送请求获取每一个作品url
+    connect(this, &PixivItemContainerWidget::urlIsAllWorkSignal, this,
+            &PixivItemContainerWidget::getPixivAllIllustsUrl); // url是用户所有作品url，则发送请求获取每一个作品url
 
-    connect(this, &PixivDownloadItemWidget::urlIsTaggedWorkSignal, this,
-            &PixivDownloadItemWidget::
+    connect(this, &PixivItemContainerWidget::urlIsTaggedWorkSignal, this,
+            &PixivItemContainerWidget::
                 getPixivTaggedIllustsUrl); // url是用户筛选后作品url，则发送请求获取筛选后每一个作品url
 
-    connect(this, &PixivDownloadItemWidget::initLoadItemSignal, this, &PixivDownloadItemWidget::initLoadItem);
+    connect(this, &PixivItemContainerWidget::initLoadItemSignal, this, &PixivItemContainerWidget::initLoadItem);
 
     Glayout->setMargin(0);               // 布局周围间距为零
     Glayout->setAlignment(Qt::AlignTop); // 默认上对齐
@@ -60,9 +60,9 @@ PixivDownloadItemWidget::PixivDownloadItemWidget() : TransparentWidget() {
     loadDownloadData();
 }
 
-void PixivDownloadItemWidget::initLoadItem(const std::string& url, const std::string& downloadPath) {
+void PixivItemContainerWidget::initLoadItem(const std::string& url, const std::string& downloadPath) {
     // 添加进链表数组中
-    itemList.emplace_back(new PixivDownloadItem(url, downloadPath, this->foldOrUnfold));
+    itemList.emplace_back(new PixivItemWidget(url, downloadPath, this->foldOrUnfold));
     // 初始化迭代器
     if (itemList.size() == 2) {
         downloadingItem = itemList.cbegin();
@@ -72,7 +72,7 @@ void PixivDownloadItemWidget::initLoadItem(const std::string& url, const std::st
     emit itemAddedSignal();    // 发送信号提示有新项目加入
 }
 
-void PixivDownloadItemWidget::addDownloadItem(const std::string& url, const std::string& downloadPath) {
+void PixivItemContainerWidget::addDownloadItem(const std::string& url, const std::string& downloadPath) {
 #if defined(_WIN32)
     // 检查下载路径是否存在，及是否拥有写入权限
     QTextCodec* code = QTextCodec::codecForName("GB2312");
@@ -86,7 +86,7 @@ void PixivDownloadItemWidget::addDownloadItem(const std::string& url, const std:
     }
 
     // 添加进链表数组中
-    itemList.emplace_back(new PixivDownloadItem(url, downloadPath, this->foldOrUnfold));
+    itemList.emplace_back(new PixivItemWidget(url, downloadPath, this->foldOrUnfold));
     // 保存下载信息
     saveDownloadData(url + "\n" + downloadPath);
 
@@ -99,7 +99,7 @@ void PixivDownloadItemWidget::addDownloadItem(const std::string& url, const std:
     emit itemAddedSignal();    // 发送信号提示有新项目加入
 }
 
-void PixivDownloadItemWidget::checkUrl(const std::string& url) { // 判断url格式
+void PixivItemContainerWidget::checkUrl(const std::string& url) { // 判断url格式
     // 单个作品url
     std::regex urlSingleWork(REGEX_PIXIV_ARTWORK);
     std::regex ruleTelegram(REGEX_TELEGRAM);
@@ -123,7 +123,7 @@ void PixivDownloadItemWidget::checkUrl(const std::string& url) { // 判断url格
     }
 }
 
-void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
+void PixivItemContainerWidget::getPixivAllIllustsUrl(const std::string& id) {
     auto lamda = [=]() {
         // ajax接口url
         std::string ajaxUrl = "https://www.pixiv.net/ajax/user/" + id + "/profile/all";
@@ -170,7 +170,7 @@ void PixivDownloadItemWidget::getPixivAllIllustsUrl(const std::string& id) {
     t.detach();
 }
 
-void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, const std::string& tag) {
+void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, const std::string& tag) {
     auto lambda = [=]() {
         int page{0};       // 当前页数
         int totalCount{0}; // 筛选后图片总数
@@ -230,19 +230,19 @@ void PixivDownloadItemWidget::getPixivTaggedIllustsUrl(const std::string& id, co
     t.detach();
 }
 
-void PixivDownloadItemWidget::startDownload() {
+void PixivItemContainerWidget::startDownload() {
     // 有待下载项目则迭代器迭代
     this->downloadingItem++;
     // 开始下载后绑定正在下载的项目的完成信号和downloadCompleted();
-    connect(*downloadingItem, &PixivDownloadItem::downloadCompleteSignal, this,
-            &PixivDownloadItemWidget::downloadCompleted);
+    connect(*downloadingItem, &PixivItemWidget::downloadCompleteSignal, this,
+            &PixivItemContainerWidget::downloadCompleted);
 
     this->downloadingOrNot = true;      // 标记正在下载
     (*downloadingItem)->checkUrlType(); // 开始下载
     return;
 }
 
-void PixivDownloadItemWidget::checkDownloadingOrNot() {
+void PixivItemContainerWidget::checkDownloadingOrNot() {
     if (downloadingOrNot) {
         return;
     }
@@ -252,10 +252,10 @@ void PixivDownloadItemWidget::checkDownloadingOrNot() {
     }
 }
 
-void PixivDownloadItemWidget::downloadCompleted() {
+void PixivItemContainerWidget::downloadCompleted() {
     // 解绑下载完成项目的downloadCompleteSignal()信号和downloadCompleted()函数
-    disconnect(*downloadingItem, &PixivDownloadItem::downloadCompleteSignal, this,
-               &PixivDownloadItemWidget::downloadCompleted);
+    disconnect(*downloadingItem, &PixivItemWidget::downloadCompleteSignal, this,
+               &PixivItemContainerWidget::downloadCompleted);
     // 删除此条下载信息
     deleteDownloadData((*downloadingItem)->getUrl() + "\n" + (*downloadingItem)->getPath());
     // 下载状态：未在下载中，下载队列休眠
@@ -269,7 +269,7 @@ void PixivDownloadItemWidget::downloadCompleted() {
     return;
 }
 
-void PixivDownloadItemWidget::caculateColumn() {
+void PixivItemContainerWidget::caculateColumn() {
     // 当前列数对应的窗口长度区间
     int maxLength = (this->column + 1) * PIXIV_DOWNLOAD_ITEM_MIN_WIDTH // 上限
                     + this->column * this->Glayout->spacing();
@@ -286,7 +286,7 @@ void PixivDownloadItemWidget::caculateColumn() {
     }
 }
 
-void PixivDownloadItemWidget::adjustLayout() {
+void PixivItemContainerWidget::adjustLayout() {
     // 没有项目则不布局
     if (itemList.size() == 0) {
         return;
@@ -321,7 +321,7 @@ void PixivDownloadItemWidget::adjustLayout() {
     this->resize(sizeHint()); // 强制刷新，防止布局错误
 }
 
-void PixivDownloadItemWidget::foldDownloadItems() {
+void PixivItemContainerWidget::foldDownloadItems() {
     for (auto it = ++this->itemList.cbegin(); it != this->itemList.cend(); ++it) {
         (*it)->previewWidgetVisiable(false);
         this->foldOrUnfold = false;
@@ -331,7 +331,7 @@ void PixivDownloadItemWidget::foldDownloadItems() {
     return;
 }
 
-void PixivDownloadItemWidget::unfoldDownloadItems() {
+void PixivItemContainerWidget::unfoldDownloadItems() {
     for (auto it = ++this->itemList.cbegin(); it != this->itemList.cend(); ++it) {
         (*it)->previewWidgetVisiable(true);
         this->foldOrUnfold = true;
@@ -341,7 +341,7 @@ void PixivDownloadItemWidget::unfoldDownloadItems() {
     return;
 }
 
-void PixivDownloadItemWidget::loadDownloadData() {
+void PixivItemContainerWidget::loadDownloadData() {
     auto f = [=]() {
         std::ifstream i(CONFIG_UNDONE_PATH);
         std::string buf;

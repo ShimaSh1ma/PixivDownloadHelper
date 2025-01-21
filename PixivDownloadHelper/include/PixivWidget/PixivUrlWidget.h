@@ -4,16 +4,16 @@
 #include "BasicWidget.h"
 
 // 输入url的窗口，含有一个文本框和下载按钮
-class PixivUrlInputWidget final : public TranslucentWidget {
+class PixivUrlWidget final : public TranslucentWidget {
     Q_OBJECT
   public:
-    explicit PixivUrlInputWidget();
-    ~PixivUrlInputWidget() = default;
+    explicit PixivUrlWidget();
+    ~PixivUrlWidget() = default;
 
-    PixivUrlInputWidget(const PixivUrlInputWidget&) = delete;
-    PixivUrlInputWidget& operator=(const PixivUrlInputWidget&) = delete;
-    PixivUrlInputWidget(PixivUrlInputWidget&&) = delete;
-    PixivUrlInputWidget& operator=(PixivUrlInputWidget&&) = delete;
+    PixivUrlWidget(const PixivUrlWidget&) = delete;
+    PixivUrlWidget& operator=(const PixivUrlWidget&) = delete;
+    PixivUrlWidget(PixivUrlWidget&&) = delete;
+    PixivUrlWidget& operator=(PixivUrlWidget&&) = delete;
   signals:
     void inputUrlSignal(std::string); // 携带文本框内容的信号
   private:

@@ -4,16 +4,16 @@
 #include "BasicWidget.h"
 
 /*Pixiv下载窗口上方功能窗口，提供控制展开或折叠下载项目缩略图功能*/
-class PixivDownloadTopWidget final : public TransparentWidget {
+class PixivFoldSwitchWidget final : public TransparentWidget {
     Q_OBJECT
   public:
-    explicit PixivDownloadTopWidget();
-    ~PixivDownloadTopWidget() = default;
+    explicit PixivFoldSwitchWidget();
+    ~PixivFoldSwitchWidget() = default;
 
-    PixivDownloadTopWidget(const PixivDownloadTopWidget&) = delete;
-    PixivDownloadTopWidget& operator=(const PixivDownloadTopWidget&) = delete;
-    PixivDownloadTopWidget(PixivDownloadTopWidget&&) = delete;
-    PixivDownloadTopWidget& operator=(PixivDownloadTopWidget&&) = delete;
+    PixivFoldSwitchWidget(const PixivFoldSwitchWidget&) = delete;
+    PixivFoldSwitchWidget& operator=(const PixivFoldSwitchWidget&) = delete;
+    PixivFoldSwitchWidget(PixivFoldSwitchWidget&&) = delete;
+    PixivFoldSwitchWidget& operator=(PixivFoldSwitchWidget&&) = delete;
   signals:
     void foldButtonClicked();
     void unfoldButtonClicked();

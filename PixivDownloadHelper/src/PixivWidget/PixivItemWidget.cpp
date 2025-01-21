@@ -12,8 +12,8 @@
 
 #include "publicFunction.h"
 
-// PixivDownloadItemTitleWidget
-PixivDownloadItemTitleWidget::PixivDownloadItemTitleWidget(const std::string& url) {
+// PixivItemTitle
+PixivItemTitle::PixivItemTitle(const std::string& url) {
     // 大小设置
     setFixedHeight(PIXIV_DOWNLOAD_TITLE_WIDGET_HEIGHT);
 
@@ -31,8 +31,8 @@ PixivDownloadItemTitleWidget::PixivDownloadItemTitleWidget(const std::string& ur
     this->setLayout(layout);
 }
 
-// PixivDownloadItemPreviewWidget
-PixivDownloadItemPreviewWidget::PixivDownloadItemPreviewWidget() {
+// PixivItemPreview
+PixivItemPreview::PixivItemPreview() {
     // 组件初始化
     previewImage = new QLabel();
     layout = new QHBoxLayout();
@@ -51,7 +51,7 @@ PixivDownloadItemPreviewWidget::PixivDownloadItemPreviewWidget() {
     this->setLayout(layout);
 }
 
-void PixivDownloadItemPreviewWidget::loadPreviewImage(const std::string& imagePath) {
+void PixivItemPreview::loadPreviewImage(const std::string& imagePath) {
     // 保存缩略图路径
     this->previewImagePath = imagePath;
 
@@ -67,8 +67,8 @@ void PixivDownloadItemPreviewWidget::loadPreviewImage(const std::string& imagePa
     return;
 }
 
-// PixivDownloadItemStateWidget
-PixivDownloadItemStateWidget::PixivDownloadItemStateWidget() {
+// PixivItemState
+PixivItemState::PixivItemState() {
     // 注册下载状态枚举量
     qRegisterMetaType<downloadState>("downloadState");
     // 大小设置
@@ -108,13 +108,13 @@ PixivDownloadItemStateWidget::PixivDownloadItemStateWidget() {
     this->setLayout(layout);
 }
 
-void PixivDownloadItemStateWidget::setState(const downloadState& _state) {
+void PixivItemState::setState(const downloadState& _state) {
     this->state = _state;              // 更改下载状态
     this->downloadStateLabel->setText( // 更新下载状态显示
         tr(downloadStateString().toStdString().c_str()));
 }
 
-void PixivDownloadItemStateWidget::setProgress(const int& total, const int& success) {
+void PixivItemState::setProgress(const int& total, const int& success) {
     this->imageCount = total;
     this->successCount = success;
     // 图片数量标签设置
@@ -122,7 +122,7 @@ void PixivDownloadItemStateWidget::setProgress(const int& total, const int& succ
     totalCountLabel->setText(QString::number(imageCount) + "(total)");
 }
 
-QString PixivDownloadItemStateWidget::downloadStateString() {
+QString PixivItemState::downloadStateString() {
     if (this->state == downloadState::DOWNLOADING) {
         return "Downloading";
     } else if (this->state == downloadState::WAITING) {
@@ -136,8 +136,8 @@ QString PixivDownloadItemStateWidget::downloadStateString() {
     }
 }
 
-// PixivDownloadItem
-PixivDownloadItem::PixivDownloadItem(const std::string& _url, const std::string& _path, const bool& foldOrUnfold)
+// PixivItemWidget
+PixivItemWidget::PixivItemWidget(const std::string& _url, const std::string& _path, const bool& foldOrUnfold)
     : downloadPath(_path) {
     qRegisterMetaType<std::string>("std::string"); // 注册std::string作为信号槽参数
     // 保存下载URL
@@ -150,20 +150,20 @@ PixivDownloadItem::PixivDownloadItem(const std::string& _url, const std::string&
     setMinimumWidth(PIXIV_DOWNLOAD_ITEM_MIN_WIDTH);
 
     // 组件初始化
-    titleWidget = new PixivDownloadItemTitleWidget(_url);
-    previewWidget = new PixivDownloadItemPreviewWidget();
-    stateWidget = new PixivDownloadItemStateWidget();
+    titleWidget = new PixivItemTitle(_url);
+    previewWidget = new PixivItemPreview();
+    stateWidget = new PixivItemState();
     layout = new QVBoxLayout();
 
     // 设置preview窗口折叠或者展开
     previewWidget->setVisible(foldOrUnfold);
 
     // 信号与槽连接
-    connect(this, &PixivDownloadItem::downloadProgressSignal, this->stateWidget,
-            &PixivDownloadItemStateWidget::setProgress); // 接收下载进度变化并刷新显示
+    connect(this, &PixivItemWidget::downloadProgressSignal, this->stateWidget,
+            &PixivItemState::setProgress); // 接收下载进度变化并刷新显示
 
-    connect(this, &PixivDownloadItem::previewImageSignal, this->previewWidget,
-            &PixivDownloadItemPreviewWidget::loadPreviewImage); // 收到缩略图路径信号，更新缩略图
+    connect(this, &PixivItemWidget::previewImageSignal, this->previewWidget,
+            &PixivItemPreview::loadPreviewImage); // 收到缩略图路径信号，更新缩略图
 
     // 布局管理
     layout->addWidget(titleWidget);
@@ -176,19 +176,19 @@ PixivDownloadItem::PixivDownloadItem(const std::string& _url, const std::string&
     this->setLayout(layout);
 }
 
-std::string PixivDownloadItem::getUrl() {
+std::string PixivItemWidget::getUrl() {
     return downloadUrl;
 }
 
-std::string PixivDownloadItem::getPath() {
+std::string PixivItemWidget::getPath() {
     return downloadPath;
 }
 
-void PixivDownloadItem::previewWidgetVisiable(bool visiable) {
+void PixivItemWidget::previewWidgetVisiable(bool visiable) {
     previewWidget->setVisible(visiable);
 }
 
-void PixivDownloadItem::mouseDoubleClickEvent(QMouseEvent* mouseE) {
+void PixivItemWidget::mouseDoubleClickEvent(QMouseEvent* mouseE) {
     if (mouseE->button() == Qt::LeftButton) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(this->downloadPath.c_str()));
         return;
@@ -196,7 +196,7 @@ void PixivDownloadItem::mouseDoubleClickEvent(QMouseEvent* mouseE) {
     return;
 }
 
-void PixivDownloadItem::checkUrlType() {
+void PixivItemWidget::checkUrlType() {
     std::regex ruleTelegram(REGEX_TELEGRAM);
     std::smatch re;
     std::string url = downloadUrl;
@@ -209,7 +209,7 @@ void PixivDownloadItem::checkUrlType() {
     }
 }
 
-void PixivDownloadItem::pixivDownload() {
+void PixivItemWidget::pixivDownload() {
     // 将下载状态置为下载中
     this->stateWidget->setState(downloadState::DOWNLOADING);
     std::string url = downloadUrl;
@@ -334,7 +334,7 @@ void PixivDownloadItem::pixivDownload() {
     return;
 }
 
-void PixivDownloadItem::telegramDownload() {
+void PixivItemWidget::telegramDownload() {
     ////将下载状态置为下载中
     // this->stateWidget->setState(downloadState::DOWNLOADING);
     // std::string url = downloadUrl;

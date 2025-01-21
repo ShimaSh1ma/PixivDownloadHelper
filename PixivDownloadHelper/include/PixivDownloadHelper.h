@@ -6,7 +6,7 @@
 
 #include "MenuWidget.h"
 #include "PixivWidget/PixivWidget.h"
-#include "SettingWidget.h"
+#include "SettingWidget/SettingWidget.h"
 
 /*  主界面窗口  */
 class PixivDownloadHelper : public QWidget {

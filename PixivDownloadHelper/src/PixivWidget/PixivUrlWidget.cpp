@@ -1,7 +1,7 @@
 ﻿#include "PixivWidget/PixivUrlWidget.h"
 
-// PixivUrlInputWidget
-PixivUrlInputWidget::PixivUrlInputWidget() : TranslucentWidget() {
+// PixivUrlWidget
+PixivUrlWidget::PixivUrlWidget() : TranslucentWidget() {
     setMinimumSize(PIXIV_URL_WIDGET_SIZE);
     setMaximumHeight(PIXIV_URL_WIDGET_SIZE.height());
 

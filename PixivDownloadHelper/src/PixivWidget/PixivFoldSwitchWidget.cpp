@@ -1,7 +1,7 @@
 #include "PixivWidget/PixivFoldSwitchWidget.h"
 
-// PixivDownloadTopWidget
-PixivDownloadTopWidget::PixivDownloadTopWidget() {
+// PixivFoldSwitchWidget
+PixivFoldSwitchWidget::PixivFoldSwitchWidget() {
     // 组件按钮
     foldButton = new AnimationButton("", ICON_FOLD, PIXIV_DOWNLOAD_FOLD_BUTTON_SIZE, 4);
     unfoldButton = new AnimationButton("", ICON_UNFOLD, PIXIV_DOWNLOAD_FOLD_BUTTON_SIZE, 4);
@@ -12,8 +12,8 @@ PixivDownloadTopWidget::PixivDownloadTopWidget() {
     foldButton->setFixedSize(PIXIV_DOWNLOAD_FOLD_BUTTON_SIZE);
     unfoldButton->setFixedSize(PIXIV_DOWNLOAD_FOLD_BUTTON_SIZE);
 
-    connect(this->foldButton, &QPushButton::clicked, this, &PixivDownloadTopWidget::foldButtonClicked);
-    connect(this->unfoldButton, &QPushButton::clicked, this, &PixivDownloadTopWidget::unfoldButtonClicked);
+    connect(this->foldButton, &QPushButton::clicked, this, &PixivFoldSwitchWidget::foldButtonClicked);
+    connect(this->unfoldButton, &QPushButton::clicked, this, &PixivFoldSwitchWidget::unfoldButtonClicked);
 
     // 总数标签初始显示
     countLabel->setText("0");

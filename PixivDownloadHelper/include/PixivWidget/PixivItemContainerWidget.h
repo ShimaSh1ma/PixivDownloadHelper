@@ -5,16 +5,16 @@
 #include "PixivItemWidget.h"
 
 // pixiv下载项目总览窗口
-class PixivDownloadItemWidget final : public TransparentWidget {
+class PixivItemContainerWidget final : public TransparentWidget {
     Q_OBJECT
   public:
-    explicit PixivDownloadItemWidget(); // 构造函数
-    ~PixivDownloadItemWidget() = default;
+    explicit PixivItemContainerWidget(); // 构造函数
+    ~PixivItemContainerWidget() = default;
 
-    PixivDownloadItemWidget(const PixivDownloadItemWidget&) = delete;
-    PixivDownloadItemWidget& operator=(const PixivDownloadItemWidget&) = delete;
-    PixivDownloadItemWidget(PixivDownloadItemWidget&&) = delete;
-    PixivDownloadItemWidget& operator=(PixivDownloadItemWidget&&) = delete;
+    PixivItemContainerWidget(const PixivItemContainerWidget&) = delete;
+    PixivItemContainerWidget& operator=(const PixivItemContainerWidget&) = delete;
+    PixivItemContainerWidget(PixivItemContainerWidget&&) = delete;
+    PixivItemContainerWidget& operator=(PixivItemContainerWidget&&) = delete;
   public slots:
     void initLoadItem(const std::string& url,
                       const std::string& downloadPath); // 初始化时添加未完成项目
@@ -46,8 +46,8 @@ class PixivDownloadItemWidget final : public TransparentWidget {
 
     QGridLayout* Glayout; // 网格布局
 
-    std::list<PixivDownloadItem*> itemList;                        // 储存所有下载项目的向量组
-    std::list<PixivDownloadItem*>::const_iterator downloadingItem; // 指向正在下载项目的迭代器
+    std::list<PixivItemWidget*> itemList;                        // 储存所有下载项目的向量组
+    std::list<PixivItemWidget*>::const_iterator downloadingItem; // 指向正在下载项目的迭代器
 
     bool foldOrUnfold = true; // 下载项目是否展开状态位，在槽函数中改变
 
