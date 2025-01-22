@@ -2,7 +2,7 @@
 
 #include <regex>
 
-size_t HttpResponseParser::dealChunkData(std::string& bodyData) {
+size_t HttpResponseParser::recvByChunckedData(std::string& bodyData) {
     size_t pos;
     size_t lastChunkSize = 0;
     do {
@@ -13,30 +13,29 @@ size_t HttpResponseParser::dealChunkData(std::string& bodyData) {
         }
         // 获取块大小
         lastChunkSize = std::stoi(bodyData.substr(0, pos), nullptr, 16);
-        // 判断块大小是否为零
-        if (lastChunkSize == 0) {
-            break;
-        }
-        // 判断剩余的块大小是否包含一整块
-        if (lastChunkSize > bodyData.size()) {
+        // 判断块大小是否为零，或剩余的块大小是否包含一整个信息块
+        if (lastChunkSize == 0 || lastChunkSize > bodyData.substr(pos + 2).size()) {
             break;
         }
         // 将块大小信息机CRLF从data中去除
         bodyData = bodyData.substr(pos + 2);
         // 保存块信息
         this->payload.append(bodyData.substr(0, lastChunkSize));
-        // 检查是否还有下一个块
+        // 去除已经保存的数据块
+        bodyData = bodyData.substr(lastChunkSize);
+        // 检查当前获取的块是否完整包含结尾\r\n，是则剔除结尾，否责清空整个字符串并退出循环
         pos = bodyData.find("\r\n");
         if (pos != std::string::npos) {
             bodyData = bodyData.substr(pos + 2);
         } else {
             bodyData.clear();
+            break;
         }
     } while (pos != std::string::npos);
     return lastChunkSize;
 }
 
-size_t HttpResponseParser::dealContentLength(std::string& bodyData) {
+size_t HttpResponseParser::recvByContentLength(std::string& bodyData) {
     this->payload.append(bodyData);
     bodyData.clear();
     if (size_t receivedLength = payload.length(); receivedLength < contentLength) {
@@ -50,7 +49,7 @@ std::string HttpResponseParser::getHttpHead(const std::string& searchHeader) {
     return iter == responseMap.end() ? "" : iter->second;
 }
 
-void HttpResponseParser::operator()(const std::string& response) {
+void HttpResponseParser::parseResponse(const std::string& response) {
     std::regex rule1("HTTP/\\d(?:\\.\\d)? (\\d{3}) [A-Za-z ]+\\r\\n");
     std::smatch re;
 
@@ -64,7 +63,7 @@ void HttpResponseParser::operator()(const std::string& response) {
             begin = re[0].second;
         }
     } else {
-        statusCode = "-1";
+        statusCode = "";
     }
 
     std::string strContentLength = this->getHttpHead("Content-Length");

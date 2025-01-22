@@ -10,12 +10,12 @@ class HttpResponseParser { // http响应报文解析类
     explicit HttpResponseParser() = default;
     ~HttpResponseParser() = default;
 
-    // 重载()运算符，实现获取http报文并解析
-    void operator()(const std::string& response);
+    // 解析http报头
+    void parseResponse(const std::string& response);
     // 使用chunked接收数据，处理chunked块传输数据,将处理后数据保存入payload变量，返回最后一个chunk块大小
-    size_t dealChunkData(std::string& bodyData);
+    size_t recvByChunckedData(std::string& bodyData);
     // 使用contentlength接收数据，返回剩余要读取的长度
-    size_t dealContentLength(std::string& bodyData);
+    size_t recvByContentLength(std::string& bodyData);
     // 通过 响应行头 获取 值
     std::string getHttpHead(const std::string& header);
     // 获取http状态码

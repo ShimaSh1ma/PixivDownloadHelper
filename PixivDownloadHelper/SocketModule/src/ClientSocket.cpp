@@ -293,12 +293,12 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
 
     std::unique_ptr<HttpResponseParser> parser(new HttpResponseParser);
     // 解析http响应头
-    (*parser)(headData);
+    parser->parseResponse(headData);
 
     // 使用Transfer-Encoding: chunked判断接受
     bool chunked = (parser->getHttpHead("Transfer-Encoding") == "chunked");
     if (chunked) {
-        size_t chunkSize = parser->dealChunkData(bodyData);
+        parser->recvByChunckedData(bodyData);
         while (true) {
             _socket.result = SSL_read(_socket.sslSocket, recvBuffer.data(), _BUFFER_SIZE);
             if (_socket.result <= 0) {
@@ -313,8 +313,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
                 return nullptr;
             }
             bodyData.append(recvBuffer.data(), _socket.result);
-            chunkSize = parser->dealChunkData(bodyData);
-            if (chunkSize == 0) {
+            if (parser->recvByChunckedData(bodyData) == 0) {
                 break;
             }
         }
@@ -323,7 +322,8 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
     else {
         size_t restLength = std::numeric_limits<socketIndex>::max();
         while (restLength > 0) {
-            _socket.result = SSL_read(_socket.sslSocket, recvBuffer.data(), static_cast<int>(std::min(_BUFFER_SIZE, restLength)));
+            _socket.result =
+                SSL_read(_socket.sslSocket, recvBuffer.data(), static_cast<int>(std::min(_BUFFER_SIZE, restLength)));
             if (_socket.result <= 0) {
                 _socket.result = SSL_get_error(_socket.sslSocket, _socket.result);
                 if (_socket.result == SSL_ERROR_WANT_READ) {
@@ -336,7 +336,7 @@ std::unique_ptr<HttpResponseParser> ClientSocket::socketReceive(socketIndex& ind
                 return nullptr;
             }
             bodyData.append(recvBuffer.data(), _socket.result);
-            restLength = parser->dealContentLength(bodyData);
+            restLength = parser->recvByContentLength(bodyData);
         }
     }
     return parser;

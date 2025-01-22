@@ -100,9 +100,8 @@ class PixivUrlEdit : public TranslucentLineEdit {
   private:
 };
 
-class DirEdit ://显示下载路径文本框
-	public TranslucentLineEdit
-{
+// 显示下载路径文本框
+class DirEdit : public TranslucentLineEdit {
   public:
     DirEdit() = default;
     ~DirEdit() = default;
