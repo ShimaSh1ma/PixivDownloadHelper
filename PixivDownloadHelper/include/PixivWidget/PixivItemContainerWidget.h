@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <atomic>
 #include <unordered_set>
 
 #include "PixivItemWidget.h"
@@ -24,9 +25,8 @@ class PixivItemContainerWidget final : public TransparentWidget {
     void getPixivTaggedIllustsUrl(const std::string& id,
                                   const std::string& tag); // 获取用户按标签筛选后作品url
 
-    void startDownload();         // 开始下载
-    void checkDownloadingOrNot(); // 检查下载状态
-    void downloadCompleted();     // 当前项目下载完毕，还有剩余未下载则downloadingIndex+1
+    void startDownload();     // 开始下载
+    void downloadCompleted(); // 当前项目下载完毕，还有剩余未下载则downloadingIndex+1
 
     void caculateColumn(); // 计算当前布局列数
     void adjustLayout();   // 调整网格布局，适应窗口变化
@@ -47,7 +47,8 @@ class PixivItemContainerWidget final : public TransparentWidget {
 
     bool foldOrUnfold = true; // 下载项目是否展开状态位，在槽函数中改变
 
-    bool downloadingOrNot = false; // 表示下载是否在进行中的状态位
+    // 标记当前正在下载的个数，用于并行下载控制
+    std::atomic_uint8_t downloadingCounts = 0;
 
     int row = 1;    // 布局行数
     int column = 1; // 布局列数

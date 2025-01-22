@@ -13,6 +13,8 @@
 
 #include "publicFunction.h"
 
+constexpr uint8_t maxDownloadingCounts = 3;
+
 // PixivItemContainerWidget
 PixivItemContainerWidget::PixivItemContainerWidget() : TransparentWidget() {
 
@@ -52,8 +54,8 @@ void PixivItemContainerWidget::initLoadItem(const std::string& url, const std::s
         downloadingItem = itemList.cbegin();
     }
 
-    this->adjustLayout();          // 刷新布局
-    this->checkDownloadingOrNot(); // 检查是否正在下载
+    this->adjustLayout();  // 刷新布局
+    this->startDownload(); // 检查是否正在下载
 }
 
 void PixivItemContainerWidget::addDownloadItem(const std::string& url, const std::string& downloadPath) {
@@ -72,8 +74,8 @@ void PixivItemContainerWidget::addDownloadItem(const std::string& url, const std
         downloadingItem = itemList.cbegin();
     }
 
-    this->adjustLayout();          // 刷新布局
-    this->checkDownloadingOrNot(); // 检查是否正在下载
+    this->adjustLayout();  // 刷新布局
+    this->startDownload(); // 检查是否正在下载
 }
 
 void PixivItemContainerWidget::checkUrl(const std::string& url) { // 判断url格式
@@ -243,25 +245,21 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
 }
 
 void PixivItemContainerWidget::startDownload() {
-    // 有待下载项目则迭代器迭代
+    if (this->downloadingItem == this->itemList.end()) {
+        return;
+    }
     this->downloadingItem++;
     // 开始下载后绑定正在下载的项目的完成信号和downloadCompleted();
     connect(*downloadingItem, &PixivItemWidget::downloadCompleteSignal, this,
             &PixivItemContainerWidget::downloadCompleted);
 
-    this->downloadingOrNot = true;      // 标记正在下载
+    if (this->downloadingCounts.load() >= maxDownloadingCounts) {
+        return;
+    }
+
+    this->downloadingCounts.fetch_add(1);
     (*downloadingItem)->checkUrlType(); // 开始下载
     return;
-}
-
-void PixivItemContainerWidget::checkDownloadingOrNot() {
-    if (downloadingOrNot) {
-        return;
-    }
-    if (!downloadingOrNot) {
-        this->startDownload();
-        return;
-    }
 }
 
 void PixivItemContainerWidget::downloadCompleted() {
@@ -270,11 +268,12 @@ void PixivItemContainerWidget::downloadCompleted() {
                &PixivItemContainerWidget::downloadCompleted);
     // 删除此条下载信息
     deleteDownloadData((*downloadingItem)->getUrl() + "\n" + (*downloadingItem)->getPath());
+
     // 下载状态：未在下载中，下载队列休眠
-    this->downloadingOrNot = false;
+    this->downloadingCounts.fetch_sub(1);
+
     // 没有待下载项目则返回
     if (*this->downloadingItem == this->itemList.back()) {
-        this->downloadingOrNot = false;
         return;
     }
     this->startDownload();
