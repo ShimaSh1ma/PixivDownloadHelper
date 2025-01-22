@@ -34,13 +34,9 @@ class PixivItemContainerWidget final : public TransparentWidget {
     void foldDownloadItems();   // 折叠所有下载项目
     void unfoldDownloadItems(); // 展开所有下载项目
   signals:
-    void itemAddedSignal();     // 有新项目加入时发出信号
-    void startDownloadSignal(); // 开始下载信号
-    void adjustLayoutSignal();  // 调整布局信号
+    void adjustLayoutSignal(); // 调整布局信号
     void initLoadItemSignal(std::string url, std::string downloadPath);
-    void urlIsSingleWorkSignal(std::string url, std::string downloadPath); // 输入url是单个作品url,携带单个作品url
-    void urlIsAllWorkSignal(std::string id);                               // 输入url是用户所有作品url，携带用户id
-    void urlIsTaggedWorkSignal(std::string id, std::string tag); // 输入url是用户筛选后作品url，携带用户id，筛选标签tag
+
   private:
     void loadDownloadData(); // 读取上次未下载完成数据
 

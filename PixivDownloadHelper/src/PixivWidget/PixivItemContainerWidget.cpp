@@ -31,26 +31,8 @@ PixivItemContainerWidget::PixivItemContainerWidget() : TransparentWidget() {
     this->setFocusPolicy(Qt::FocusPolicy::TabFocus);
 
     // 信号与槽连接
-    connect(this, &PixivItemContainerWidget::itemAddedSignal, this,
-            &PixivItemContainerWidget::checkDownloadingOrNot); /*有下载项目加入后，检测是否需要唤醒下载队列
-                                                              下载正在进行则不唤醒，没有正在下载项目则唤醒*/
-    connect(this, &PixivItemContainerWidget::startDownloadSignal, this,
-            &PixivItemContainerWidget::startDownload); // 收到开始下载信号，开始下载当前队首项目
-
     connect(this, &PixivItemContainerWidget::adjustLayoutSignal, this,
             &PixivItemContainerWidget::adjustLayout); // 收到布局行列改变信号，重新布局
-
-    connect(this, &PixivItemContainerWidget::urlIsSingleWorkSignal, this,
-            &PixivItemContainerWidget::addDownloadItem); // url是单个作品url，则创建一个下载窗口
-
-    connect(this, &PixivItemContainerWidget::urlIsAllWorkSignal, this,
-            &PixivItemContainerWidget::getPixivAllIllustsUrl); // url是用户所有作品url，则发送请求获取每一个作品url
-
-    connect(this, &PixivItemContainerWidget::urlIsTaggedWorkSignal, this,
-            &PixivItemContainerWidget::
-                getPixivTaggedIllustsUrl); // url是用户筛选后作品url，则发送请求获取筛选后每一个作品url
-
-    connect(this, &PixivItemContainerWidget::initLoadItemSignal, this, &PixivItemContainerWidget::initLoadItem);
 
     Glayout->setMargin(0);               // 布局周围间距为零
     Glayout->setAlignment(Qt::AlignTop); // 默认上对齐
@@ -68,18 +50,11 @@ void PixivItemContainerWidget::initLoadItem(const std::string& url, const std::s
         downloadingItem = itemList.cbegin();
     }
 
-    emit adjustLayoutSignal(); // 刷新布局
-    emit itemAddedSignal();    // 发送信号提示有新项目加入
+    this->adjustLayout();          // 刷新布局
+    this->checkDownloadingOrNot(); // 检查是否正在下载
 }
 
 void PixivItemContainerWidget::addDownloadItem(const std::string& url, const std::string& downloadPath) {
-#if defined(_WIN32)
-    // 检查下载路径是否存在，及是否拥有写入权限
-    QTextCodec* code = QTextCodec::codecForName("GB2312");
-    mkdir(code->fromUnicode(downloadPath.c_str()).data());
-#endif
-    mkdir(downloadPath);
-
     // 判断此url下载项目是否已经存在
     if (!hashTable.insert(url).second) {
         return;
@@ -95,8 +70,8 @@ void PixivItemContainerWidget::addDownloadItem(const std::string& url, const std
         downloadingItem = itemList.cbegin();
     }
 
-    emit adjustLayoutSignal(); // 刷新布局
-    emit itemAddedSignal();    // 发送信号提示有新项目加入
+    this->adjustLayout();          // 刷新布局
+    this->checkDownloadingOrNot(); // 检查是否正在下载
 }
 
 void PixivItemContainerWidget::checkUrl(const std::string& url) { // 判断url格式
@@ -109,14 +84,14 @@ void PixivItemContainerWidget::checkUrl(const std::string& url) { // 判断url�
     std::regex ruleTags(REGEX_PIXIV_USER_TAGGED);
     std::smatch re;
     // url格式正确则创建下载项目
-    if (std::regex_match(url, re, urlSingleWork) || std::regex_match(url, re, ruleTelegram)) {
-        emit urlIsSingleWorkSignal(url, _downloadPath); // 发送信号指示输入是单个作品的url
+    if (std::regex_match(url, re, urlSingleWork) || std::regex_match(url, re, ruleTelegram)) { // 单个作品的url
+        addDownloadItem(url, _downloadPath);
         return;
     } else if (std::regex_match(url, re, ruleAll)) { // url为用户所有作品
-        emit urlIsAllWorkSignal(re[1].str());
+        getPixivAllIllustsUrl(re[1].str());
         return;
     } else if (std::regex_match(url, re, ruleTags)) { // url为用户筛选后作品
-        emit urlIsTaggedWorkSignal(re[1].str(), re[2].str());
+        getPixivTaggedIllustsUrl(re[1].str(), re[2].str());
         return;
     } else {
         return;
@@ -130,39 +105,38 @@ void PixivItemContainerWidget::getPixivAllIllustsUrl(const std::string& id) {
 
         auto urlP = std::make_unique<UrlParser>();
         urlP->parseUrl(ajaxUrl);
+
         auto hr = std::make_unique<HttpRequest>();
         hr->setUrl(*urlP);
         hr->addHttpHead({{"cookie", _pixivCookie}});
-        std::string* json = new std::string;
+        std::string json;
         // 请求json
-        while (*json == EMPTY_STRING) {
+        while (json == EMPTY_STRING) {
             //*json = M->requestHtml(*urlP, hr->request());
         }
 
         // json illusts值匹配规则
         std::regex rule("\\{\"illusts\":\\{([^\\}]+)");
         std::smatch re{};
-        std::vector<std::string>* url = new std::vector<std::string>; // 存放所有作品url的数组
+        std::vector<std::string> urlV; // 存放所有作品url的数组
         // 预申请空间
-        url->reserve(200);
-        if (std::regex_search(*json, re, rule)) {
-            *json = re[1];
-            auto begin = json->cbegin();
-            auto end = json->cend();
+        urlV.reserve(200);
+        if (std::regex_search(json, re, rule)) {
+            json = re[1];
+            auto begin = json.cbegin();
+            auto end = json.cend();
             // 作品id匹配规则
             std::regex insiderule("\"(\\d+)\"");
             // 循环匹配所有作品id
             while (std::regex_search(begin, end, re, insiderule)) {
                 // 作品id转换为url
-                url->push_back("https://www.pixiv.net/artworks/" + re[1].str());
+                urlV.push_back("https://www.pixiv.net/artworks/" + re[1].str());
                 // 发送带有url的信号新建下载窗口
-                emit urlIsSingleWorkSignal(url->back(), _downloadPath);
+                addDownloadItem(urlV.back(), _downloadPath);
                 // 更改偏移量，继续匹配
                 begin = re[1].second;
             }
         }
-        delete url;
-        delete json;
         return;
     };
 
@@ -183,6 +157,8 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
                                   "&offset=" + std::to_string(page * 48) + "&limit=48&lang=zh";
 
             auto urlP = std::make_unique<UrlParser>();
+            urlP->parseUrl(ajaxUrl);
+
             auto hr = std::make_unique<HttpRequest>();
             hr->setUrl(*urlP);
             hr->addHttpHead({{"cookie", _pixivCookie}});
@@ -214,8 +190,7 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
             while (std::regex_search(begin, end, re, rule)) {
                 // 作品id转换为url
                 url.push_back("https://www.pixiv.net/artworks/" + re[1].str());
-
-                emit urlIsSingleWorkSignal(url.back(), _downloadPath);
+                addDownloadItem(url.back(), _downloadPath);
                 // 更改偏移量，继续匹配
                 begin = re[1].second;
             }
@@ -247,7 +222,7 @@ void PixivItemContainerWidget::checkDownloadingOrNot() {
         return;
     }
     if (!downloadingOrNot) {
-        emit startDownloadSignal();
+        this->startDownload();
         return;
     }
 }
@@ -265,8 +240,7 @@ void PixivItemContainerWidget::downloadCompleted() {
         this->downloadingOrNot = false;
         return;
     }
-    emit startDownloadSignal();
-    return;
+    this->startDownload();
 }
 
 void PixivItemContainerWidget::caculateColumn() {
@@ -352,7 +326,7 @@ void PixivItemContainerWidget::loadDownloadData() {
                 url = buf;
                 std::getline(i, buf);
                 path = buf;
-                emit initLoadItemSignal(url, path);
+                this->initLoadItem(url, path);
             }
             i.close();
         }
