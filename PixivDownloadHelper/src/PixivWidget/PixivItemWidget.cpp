@@ -236,7 +236,7 @@ void PixivItemWidget::pixivDownload() {
         std::string respCode;
         int SFD = -1;
         bool flag = true;
-        // http请求失败
+
         while (respCode != "200") {
             if (SFD == -1) {
                 SFD = ClientSocket::connectToServer(urlP->host, "443");
@@ -303,11 +303,10 @@ void PixivItemWidget::pixivDownload() {
                     if (tempP == nullptr) {
                         break;
                     }
-                    std::string data = tempP->getPayload();
-                    if (data == "" || socketIdx == -1) {
+                    if (tempP->getStatusCode() != "200") {
                         break;
                     } else {
-                        saveFile(filePath, data);
+                        saveFile(filePath, tempP->getPayload());
                         ++success;
                         ++it;
                         if (success == 1) {

@@ -6,7 +6,9 @@
 
 #include <QtCore/qtextcodec.h>
 
+#include <SocketModule/ClientSocket.h>
 #include <SocketModule/HttpRequest.h>
+#include <SocketModule/HttpResponseParser.h>
 #include <SocketModule/UrlParser.h>
 
 #include "publicFunction.h"
@@ -106,13 +108,31 @@ void PixivItemContainerWidget::getPixivAllIllustsUrl(const std::string& id) {
         auto urlP = std::make_unique<UrlParser>();
         urlP->parseUrl(ajaxUrl);
 
-        auto hr = std::make_unique<HttpRequest>();
-        hr->setUrl(*urlP);
-        hr->addHttpHead({{"cookie", _pixivCookie}});
+        auto httpRequest = std::make_unique<HttpRequest>();
+        httpRequest->setUrl(*urlP);
+        httpRequest->addHttpHead({{"cookie", _pixivCookie}});
+
         std::string json;
-        // 请求json
-        while (json == EMPTY_STRING) {
-            //*json = M->requestHtml(*urlP, hr->request());
+        std::string respCode;
+        int SFD = -1;
+
+        while (respCode != "200") {
+            if (SFD == -1) {
+                SFD = ClientSocket::connectToServer(urlP->host, "443");
+                if (SFD != -1) {
+                    if (ClientSocket::socketSend(SFD, httpRequest->httpRequest())) {
+                        std::unique_ptr<HttpResponseParser> resp = ClientSocket::socketReceive(SFD);
+                        if (resp == nullptr) {
+                            continue;
+                        }
+                        respCode = resp->getStatusCode();
+                        if (respCode == "200") {
+                            json = resp->getPayload();
+                        }
+                    }
+                }
+            }
+            ClientSocket::releaseSocket(SFD);
         }
 
         // json illusts值匹配规则
@@ -159,20 +179,38 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
             auto urlP = std::make_unique<UrlParser>();
             urlP->parseUrl(ajaxUrl);
 
-            auto hr = std::make_unique<HttpRequest>();
-            hr->setUrl(*urlP);
-            hr->addHttpHead({{"cookie", _pixivCookie}});
-            std::string* json = new std::string;
-            // 请求json
-            while (*json == EMPTY_STRING) {
-                //*json = M->requestHtml(*urlP, hr->request());
+            auto httpRequest = std::make_unique<HttpRequest>();
+            httpRequest->setUrl(*urlP);
+            httpRequest->addHttpHead({{"cookie", _pixivCookie}});
+
+            std::string json;
+            std::string respCode;
+            int SFD = -1;
+
+            while (respCode != "200") {
+                if (SFD == -1) {
+                    SFD = ClientSocket::connectToServer(urlP->host, "443");
+                    if (SFD != -1) {
+                        if (ClientSocket::socketSend(SFD, httpRequest->httpRequest())) {
+                            std::unique_ptr<HttpResponseParser> resp = ClientSocket::socketReceive(SFD);
+                            if (resp == nullptr) {
+                                continue;
+                            }
+                            respCode = resp->getStatusCode();
+                            if (respCode == "200") {
+                                json = resp->getPayload();
+                            }
+                        }
+                    }
+                }
+                ClientSocket::releaseSocket(SFD);
             }
 
             std::smatch re{};
             // 获取匹配作品总数
             if (page == 0) {
                 std::regex ruleTotal("\"total\":([\\d]+)");
-                if (std::regex_search(*json, re, ruleTotal)) {
+                if (std::regex_search(json, re, ruleTotal)) {
                     totalCount = atoi(re[1].str().c_str()); // 作品总数
                     pageCount = totalCount / 48;            // 分页总数
                     restCount = totalCount % 48;            // 最后一页剩余作品数
@@ -184,8 +222,8 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
             std::vector<std::string> url;
             url.reserve(50);
 
-            auto begin = json->cbegin();
-            auto end = json->cend();
+            auto begin = json.cbegin();
+            auto end = json.cend();
 
             while (std::regex_search(begin, end, re, rule)) {
                 // 作品id转换为url
@@ -194,7 +232,6 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
                 // 更改偏移量，继续匹配
                 begin = re[1].second;
             }
-            delete json;
             page++; // 页面数加一
         } while (page < pageCount);
 
