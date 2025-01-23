@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <regex>
+#include <shared_mutex>
 #include <thread>
 
 #include <QtCore/qtextcodec.h>
@@ -14,6 +15,8 @@
 #include "publicFunction.h"
 
 constexpr uint8_t maxDownloadingCounts = 3;
+// 下载项目数组共享锁
+std::shared_mutex vectorMutex;
 
 // PixivItemContainerWidget
 PixivItemContainerWidget::PixivItemContainerWidget() : TransparentWidget() {
@@ -22,8 +25,9 @@ PixivItemContainerWidget::PixivItemContainerWidget() : TransparentWidget() {
     qRegisterMetaType<std::string>("std::string");
     qRegisterMetaType<std::vector<std::string>>("std::vector<std::string>");
 
-    // item窗口链表初始化
+    // item窗口数组初始化
     itemArray = std::vector<PixivItemWidget*>();
+    itemArray.reserve(100);
     // 哈希表初始化
     hashTable = std::unordered_set<std::string>();
     Glayout = new QGridLayout();
@@ -45,8 +49,10 @@ void PixivItemContainerWidget::addDownloadItem(const std::string& url, const std
         return;
     }
 
+    std::unique_lock<std::shared_mutex> uniquelock(vectorMutex);
     // 添加进链表数组中
     itemArray.emplace_back(new PixivItemWidget(url, downloadPath, this->foldOrUnfold));
+    uniquelock.unlock();
     // 保存下载信息
     saveDownloadData(url + "\n" + downloadPath);
 
@@ -135,7 +141,6 @@ void PixivItemContainerWidget::getPixivAllIllustsUrl(const std::string& id) {
                 begin = re[1].second;
             }
         }
-        return;
     };
 
     std::thread t(lamda);
@@ -278,6 +283,7 @@ void PixivItemContainerWidget::adjustLayout() {
 
     // 重排布局
     int _row = 0, _column = 0;
+    std::shared_lock<std::shared_mutex> sharedlock(vectorMutex);
     for (auto it : itemArray) {
         if (_column < this->column) {
             this->Glayout->addWidget(it, _row, _column, Qt::AlignTop);
@@ -289,6 +295,7 @@ void PixivItemContainerWidget::adjustLayout() {
             _column++;
         }
     }
+    sharedlock.unlock();
     // 调整窗口大小，适应布局变化
     this->row = ++_row;
     this->setMinimumHeight(row * (PIXIV_DOWNLOAD_ITEM_WITH_PIC_HEIGHT * (int)foldOrUnfold +
@@ -299,6 +306,7 @@ void PixivItemContainerWidget::adjustLayout() {
 }
 
 void PixivItemContainerWidget::foldDownloadItems() {
+    std::shared_lock<std::shared_mutex> sharedlock(vectorMutex);
     for (auto it : itemArray) {
         it->previewWidgetVisiable(false);
         this->foldOrUnfold = false;
@@ -308,6 +316,7 @@ void PixivItemContainerWidget::foldDownloadItems() {
 }
 
 void PixivItemContainerWidget::unfoldDownloadItems() {
+    std::shared_lock<std::shared_mutex> sharedlock(vectorMutex);
     for (auto it : itemArray) {
         it->previewWidgetVisiable(true);
         this->foldOrUnfold = true;
