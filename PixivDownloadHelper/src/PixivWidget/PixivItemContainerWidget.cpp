@@ -23,20 +23,13 @@ PixivItemContainerWidget::PixivItemContainerWidget() : TransparentWidget() {
     qRegisterMetaType<std::vector<std::string>>("std::vector<std::string>");
 
     // item窗口链表初始化
-    itemList = std::list<PixivItemWidget*>();
+    itemArray = std::vector<PixivItemWidget*>();
     // 哈希表初始化
     hashTable = std::unordered_set<std::string>();
     Glayout = new QGridLayout();
 
-    // itemList添加头节点
-    itemList.emplace_back(nullptr);
-
     // 设置聚焦策略
     this->setFocusPolicy(Qt::FocusPolicy::TabFocus);
-
-    // 信号与槽连接
-    connect(this, &PixivItemContainerWidget::adjustLayoutSignal, this,
-            &PixivItemContainerWidget::adjustLayout); // 收到布局行列改变信号，重新布局
 
     Glayout->setMargin(0);               // 布局周围间距为零
     Glayout->setAlignment(Qt::AlignTop); // 默认上对齐
@@ -46,18 +39,6 @@ PixivItemContainerWidget::PixivItemContainerWidget() : TransparentWidget() {
     loadDownloadData();
 }
 
-void PixivItemContainerWidget::initLoadItem(const std::string& url, const std::string& downloadPath) {
-    // 添加进链表数组中
-    itemList.emplace_back(new PixivItemWidget(url, downloadPath, this->foldOrUnfold));
-    // 初始化迭代器
-    if (itemList.size() == 2) {
-        downloadingItem = itemList.cbegin();
-    }
-
-    this->adjustLayout();  // 刷新布局
-    this->startDownload(); // 检查是否正在下载
-}
-
 void PixivItemContainerWidget::addDownloadItem(const std::string& url, const std::string& downloadPath) {
     // 判断此url下载项目是否已经存在
     if (!hashTable.insert(url).second) {
@@ -65,14 +46,9 @@ void PixivItemContainerWidget::addDownloadItem(const std::string& url, const std
     }
 
     // 添加进链表数组中
-    itemList.emplace_back(new PixivItemWidget(url, downloadPath, this->foldOrUnfold));
+    itemArray.emplace_back(new PixivItemWidget(url, downloadPath, this->foldOrUnfold));
     // 保存下载信息
     saveDownloadData(url + "\n" + downloadPath);
-
-    // 初始化迭代器
-    if (itemList.size() == 2) {
-        downloadingItem = itemList.cbegin();
-    }
 
     this->adjustLayout();  // 刷新布局
     this->startDownload(); // 检查是否正在下载
@@ -245,38 +221,29 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
 }
 
 void PixivItemContainerWidget::startDownload() {
-    if (this->downloadingItem == this->itemList.end()) {
+    std::uint64_t expectValue = lastActiveItemIndex.load();
+    if (expectValue >= itemArray.size() - 1) {
         return;
     }
-    this->downloadingItem++;
-    // 开始下载后绑定正在下载的项目的完成信号和downloadCompleted();
-    connect(*downloadingItem, &PixivItemWidget::downloadCompleteSignal, this,
-            &PixivItemContainerWidget::downloadCompleted);
-
-    if (this->downloadingCounts.load() >= maxDownloadingCounts) {
+    if (activeItemCounts.load() >= maxDownloadingCounts) {
         return;
     }
 
-    this->downloadingCounts.fetch_add(1);
-    (*downloadingItem)->checkUrlType(); // 开始下载
-    return;
-}
-
-void PixivItemContainerWidget::downloadCompleted() {
-    // 解绑下载完成项目的downloadCompleteSignal()信号和downloadCompleted()函数
-    disconnect(*downloadingItem, &PixivItemWidget::downloadCompleteSignal, this,
-               &PixivItemContainerWidget::downloadCompleted);
-    // 删除此条下载信息
-    deleteDownloadData((*downloadingItem)->getUrl() + "\n" + (*downloadingItem)->getPath());
-
-    // 下载状态：未在下载中，下载队列休眠
-    this->downloadingCounts.fetch_sub(1);
-
-    // 没有待下载项目则返回
-    if (*this->downloadingItem == this->itemList.back()) {
-        return;
+    if (lastActiveItemIndex.compare_exchange_weak(expectValue, expectValue + 1)) {
+        activeItemCounts.fetch_add(1);
+        // 完成下载后的回调
+        std::function completeFunction = [this](const std::string& url, const std::string& path) {
+            // 删除此条下载信息
+            deleteDownloadData(url + "\n" + path);
+            // 正在下载数减1
+            activeItemCounts.fetch_sub(1);
+            // 继续唤起下载
+            startDownload();
+        };
+        itemArray[expectValue + 1]->completeFunction = completeFunction;
+        itemArray[expectValue + 1]->checkUrlType(); // 开始下载
     }
-    this->startDownload();
+    startDownload();
 }
 
 void PixivItemContainerWidget::caculateColumn() {
@@ -292,13 +259,13 @@ void PixivItemContainerWidget::caculateColumn() {
         if (this->column == 0) {
             this->column = 1;
         }
-        emit adjustLayoutSignal();
+        adjustLayout();
     }
 }
 
 void PixivItemContainerWidget::adjustLayout() {
     // 没有项目则不布局
-    if (itemList.size() == 0) {
+    if (itemArray.empty()) {
         return;
     }
     // 删除原有布局
@@ -311,14 +278,14 @@ void PixivItemContainerWidget::adjustLayout() {
 
     // 重排布局
     int _row = 0, _column = 0;
-    for (auto it = ++itemList.cbegin(); it != itemList.cend(); ++it) {
+    for (auto it : itemArray) {
         if (_column < this->column) {
-            this->Glayout->addWidget(*it, _row, _column, Qt::AlignTop);
+            this->Glayout->addWidget(it, _row, _column, Qt::AlignTop);
             _column++;
         } else {
             _column = 0;
             _row++;
-            this->Glayout->addWidget(*it, _row, _column, Qt::AlignTop);
+            this->Glayout->addWidget(it, _row, _column, Qt::AlignTop);
             _column++;
         }
     }
@@ -332,27 +299,25 @@ void PixivItemContainerWidget::adjustLayout() {
 }
 
 void PixivItemContainerWidget::foldDownloadItems() {
-    for (auto it = ++this->itemList.cbegin(); it != this->itemList.cend(); ++it) {
-        (*it)->previewWidgetVisiable(false);
+    for (auto it : itemArray) {
+        it->previewWidgetVisiable(false);
         this->foldOrUnfold = false;
-        (*it)->setFixedHeight(PIXIV_DOWNLOAD_ITEM_WITHOUT_PIC_HEIGHT);
+        it->setFixedHeight(PIXIV_DOWNLOAD_ITEM_WITHOUT_PIC_HEIGHT);
     }
-    emit adjustLayoutSignal();
-    return;
+    adjustLayout();
 }
 
 void PixivItemContainerWidget::unfoldDownloadItems() {
-    for (auto it = ++this->itemList.cbegin(); it != this->itemList.cend(); ++it) {
-        (*it)->previewWidgetVisiable(true);
+    for (auto it : itemArray) {
+        it->previewWidgetVisiable(true);
         this->foldOrUnfold = true;
-        (*it)->setFixedHeight(PIXIV_DOWNLOAD_ITEM_WITH_PIC_HEIGHT);
+        it->setFixedHeight(PIXIV_DOWNLOAD_ITEM_WITH_PIC_HEIGHT);
     }
-    emit adjustLayoutSignal();
-    return;
+    adjustLayout();
 }
 
 void PixivItemContainerWidget::loadDownloadData() {
-    auto f = [=]() {
+    auto f = [this]() {
         std::ifstream i(CONFIG_UNDONE_PATH);
         std::string buf;
         std::string url;
@@ -362,16 +327,12 @@ void PixivItemContainerWidget::loadDownloadData() {
                 url = buf;
                 std::getline(i, buf);
                 path = buf;
-                this->initLoadItem(url, path);
+                this->addDownloadItem(url, path);
             }
             i.close();
         }
-
-        emit adjustLayoutSignal(); // 刷新布局
-        return;
     };
 
     std::thread th(f);
     th.detach();
-    return;
 }

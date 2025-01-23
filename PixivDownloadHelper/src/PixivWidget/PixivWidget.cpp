@@ -10,9 +10,6 @@ PixivSubWidget::PixivSubWidget() {
     scrollArea = new TransparentScrollArea();
     layout = new QVBoxLayout();
 
-    // 信号槽实现窗口大小改变，重新计算pixiv下载窗口布局
-    connect(this, &PixivSubWidget::sizeChangedSignal, this->itemWidget, &PixivItemContainerWidget::caculateColumn);
-
     // 信号与槽实现 top窗口按钮 控制 下载项目 展开或折叠
     connect(this->topWidget, &PixivFoldSwitchWidget::foldButtonClicked, this->itemWidget,
             &PixivItemContainerWidget::foldDownloadItems);
@@ -46,7 +43,7 @@ void PixivSubWidget::resizeEvent(QResizeEvent* ev) {
     this->itemWidget->resize(sizeHint());
     if (abs(this->width() - wWidth) > 7) {
         wWidth = this->width();
-        emit sizeChangedSignal();
+        itemWidget->caculateColumn();
     }
 }
 

@@ -5,7 +5,6 @@
 
 // 更改PixivCookie的窗口
 class SettingCookieWidget final : public TranslucentWidget {
-    Q_OBJECT
   public:
     explicit SettingCookieWidget();
     ~SettingCookieWidget() = default;
@@ -14,10 +13,11 @@ class SettingCookieWidget final : public TranslucentWidget {
     SettingCookieWidget& operator=(const SettingCookieWidget&) = delete;
     SettingCookieWidget(SettingCookieWidget&&) = delete;
     SettingCookieWidget& operator=(SettingCookieWidget&&) = delete;
-  public slots:
+
+  private:
     void saveCookie();   // 更改_pixivCookie,并设置pixiv cookie文本框为只读
     void turnEditable(); // 设置pixiv cookie文本框可编辑
-  private:
+
     // 标题标签
     TextLabel* title;
     // 显示当前cookie的文本框

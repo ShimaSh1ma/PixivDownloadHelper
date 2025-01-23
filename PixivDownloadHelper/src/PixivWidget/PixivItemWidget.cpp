@@ -1,5 +1,6 @@
 ﻿#include "PixivWidget/PixivItemWidget.h"
 
+#include <memory>
 #include <regex>
 #include <thread>
 
@@ -56,15 +57,13 @@ void PixivItemPreview::loadPreviewImage(const std::string& imagePath) {
     this->previewImagePath = imagePath;
 
     auto f = [&]() {
-        QPixmap* pix = new QPixmap(this->previewImagePath.c_str()); // 加载缩略图
+        auto pix = std::make_unique<QPixmap>(this->previewImagePath.c_str()); // 加载缩略图
         previewImage->setPixmap(
             pix->scaled(previewImage->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation)); // 缩放缩略图适应窗口大小
-        delete pix;
     };
 
     std::thread thd(f);
     thd.detach();
-    return;
 }
 
 // PixivItemState
@@ -158,13 +157,6 @@ PixivItemWidget::PixivItemWidget(const std::string& _url, const std::string& _pa
     // 设置preview窗口折叠或者展开
     previewWidget->setVisible(foldOrUnfold);
 
-    // 信号与槽连接
-    connect(this, &PixivItemWidget::downloadProgressSignal, this->stateWidget,
-            &PixivItemState::setProgress); // 接收下载进度变化并刷新显示
-
-    connect(this, &PixivItemWidget::previewImageSignal, this->previewWidget,
-            &PixivItemPreview::loadPreviewImage); // 收到缩略图路径信号，更新缩略图
-
     // 布局管理
     layout->addWidget(titleWidget);
     layout->addStretch(1);
@@ -191,9 +183,7 @@ void PixivItemWidget::previewWidgetVisiable(bool visiable) {
 void PixivItemWidget::mouseDoubleClickEvent(QMouseEvent* mouseE) {
     if (mouseE->button() == Qt::LeftButton) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(this->downloadPath.c_str()));
-        return;
     }
-    return;
 }
 
 void PixivItemWidget::checkUrlType() {
@@ -202,10 +192,8 @@ void PixivItemWidget::checkUrlType() {
     std::string url = downloadUrl;
     if (std::regex_match(url, re, ruleTelegram)) {
         this->telegramDownload();
-        return;
     } else {
         this->pixivDownload();
-        return;
     }
 }
 
@@ -267,8 +255,10 @@ void PixivItemWidget::pixivDownload() {
         // 提取图片url,存放url进向量数组
         std::vector<std::string> Vurl = parserHtml(json, REGEX_PIXIV_ILLUST);
         int total = static_cast<int>(Vurl.size());
-        int success = 0;                             // 下载成功个数
-        emit downloadProgressSignal(total, success); // 发送信号使下载窗口更新显示
+        int success = 0; // 下载成功个数
+
+        // 更新进度显示窗口
+        stateWidget->setProgress(total, success);
 
         std::vector<std::string>::iterator it = Vurl.begin();
 
@@ -311,26 +301,26 @@ void PixivItemWidget::pixivDownload() {
                         ++it;
                         if (success == 1) {
                             // 获取第一张图片作为下载项目的预览缩略图
-                            emit previewImageSignal(filePath);
+                            previewWidget->loadPreviewImage(filePath);
                         }
-                        emit downloadProgressSignal(total, success); // 发送信号使下载窗口更新显示
+                        // 更新进度显示窗口
+                        stateWidget->setProgress(total, success);
                     }
                 }
-                filePath = {}; // 文件名重置
+                filePath.clear(); // 文件名重置
             }
         }
-
+        // 释放网络连接
         ClientSocket::releaseSocket(socketIdx);
-
         // 将下载状态置为下载完成
         this->stateWidget->setState(downloadState::SUCCESS);
-        emit downloadCompleteSignal(); // 发射下载完成信号
-        return;
+        if (completeFunction) {
+            completeFunction(getUrl(), getPath());
+        }
     };
 
     std::thread t(f);
     t.detach();
-    return;
 }
 
 void PixivItemWidget::telegramDownload() {

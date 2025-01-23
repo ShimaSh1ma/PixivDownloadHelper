@@ -6,7 +6,6 @@
 
 // 用scrollarea提供滚动条显示PixivDownloadItemWidget
 class PixivSubWidget final : public TransparentWidget {
-    Q_OBJECT
   public:
     explicit PixivSubWidget();
     ~PixivSubWidget() = default;
@@ -19,8 +18,6 @@ class PixivSubWidget final : public TransparentWidget {
     void checkUrl(const std::string& url);
     // 窗口重绘
     void onChangedRepaint();
-  signals:
-    void sizeChangedSignal();
 
   private:
     // pixiv下载上方窗口

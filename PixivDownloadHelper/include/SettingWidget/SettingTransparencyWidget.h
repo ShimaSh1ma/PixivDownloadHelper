@@ -14,12 +14,13 @@ class SettingTransparencyWidget final : public TranslucentWidget {
     SettingTransparencyWidget& operator=(const SettingTransparencyWidget&) = delete;
     SettingTransparencyWidget(SettingTransparencyWidget&&) = delete;
     SettingTransparencyWidget& operator=(SettingTransparencyWidget&&) = delete;
-  public slots:
-    void saveTranparency(); // 保存透明度设置
+
   signals:
     void sliderValueChange(int value);
 
   private:
+    void saveTranparency(); // 保存透明度设置
+
     // 标题标签
     TextLabel* title;
     // 滑动条
