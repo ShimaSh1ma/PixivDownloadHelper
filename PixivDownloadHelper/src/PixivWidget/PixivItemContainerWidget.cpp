@@ -14,7 +14,7 @@
 
 #include "publicFunction.h"
 
-constexpr uint8_t maxDownloadingCounts = 3;
+constexpr uint8_t MAX_ACTIVE_COUNTS = 3;
 // 下载项目数组共享锁
 std::shared_mutex vectorMutex;
 
@@ -72,15 +72,10 @@ void PixivItemContainerWidget::checkUrl(const std::string& url) { // 判断url�
     // url格式正确则创建下载项目
     if (std::regex_match(url, re, urlSingleWork) || std::regex_match(url, re, ruleTelegram)) { // 单个作品的url
         addDownloadItem(url, _downloadPath);
-        return;
     } else if (std::regex_match(url, re, ruleAll)) { // url为用户所有作品
         getPixivAllIllustsUrl(re[1].str());
-        return;
     } else if (std::regex_match(url, re, ruleTags)) { // url为用户筛选后作品
         getPixivTaggedIllustsUrl(re[1].str(), re[2].str());
-        return;
-    } else {
-        return;
     }
 }
 
@@ -98,14 +93,14 @@ void PixivItemContainerWidget::getPixivAllIllustsUrl(const std::string& id) {
 
         std::string json;
         std::string respCode;
-        int SFD = -1;
+        int sIndex = -1;
 
         while (respCode != "200") {
-            if (SFD == -1) {
-                SFD = ClientSocket::connectToServer(urlP->host, "443");
-                if (SFD != -1) {
-                    if (ClientSocket::socketSend(SFD, httpRequest->httpRequest())) {
-                        std::unique_ptr<HttpResponseParser> resp = ClientSocket::socketReceive(SFD);
+            if (sIndex == -1) {
+                sIndex = ClientSocket::connectToServer(urlP->host, "443");
+                if (sIndex != -1) {
+                    if (ClientSocket::socketSend(sIndex, httpRequest->httpRequest())) {
+                        std::unique_ptr<HttpResponseParser> resp = ClientSocket::socketReceive(sIndex);
                         if (resp == nullptr) {
                             continue;
                         }
@@ -116,7 +111,7 @@ void PixivItemContainerWidget::getPixivAllIllustsUrl(const std::string& id) {
                     }
                 }
             }
-            ClientSocket::releaseSocket(SFD);
+            ClientSocket::releaseSocket(sIndex);
         }
 
         // json illusts值匹配规则
@@ -168,14 +163,14 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
 
             std::string json;
             std::string respCode;
-            int SFD = -1;
+            int sIndex = -1;
 
             while (respCode != "200") {
-                if (SFD == -1) {
-                    SFD = ClientSocket::connectToServer(urlP->host, "443");
-                    if (SFD != -1) {
-                        if (ClientSocket::socketSend(SFD, httpRequest->httpRequest())) {
-                            std::unique_ptr<HttpResponseParser> resp = ClientSocket::socketReceive(SFD);
+                if (sIndex == -1) {
+                    sIndex = ClientSocket::connectToServer(urlP->host, "443");
+                    if (sIndex != -1) {
+                        if (ClientSocket::socketSend(sIndex, httpRequest->httpRequest())) {
+                            std::unique_ptr<HttpResponseParser> resp = ClientSocket::socketReceive(sIndex);
                             if (resp == nullptr) {
                                 continue;
                             }
@@ -186,7 +181,7 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
                         }
                     }
                 }
-                ClientSocket::releaseSocket(SFD);
+                ClientSocket::releaseSocket(sIndex);
             }
 
             std::smatch re{};
@@ -217,8 +212,6 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
             }
             page++; // 页面数加一
         } while (page < pageCount);
-
-        return;
     };
 
     std::thread t(lambda);
@@ -226,29 +219,30 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
 }
 
 void PixivItemContainerWidget::startDownload() {
-    std::uint64_t expectValue = lastActiveItemIndex.load();
-    if (expectValue >= itemArray.size() - 1) {
-        return;
-    }
-    if (activeItemCounts.load() >= maxDownloadingCounts) {
-        return;
-    }
+    while (activeItemCounts.load() < MAX_ACTIVE_COUNTS) {
+        std::uint64_t expectValue = lastActiveItemIndex.load();
+        if (expectValue >= itemArray.size() - 1) {
+            return;
+        }
+        if (lastActiveItemIndex.compare_exchange_weak(expectValue, expectValue + 1)) {
+            std::shared_lock<std::shared_mutex> sharedlock(vectorMutex);
+            PixivItemWidget& activeItem = *itemArray[expectValue];
+            sharedlock.unlock();
 
-    if (lastActiveItemIndex.compare_exchange_weak(expectValue, expectValue + 1)) {
-        activeItemCounts.fetch_add(1);
-        // 完成下载后的回调
-        std::function completeFunction = [this](const std::string& url, const std::string& path) {
-            // 删除此条下载信息
-            deleteDownloadData(url + "\n" + path);
-            // 正在下载数减1
-            activeItemCounts.fetch_sub(1);
-            // 继续唤起下载
-            startDownload();
-        };
-        itemArray[expectValue + 1]->completeFunction = completeFunction;
-        itemArray[expectValue + 1]->checkUrlType(); // 开始下载
+            activeItemCounts.fetch_add(1);
+            // 完成下载后的回调
+            std::function completeFunction = [this](const std::string& url, const std::string& path) {
+                // 删除此条下载信息
+                deleteDownloadData(url + "\n" + path);
+                // 正在下载数减1
+                activeItemCounts.fetch_sub(1);
+                // 继续唤起下载
+                startDownload();
+            };
+            activeItem.completeFunction = completeFunction;
+            activeItem.checkUrlType(); // 开始下载
+        }
     }
-    startDownload();
 }
 
 void PixivItemContainerWidget::caculateColumn() {
@@ -258,7 +252,7 @@ void PixivItemContainerWidget::caculateColumn() {
     int minLength = this->column * PIXIV_DOWNLOAD_ITEM_MIN_WIDTH // 下限
                     + (this->column - 1) * this->Glayout->spacing();
 
-    // 超出区间则更新列数，并发送更新布局的信号
+    // 超出区间则更新列数
     if (this->width() < minLength || this->width() > maxLength) {
         this->column = this->size().width() / (PIXIV_DOWNLOAD_ITEM_MIN_WIDTH + this->Glayout->spacing());
         if (this->column == 0) {
