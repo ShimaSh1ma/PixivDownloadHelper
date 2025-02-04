@@ -7,6 +7,7 @@
 
 // pixiv下载项目总览窗口
 class PixivItemContainerWidget final : public TransparentWidget {
+    Q_OBJECT
   public:
     explicit PixivItemContainerWidget(); // 构造函数
     ~PixivItemContainerWidget() = default;
@@ -25,6 +26,8 @@ class PixivItemContainerWidget final : public TransparentWidget {
     void foldDownloadItems();   // 折叠所有下载项目
     void unfoldDownloadItems(); // 展开所有下载项目
 
+signals:
+    void addItemSignal(std::string url,std::string path);
   private:
     void startDownload();                              // 开始下载
     void getPixivAllIllustsUrl(const std::string& id); // 获取用户所有作品url

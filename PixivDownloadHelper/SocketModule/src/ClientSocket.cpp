@@ -14,6 +14,7 @@
 #include <cstring>
 #include <limits>
 #include <random>
+#include <iostream>
 
 #include <shared_mutex>
 
@@ -247,6 +248,7 @@ bool ClientSocket::socketSend(socketIndex& index, const std::string& msg) {
             }
             _socket.errorLog = _M_SSL_WRITE_ERR + _socket.result;
             deleteSocket(index);
+            std::cout << _socket.errorLog;
             return false;
         } else {
             sentLength += _socket.result;

@@ -24,12 +24,12 @@ build/
 
 *.pro
 
-#*.sln
+*.sln
 
-#*.vcxproj
+*.vcxproj
 
-#*.filters
+*.filters
 
-#*.user
+*.user
 
 CMakeSettings.json

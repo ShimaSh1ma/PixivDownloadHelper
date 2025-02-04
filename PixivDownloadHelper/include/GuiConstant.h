@@ -45,7 +45,7 @@ constexpr const char* REGEX_PIXIV_ILLUST = "https://i.pximg.net/img-original[^\"
 // pixiv单个作品  url匹配规则
 constexpr const char* REGEX_PIXIV_ARTWORK = "https://www.pixiv.net/artworks/[\\d]{8,9}";
 // pixiv一个用户所有作品  url匹配规则
-constexpr const char* REGEX_PIXIV_USER_ALL = "https://www.pixiv.net/users/([\\d]{1,8})(?:/artworks)?";
+constexpr const char* REGEX_PIXIV_USER_ALL = "https://www.pixiv.net/users/([\\d]{1,9})(?:/artworks)?";
 // pixiv一个用户筛选后作品  url匹配规则
 constexpr const char* REGEX_PIXIV_USER_TAGGED =
     "https://www.pixiv.net/users/([\\d]{1,8})/(?:artworks|illustrations)/(.+)?";

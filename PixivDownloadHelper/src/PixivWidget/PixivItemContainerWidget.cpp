@@ -35,6 +35,8 @@ PixivItemContainerWidget::PixivItemContainerWidget() : TransparentWidget() {
     // 设置聚焦策略
     this->setFocusPolicy(Qt::FocusPolicy::TabFocus);
 
+    connect(this, &PixivItemContainerWidget::addItemSignal, this, &PixivItemContainerWidget::addDownloadItem);
+
     Glayout->setMargin(0);               // 布局周围间距为零
     Glayout->setAlignment(Qt::AlignTop); // 默认上对齐
     this->setLayout(Glayout);
@@ -131,7 +133,7 @@ void PixivItemContainerWidget::getPixivAllIllustsUrl(const std::string& id) {
                 // 作品id转换为url
                 urlV.push_back("https://www.pixiv.net/artworks/" + re[1].str());
                 // 发送带有url的信号新建下载窗口
-                addDownloadItem(urlV.back(), _downloadPath);
+                addItemSignal(urlV.back(), _downloadPath);
                 // 更改偏移量，继续匹配
                 begin = re[1].second;
             }
@@ -206,7 +208,7 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
             while (std::regex_search(begin, end, re, rule)) {
                 // 作品id转换为url
                 url.push_back("https://www.pixiv.net/artworks/" + re[1].str());
-                addDownloadItem(url.back(), _downloadPath);
+                addItemSignal(url.back(), _downloadPath);
                 // 更改偏移量，继续匹配
                 begin = re[1].second;
             }
@@ -221,7 +223,7 @@ void PixivItemContainerWidget::getPixivTaggedIllustsUrl(const std::string& id, c
 void PixivItemContainerWidget::startDownload() {
     while (activeItemCounts.load() < MAX_ACTIVE_COUNTS) {
         std::uint64_t expectValue = lastActiveItemIndex.load();
-        if (expectValue >= itemArray.size() - 1) {
+        if (expectValue > itemArray.size() - 1) {
             return;
         }
         if (lastActiveItemIndex.compare_exchange_weak(expectValue, expectValue + 1)) {
@@ -330,7 +332,7 @@ void PixivItemContainerWidget::loadDownloadData() {
                 url = buf;
                 std::getline(i, buf);
                 path = buf;
-                this->addDownloadItem(url, path);
+                addItemSignal(url, path);
             }
             i.close();
         }

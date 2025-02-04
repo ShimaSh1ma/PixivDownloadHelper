@@ -228,7 +228,7 @@ void PixivItemWidget::pixivDownload() {
         while (respCode != "200") {
             if (SFD == -1) {
                 SFD = ClientSocket::connectToServer(urlP->host, "443");
-                if (flag) {
+                if (flag && SFD == -1) {
                     // 更改状态为http请求失败
                     this->stateWidget->setState(downloadState::HTTPREQUESTFAILED);
                     flag = false;

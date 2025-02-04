@@ -210,7 +210,7 @@ TransparentTextEdit::TransparentTextEdit() {
 void TransparentTextEdit::wheelEvent(QWheelEvent* wheelEvent) {
     if (wheelEvent->source() == Qt::MouseEventNotSynthesized) {
         verticalScrollAnimation->stop();
-        verticalScrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->pixelDelta().y());
+        verticalScrollAnimation->setEndValue(this->verticalScrollBar()->value() - wheelEvent->pixelDelta().y() / 20);
         verticalScrollAnimation->start();
         wheelEvent->accept();
     } else {
