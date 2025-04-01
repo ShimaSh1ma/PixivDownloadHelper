@@ -1,6 +1,7 @@
 ﻿#include "publicFunction.h"
 
 #if defined(_WIN32)
+#include "Windows.h"
 #include <direct.h>
 #include <io.h>
 #endif
@@ -134,13 +135,16 @@ void saveFile(const std::string& dir, const std::string& data) {
 }
 
 std::string processChineseCodec(const std::string& str) {
-    std::string retStr;
+    std::string retStr = str;
 #if defined(_WIN32)
-    // 文件路径utf-8转GB2312，确保正确处理中文路径
-    QTextCodec* code = QTextCodec::codecForName("GB2312");
-    retStr = code->fromUnicode(str.c_str()).toStdString();
+    // 获取本机中文编码
+    UINT codec = GetACP();
+    if (codec == 936) {
+        // 文件路径utf-8转GB2312，确保正确处理中文路径
+         QTextCodec* code = QTextCodec::codecForName("GB2312");
+         retStr = code->fromUnicode(str.c_str()).toStdString();
+    }
 #elif defined(__APPLE__)
-    retStr = str;
 #endif
     return retStr;
 }
