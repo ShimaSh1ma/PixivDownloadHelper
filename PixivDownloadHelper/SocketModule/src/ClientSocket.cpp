@@ -14,7 +14,6 @@
 #include <cstring>
 #include <limits>
 #include <random>
-#include <iostream>
 
 #include <shared_mutex>
 
@@ -26,7 +25,7 @@ enum class selectType {
 };
 
 // 读写socket池并发控制锁
-static std::shared_mutex writeMutex;
+static std::shared_mutex socketPoolMutex;
 
 constexpr const size_t timeWaitSeconds = 5;
 
@@ -73,7 +72,7 @@ socketIndex ClientSocket::creatSocket(const std::string& _host, const std::strin
 
     socketIndex index;
     bool isIndexUnique = false;
-    std::unique_lock<std::shared_mutex> uniquelock(writeMutex);
+    std::unique_lock<std::shared_mutex> uniquelock(socketPoolMutex);
     do {
         index = distribution(mt);
         isIndexUnique = socketPool.find(index) == socketPool.end();
@@ -84,7 +83,7 @@ socketIndex ClientSocket::creatSocket(const std::string& _host, const std::strin
 }
 
 MSocket* ClientSocket::findSocket(socketIndex& index) {
-    std::shared_lock<std::shared_mutex> sharedlock(writeMutex);
+    std::shared_lock<std::shared_mutex> sharedlock(socketPoolMutex);
     auto it = socketPool.find(index);
     if (it == socketPool.end()) {
         index = -1;
@@ -100,7 +99,7 @@ void ClientSocket::deleteSocket(socketIndex& index) {
 }
 
 socketIndex ClientSocket::reuseSocket(const std::string& _host) {
-    std::shared_lock<std::shared_mutex> sharedlock(writeMutex);
+    std::shared_lock<std::shared_mutex> sharedlock(socketPoolMutex);
     for (const auto& pair : socketPool) {
         if (pair.second->getHost() != _host) {
             continue;
@@ -249,7 +248,6 @@ bool ClientSocket::socketSend(socketIndex& index, const std::string& msg) {
             }
             _socket.errorLog = _M_SSL_WRITE_ERR + _socket.result;
             deleteSocket(index);
-            std::cout << _socket.errorLog;
             return false;
         } else {
             sentLength += _socket.result;
