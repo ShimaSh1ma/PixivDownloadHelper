@@ -94,6 +94,7 @@ MSocket* ClientSocket::findSocket(socketIndex& index) {
 }
 
 void ClientSocket::deleteSocket(socketIndex& index) {
+    std::unique_lock<std::shared_mutex> uniquelock(writeMutex);
     socketPool.erase(index);
     index = -1;
 }
